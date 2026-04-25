@@ -849,6 +849,7 @@ body.light .theme-toggle{background:var(--dark3);border-color:var(--border2)}
   <p id="printSubtitle">تقرير مفصّل • المملكة العربية السعودية</p>
 </div>
 
+<div class="ov" id="mCase"><div class="modal">
   <div class="mh">إضافة قضية جديدة <span class="mx" onclick="closeM('mCase')">×</span></div>
   <label class="fl">عنوان القضية</label><input class="fi" placeholder="أدخل عنوان القضية"/>
   <div class="fr"><div><label class="fl">نوع القضية</label><select class="fi"><option>تجاري</option><option>جنائي</option><option>أحوال شخصية</option><option>عمالي</option><option>عقاري</option><option>مدني</option></select></div><div><label class="fl">المحكمة</label><input class="fi" placeholder="اسم المحكمة"/></div></div>
@@ -992,11 +993,15 @@ function go(id,el){
 
 function openM(id){
   var el=document.getElementById(id);
-  if(el){el.classList.add('open');el.style.display='flex';}
+  if(!el){console.log('Modal not found:',id);return;}
+  el.style.display='flex';
+  el.classList.add('open');
 }
 function closeM(id){
   var el=document.getElementById(id);
-  if(el){el.classList.remove('open');el.style.display='';}
+  if(!el)return;
+  el.style.display='none';
+  el.classList.remove('open');
 }
 
 /* ---- Toast Notification ---- */

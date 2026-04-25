@@ -449,14 +449,13 @@ body.light .theme-toggle{background:var(--dark3);border-color:var(--border2)}
     </div>
     <div class="field-wrap">
       <label class="field-label">اسم المستخدم</label>
-      <input class="auth-inp" id="au" type="text" value="admin@office.sa"/>
+      <input class="auth-inp" id="au" type="text" placeholder="أدخل البريد الإلكتروني"/>
     </div>
     <div class="field-wrap">
       <label class="field-label">كلمة المرور</label>
-      <input class="auth-inp" id="ap" type="password" value="admin123"/>
+      <input class="auth-inp" id="ap" type="password" placeholder="أدخل كلمة المرور"/>
     </div>
     <button class="btn-login" onclick="doLogin()">دخول إلى النظام</button>
-    <div class="auth-hint">مدير: admin@office.sa | محامي: lawyer@office.sa | عميل: client@mail.com</div>
   </div>
 </div>
 
@@ -1033,8 +1032,8 @@ function setRole(r,el){
   curRole=r;
   document.querySelectorAll('.role-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
-  var map={manager:'admin@office.sa',lawyer:'lawyer@office.sa',client:'client@mail.com'};
-  document.getElementById('au').value=map[r];
+  document.getElementById('au').value='';
+  document.getElementById('ap').value='';
 }
 
 function doLogin(){

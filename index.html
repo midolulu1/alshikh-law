@@ -5,16 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>مكتب محمد عبدالمحسن الشيخ للمحاماة - نظام إدارة متكامل</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-<!-- Firebase SDK -->
-<script type="module">
-import{initializeApp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import{getFirestore,collection,addDoc,getDocs,doc,updateDoc,deleteDoc,onSnapshot,query,orderBy,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-import{getAuth,signInWithEmailAndPassword,signOut,onAuthStateChanged,createUserWithEmailAndPassword}from'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-
-/* ============================================================
-   🔥 ضع بيانات مشروعك هنا من Firebase Console
-   Project Settings > Your apps > Web app > firebaseConfig
-   ============================================================ */
+<!-- Firebase SDK compat (يعمل مع onclick مباشرة) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script>
 const firebaseConfig = {
   apiKey:            "AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ",
   authDomain:        "alshikh-law.firebaseapp.com",
@@ -24,207 +19,114 @@ const firebaseConfig = {
   appId:             "1:320725230314:web:2ba25d938fe28bc0c52d93"
 };
 
-const app  = initializeApp(firebaseConfig);
-const db   = getFirestore(app);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
+var db   = firebase.firestore();
+var auth = firebase.auth();
 
 /* -------- Auth state -------- */
-onAuthStateChanged(auth, user => {
+auth.onAuthStateChanged(function(user){
   window._fbUser = user;
-  if(user){
-    document.getElementById('fbStatusDot').style.background='#3DAA70';
-    document.getElementById('fbStatusTxt').textContent='Firebase: متصل ✓';
-  } else {
-    document.getElementById('fbStatusDot').style.background='#E07080';
-    document.getElementById('fbStatusTxt').textContent='Firebase: غير متصل';
+  var dot = document.getElementById('fbStatusDot');
+  var txt = document.getElementById('fbStatusTxt');
+  if(dot && txt){
+    if(user){ dot.style.background='#3DAA70'; txt.textContent='Firebase: متصل ✓'; }
+    else     { dot.style.background='#E07080'; txt.textContent='Firebase: غير متصل'; }
   }
 });
 
 /* -------- تسجيل الدخول -------- */
-window.fbLogin = async function(email, password){
-  try{
-    const cred = await signInWithEmailAndPassword(auth, email, password);
-    return {ok:true, user:cred.user};
-  } catch(e){
-    // إذا المستخدم مش موجود، أنشئه (أول مرة فقط للمدير)
-    if(e.code==='auth/user-not-found'||e.code==='auth/invalid-credential'){
-      try{
-        const cred2 = await createUserWithEmailAndPassword(auth, email, password);
-        return {ok:true, user:cred2.user};
-      } catch(e2){ return {ok:false, err:e2.message}; }
-    }
-    return {ok:false, err:e.message};
-  }
+window.fbLogin = function(email, password){
+  return auth.signInWithEmailAndPassword(email, password)
+    .then(function(cred){ return {ok:true, user:cred.user}; })
+    .catch(function(e){ return {ok:false, err:e.message}; });
 };
 
 /* -------- تسجيل الخروج -------- */
-window.fbLogout = async function(){ await signOut(auth); };
+window.fbLogout = function(){ return auth.signOut(); };
 
-/* ============================================================
-   CASES — القضايا
-   ============================================================ */
-window.fbAddCase = async function(data){
-  return await addDoc(collection(db,'cases'),{...data, createdAt:serverTimestamp()});
+/* ============================================================ CASES */
+window.fbAddCase = function(data){
+  return db.collection('cases').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
-window.fbLoadCases = async function(){
-  const q   = query(collection(db,'cases'), orderBy('createdAt','desc'));
-  const snap= await getDocs(q);
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
-};
-window.fbUpdateCase = async function(id,data){
-  await updateDoc(doc(db,'cases',id),{...data, updatedAt:serverTimestamp()});
-};
-window.fbDeleteCase = async function(id){
-  await deleteDoc(doc(db,'cases',id));
+window.fbLoadCases = function(){
+  return db.collection('cases').orderBy('createdAt','desc').get()
+    .then(function(snap){ return snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }); });
 };
 window.fbWatchCases = function(cb){
-  const q = query(collection(db,'cases'), orderBy('createdAt','desc'));
-  return onSnapshot(q, snap=>{
-    cb(snap.docs.map(d=>({id:d.id,...d.data()})));
+  return db.collection('cases').orderBy('createdAt','desc').onSnapshot(function(snap){
+    cb(snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); }));
   });
 };
 
-/* ============================================================
-   CLIENTS — العملاء
-   ============================================================ */
-window.fbAddClient = async function(data){
-  return await addDoc(collection(db,'clients'),{...data, createdAt:serverTimestamp()});
-};
-window.fbLoadClients = async function(){
-  const q   = query(collection(db,'clients'), orderBy('createdAt','desc'));
-  const snap= await getDocs(q);
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
-};
-window.fbUpdateClient = async function(id,data){
-  await updateDoc(doc(db,'clients',id),data);
-};
-window.fbDeleteClient = async function(id){
-  await deleteDoc(doc(db,'clients',id));
+/* ============================================================ CLIENTS */
+window.fbAddClient = function(data){
+  return db.collection('clients').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
-/* ============================================================
-   HEARINGS — الجلسات
-   ============================================================ */
-window.fbAddHearing = async function(data){
-  return await addDoc(collection(db,'hearings'),{...data, createdAt:serverTimestamp()});
-};
-window.fbLoadHearings = async function(){
-  const snap= await getDocs(query(collection(db,'hearings'), orderBy('createdAt','desc')));
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
-};
-window.fbWatchHearings = function(cb){
-  return onSnapshot(query(collection(db,'hearings'), orderBy('createdAt','desc')),
-    snap=>cb(snap.docs.map(d=>({id:d.id,...d.data()}))));
+/* ============================================================ HEARINGS */
+window.fbAddHearing = function(data){
+  return db.collection('hearings').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
-/* ============================================================
-   APPOINTMENTS — المواعيد
-   ============================================================ */
-window.fbAddAppointment = async function(data){
-  return await addDoc(collection(db,'appointments'),{...data, createdAt:serverTimestamp()});
-};
-window.fbLoadAppointments = async function(){
-  const snap= await getDocs(query(collection(db,'appointments'), orderBy('date','asc')));
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
+/* ============================================================ APPOINTMENTS */
+window.fbAddAppointment = function(data){
+  return db.collection('appointments').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
-/* ============================================================
-   MEMOS — المذكرات
-   ============================================================ */
-window.fbAddMemo = async function(data){
-  return await addDoc(collection(db,'memos'),{...data, createdAt:serverTimestamp()});
-};
-window.fbLoadMemos = async function(){
-  const snap= await getDocs(query(collection(db,'memos'), orderBy('createdAt','desc')));
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
+/* ============================================================ MEMOS */
+window.fbAddMemo = function(data){
+  return db.collection('memos').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
-/* ============================================================
-   BILLING — الفواتير
-   ============================================================ */
-window.fbAddInvoice = async function(data){
-  return await addDoc(collection(db,'invoices'),{...data, createdAt:serverTimestamp()});
-};
-window.fbLoadInvoices = async function(){
-  const snap= await getDocs(query(collection(db,'invoices'), orderBy('createdAt','desc')));
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
+/* ============================================================ BILLING */
+window.fbAddInvoice = function(data){
+  return db.collection('invoices').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
-/* ============================================================
-   CALENDAR EVENTS — مذكرة التواريخ
-   ============================================================ */
-window.fbAddCalEvent = async function(data){
-  return await addDoc(collection(db,'calEvents'),{...data, createdAt:serverTimestamp()});
-};
-window.fbLoadCalEvents = async function(){
-  const snap= await getDocs(collection(db,'calEvents'));
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
+/* ============================================================ CALENDAR */
+window.fbAddCalEvent = function(data){
+  return db.collection('calEvents').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
-/* ============================================================
-   TASKS — المهام
-   ============================================================ */
-window.fbAddTask = async function(data){
-  return await addDoc(collection(db,'tasks'),{...data, createdAt:serverTimestamp()});
-};
-window.fbLoadTasks = async function(){
-  const snap= await getDocs(query(collection(db,'tasks'), orderBy('createdAt','desc')));
-  return snap.docs.map(d=>({id:d.id,...d.data()}));
+/* ============================================================ TASKS */
+window.fbAddTask = function(data){
+  return db.collection('tasks').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
-/* ============================================================
-   HELPERS — دوال مساعدة مشتركة
-   ============================================================ */
-window.fbReady = true;
-
-// تحديث أرقام الإحصاءات من Firebase
-window.refreshStats = async function(){
-  try{
-    const [cases,clients,hearings] = await Promise.all([
-      getDocs(collection(db,'cases')),
-      getDocs(collection(db,'clients')),
-      getDocs(collection(db,'hearings'))
-    ]);
-    const activeCases = cases.docs.filter(d=>d.data().status==='نشطة').length;
-    const el1=document.getElementById('statCases');
-    const el2=document.getElementById('statClients');
-    const el3=document.getElementById('statHearings');
-    if(el1) el1.textContent = activeCases || cases.size;
+/* -------- تحديث الإحصاءات -------- */
+window.refreshStats = function(){
+  Promise.all([
+    db.collection('cases').get(),
+    db.collection('clients').get(),
+    db.collection('hearings').get()
+  ]).then(function(results){
+    var cases=results[0], clients=results[1], hearings=results[2];
+    var active=cases.docs.filter(function(d){return d.data().status==='نشطة';}).length;
+    var el1=document.getElementById('statCases');
+    var el2=document.getElementById('statClients');
+    var el3=document.getElementById('statHearings');
+    if(el1) el1.textContent = active||cases.size;
     if(el2) el2.textContent = clients.size;
     if(el3) el3.textContent = hearings.size;
-  } catch(e){ console.log('Stats refresh:',e.message); }
+  }).catch(function(e){ console.log('stats:',e.message); });
 };
 
-// مراقبة القضايا في الوقت الفعلي وتحديث الجدول
+/* -------- مراقبة القضايا -------- */
 window.watchAndRenderCases = function(){
-  if(!window.fbWatchCases) return;
-  window.fbWatchCases(cases=>{
-    const tbody = document.querySelector('#sec-cases .tbl tbody');
+  db.collection('cases').orderBy('createdAt','desc').onSnapshot(function(snap){
+    if(snap.empty) return;
+    var tbody=document.querySelector('#sec-cases .tbl tbody');
     if(!tbody) return;
-    if(cases.length===0) return;
-    tbody.innerHTML = cases.map(c=>`
-      <tr>
-        <td class="case-no">${c.number||'—'}</td>
-        <td>${c.title||'—'}</td>
-        <td>${c.client||'—'}</td>
-        <td>${c.court||'—'}</td>
-        <td>${c.type||'—'}</td>
-        <td>${c.lawyer||'—'}</td>
-        <td>${c.nextHearing||'—'}</td>
-        <td><span class="badge ${statusClass(c.status)}">${c.status||'—'}</span></td>
-      </tr>`).join('');
-    refreshStats();
+    tbody.innerHTML=snap.docs.map(function(d){
+      var c=d.data();
+      var sc=c.status==='نشطة'?'b-active':c.status==='عاجلة'?'b-urgent':c.status==='مغلقة'?'b-closed':'b-pending';
+      return '<tr><td class="case-no">'+(c.number||'—')+'</td><td>'+(c.title||'—')+'</td><td>'+(c.client||'—')+'</td><td>'+(c.court||'—')+'</td><td>'+(c.type||'—')+'</td><td>'+(c.lawyer||'—')+'</td><td>'+(c.nextHearing||'—')+'</td><td><span class="badge '+sc+'">'+(c.status||'—')+'</span></td></tr>';
+    }).join('');
+    window.refreshStats();
   });
 };
 
-function statusClass(s){
-  if(s==='نشطة') return 'b-active';
-  if(s==='عاجلة') return 'b-urgent';
-  if(s==='مغلقة') return 'b-closed';
-  return 'b-pending';
-}
-
-console.log('🔥 Firebase جاهز');
+console.log('🔥 Firebase compat جاهز');
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}

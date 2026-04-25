@@ -247,8 +247,8 @@ textarea.fi{resize:vertical;min-height:70px}
       <!-- العملاء -->
       <div class="sec" id="sec-clients">
         <div class="pact"><button class="add-btn" onclick="openM('mClient')">＋ إضافة عميل</button><div class="tot">إجمالي: <span id="tot-clients">0</span></div></div>
-        <div class="card"><table class="tbl"><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>المدينة</th></tr></thead>
-        <tbody id="tb-clients"><tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+        <div class="card"><table class="tbl"><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th></tr></thead>
+        <tbody id="tb-clients"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
       </div>
 
       <!-- الجلسات -->
@@ -331,8 +331,8 @@ textarea.fi{resize:vertical;min-height:70px}
       <div><label class="fl">المحكمة</label><input class="fi" id="c_co" placeholder="اسم المحكمة"/></div>
     </div>
     <div class="fr">
-      <div><label class="fl">العميل</label><input class="fi" id="c_cl" placeholder="اسم العميل"/></div>
-      <div><label class="fl">المحامي</label><input class="fi" id="c_la" placeholder="اسم المحامي"/></div>
+      <div><label class="fl">العميل</label><select class="fi" id="c_cl"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">المحامي المسؤول</label><select class="fi" id="c_la"><option value="">-- اختر المحامي --</option></select></div>
     </div>
     <div class="fr">
       <div><label class="fl">التاريخ</label><input class="fi" id="c_d" type="date"/></div>
@@ -349,7 +349,7 @@ textarea.fi{resize:vertical;min-height:70px}
     <div class="mh">إضافة عميل <span class="mx" onclick="closeM('mClient')">×</span></div>
     <div class="fr">
       <div><label class="fl">الاسم</label><input class="fi" id="cl_n" placeholder="اسم العميل"/></div>
-      <div><label class="fl">النوع</label><select class="fi" id="cl_ty"><option>فرد</option><option>شركة</option><option>عائلة</option><option>مؤسسة</option></select></div>
+      <div><label class="fl">النوع</label><select class="fi" id="cl_ty"><option>فرد</option><option>شركة</option><option>مؤسسة</option></select></div>
     </div>
     <div class="fr">
       <div><label class="fl">الجوال</label><input class="fi" id="cl_p" placeholder="05xxxxxxxx"/></div>
@@ -357,7 +357,11 @@ textarea.fi{resize:vertical;min-height:70px}
     </div>
     <div class="fr">
       <div><label class="fl">رقم الهوية</label><input class="fi" id="cl_i" placeholder="رقم الهوية"/></div>
+      <div><label class="fl">الرقم الموحد</label><input class="fi" id="cl_u" placeholder="الرقم الموحد"/></div>
+    </div>
+    <div class="fr">
       <div><label class="fl">المدينة</label><input class="fi" id="cl_c" placeholder="المدينة"/></div>
+      <div></div>
     </div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="cl_no" rows="2"></textarea>
     <div class="ma"><button class="btn-c" onclick="closeM('mClient')">إلغاء</button><button class="btn-s" onclick="saveClient()">حفظ العميل 🔥</button></div>
@@ -521,7 +525,11 @@ function go(id,el){
 }
 
 // ===== MODAL =====
-function openM(id){var e=document.getElementById(id);if(e)e.classList.add('open');}
+function openM(id){
+  var e=document.getElementById(id);
+  if(e)e.classList.add('open');
+  if(id==='mCase'){loadClientDropdown();loadStaffDropdown();}
+}
 function closeM(id){var e=document.getElementById(id);if(e)e.classList.remove('open');}
 document.addEventListener('click',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('ov'))closeM(e.target.id);});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ov.open').forEach(function(o){o.classList.remove('open');});});
@@ -537,7 +545,7 @@ function doSearch(v){
 }
 
 // ===== LOAD ALL =====
-function loadAll(){loadCases();loadClients();loadHearings();loadAppts();loadMemos();loadStaff();loadStats();}
+function loadAll(){loadCases();loadClients();loadHearings();loadAppts();loadMemos();loadStaff();loadStats();loadClientDropdown();loadStaffDropdown();}
 
 function g(id){return document.getElementById(id);}
 function sc(s){return s==='نشطة'?'ba':s==='عاجلة'?'bu':s==='مغلقة'?'bc':'bp';}
@@ -563,8 +571,8 @@ function loadCases(){
 function loadClients(){
   db.collection('clients').orderBy('createdAt','desc').get().then(function(snap){
     g('tot-clients').textContent=snap.size;
-    var rows=snap.docs.map(function(d){var c=d.data();return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.city||'—')+'</td></tr>';});
-    g('tb-clients').innerHTML=rows.length?rows.join(''):empty(5);
+    var rows=snap.docs.map(function(d){var c=d.data();return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td><td>'+(c.city||'—')+'</td></tr>';});
+    g('tb-clients').innerHTML=rows.length?rows.join(''):empty(7);
   }).catch(function(){});
 }
 
@@ -634,10 +642,50 @@ function saveCase(){
 
 function saveClient(){
   closeM('mClient');
-  var data={name:v('cl_n'),type:v('cl_ty'),phone:v('cl_p'),email:v('cl_e'),idNum:v('cl_i'),city:v('cl_c'),notes:v('cl_no'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
-  clr(['cl_n','cl_p','cl_e','cl_i','cl_c','cl_no']);
+  var data={name:v('cl_n'),type:v('cl_ty'),phone:v('cl_p'),email:v('cl_e'),idNum:v('cl_i'),unifiedNum:v('cl_u'),city:v('cl_c'),notes:v('cl_no'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['cl_n','cl_p','cl_e','cl_i','cl_u','cl_c','cl_no']);
   toast('جاري الحفظ...','ok');
-  db.collection('clients').add(data).then(function(){toast('✓ تم حفظ العميل','ok');loadClients();loadStats();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+  db.collection('clients').add(data).then(function(){toast('✓ تم حفظ العميل','ok');loadClients();loadStats();loadClientDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// تحميل قائمة العملاء في dropdown القضايا
+function loadClientDropdown(){
+  db.collection('clients').orderBy('createdAt','desc').get().then(function(snap){
+    var sel=document.getElementById('c_cl');
+    if(!sel)return;
+    var cur=sel.value;
+    sel.innerHTML='<option value="">-- اختر العميل --</option>';
+    snap.docs.forEach(function(d){
+      var c=d.data();
+      if(c.name){
+        var opt=document.createElement('option');
+        opt.value=c.name;
+        opt.textContent=c.name+(c.type?' ('+c.type+')':'');
+        sel.appendChild(opt);
+      }
+    });
+    if(cur)sel.value=cur;
+  }).catch(function(){});
+}
+
+// تحميل قائمة الموظفين في dropdown القضايا
+function loadStaffDropdown(){
+  db.collection('staff').orderBy('createdAt','desc').get().then(function(snap){
+    var sel=document.getElementById('c_la');
+    if(!sel)return;
+    var cur=sel.value;
+    sel.innerHTML='<option value="">-- اختر المحامي --</option>';
+    snap.docs.forEach(function(d){
+      var s=d.data();
+      if(s.name){
+        var opt=document.createElement('option');
+        opt.value=s.name;
+        opt.textContent=s.name+(s.position?' — '+s.position:'');
+        sel.appendChild(opt);
+      }
+    });
+    if(cur)sel.value=cur;
+  }).catch(function(){});
 }
 
 function saveHearing(){
@@ -669,7 +717,7 @@ function saveStaff(){
   var data={name:v('s_n'),position:v('s_p'),phone:v('s_ph'),email:v('s_e'),specialty:v('s_sp'),role:v('s_r'),status:'نشط',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
   clr(['s_n','s_ph','s_e','s_sp']);
   toast('جاري الحفظ...','ok');
-  db.collection('staff').add(data).then(function(){toast('✓ تم إضافة الموظف','ok');loadStaff();loadStats();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+  db.collection('staff').add(data).then(function(){toast('✓ تم إضافة الموظف','ok');loadStaff();loadStats();loadStaffDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
 function saveCalEvent(){

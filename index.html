@@ -146,7 +146,17 @@ textarea.fi{resize:vertical;min-height:70px}
 .ph{display:none;text-align:center;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid #B8960C}
 .ph h2{font-size:16px;font-weight:800;color:#8A6A00}
 .ph p{font-size:11px;color:#666;margin-top:3px}
-</style>
+
+.act-btns{display:flex;gap:4px}
+.act-btn{padding:4px 10px;border-radius:6px;border:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;cursor:pointer}
+.act-btn:hover{opacity:.8}
+.ab-view{background:rgba(74,144,217,.15);color:#4A90D9}
+.ab-edit{background:rgba(212,175,55,.15);color:var(--g)}
+.ab-del{background:rgba(224,112,128,.15);color:#E07080}
+.detail-row{display:flex;padding:9px 0;border-bottom:1px solid var(--br2);font-size:13px}
+.detail-row:last-child{border:none}
+.detail-lbl{width:140px;color:var(--tx2);flex-shrink:0;font-weight:600}
+.detail-val{color:var(--tx);flex:1}</style>
 </head>
 <body>
 
@@ -535,18 +545,7 @@ textarea.fi{resize:vertical;min-height:70px}
   </div>
 </div>
 
-<style>
-.act-btns{display:flex;gap:4px}
-.act-btn{padding:4px 10px;border-radius:6px;border:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:opacity .15s}
-.act-btn:hover{opacity:.8}
-.ab-view{background:rgba(74,144,217,.15);color:#4A90D9}
-.ab-edit{background:rgba(212,175,55,.15);color:var(--g)}
-.ab-del{background:rgba(224,112,128,.15);color:#E07080}
-.detail-row{display:flex;padding:9px 0;border-bottom:1px solid var(--br2);font-size:13px}
-.detail-row:last-child{border:none}
-.detail-lbl{width:140px;color:var(--tx2);flex-shrink:0;font-weight:600}
-.detail-val{color:var(--tx);flex:1}
-</style>
+<script>
 firebase.initializeApp({
   apiKey:"AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ",
   authDomain:"alshikh-law.firebaseapp.com",

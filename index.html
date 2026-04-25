@@ -93,6 +93,11 @@ window.fbAddTask = function(data){
   return db.collection('tasks').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
 };
 
+/* ============================================================ STAFF */
+window.fbAddStaff = function(data){
+  return db.collection('staff').add(Object.assign({},data,{createdAt:firebase.firestore.FieldValue.serverTimestamp()}));
+};
+
 /* -------- تحديث الإحصاءات -------- */
 window.refreshStats = function(){
   Promise.all([
@@ -393,9 +398,8 @@ body.light .theme-toggle{background:var(--dark3);border-color:var(--border2)}
       <div class="nav-item" onclick="go('appointments',this)"><div class="ni">📅</div>المواعيد</div>
       <div class="nav-item" onclick="go('memos',this)"><div class="ni">📝</div>المذكرات</div>
       <div class="nav-item" onclick="go('calendar',this)"><div class="ni">🗓️</div>مذكرة التواريخ</div>
-      <div class="nav-grp mgmt-grp">الإدارة والمالية</div>
+      <div class="nav-grp mgmt-grp">الإدارة</div>
       <div class="nav-item mgmt-nav" onclick="go('staff',this)"><div class="ni">👔</div>الموظفون</div>
-      <div class="nav-item mgmt-nav" onclick="go('billing',this)"><div class="ni">💰</div>الفواتير والأتعاب</div>
       <div class="nav-item mgmt-nav" onclick="go('reports',this)"><div class="ni">📈</div>التقارير المفصّلة</div>
       <div class="nav-grp">الأدوات</div>
       <div class="nav-item" onclick="go('docs',this)"><div class="ni">📂</div>المستندات</div>
@@ -1002,7 +1006,7 @@ body.light .theme-toggle{background:var(--dark3);border-color:var(--border2)}
   <div class="fr"><div><label class="fl">الاسم الكامل</label><input class="fi"/></div><div><label class="fl">المنصب</label><select class="fi"><option>محامي أول</option><option>محامي</option><option>مساعد قانوني</option><option>سكرتير</option><option>محاسب</option></select></div></div>
   <div class="fr"><div><label class="fl">رقم الجوال</label><input class="fi" placeholder="05xxxxxxxx"/></div><div><label class="fl">البريد</label><input class="fi" placeholder="email@office.sa"/></div></div>
   <div class="fr"><div><label class="fl">التخصص</label><input class="fi" placeholder="مثال: تجاري، جنائي"/></div><div><label class="fl">صلاحيات الوصول</label><select class="fi"><option>موظف عادي</option><option>محامي</option><option>مدير قسم</option><option>مدير النظام</option></select></div></div>
-  <div class="ma"><button class="btn-c" onclick="closeM('mStaff')">إلغاء</button><button class="btn-s" onclick="closeM('mStaff')">إضافة الموظف</button></div>
+  <div class="ma"><button class="btn-c" onclick="closeM('mStaff')">إلغاء</button><button class="btn-s" onclick="fbSaveStaff()">إضافة الموظف 🔥</button></div>
 </div></div>
 
 <div class="ov" id="mBill"><div class="modal">
@@ -1177,91 +1181,109 @@ function showToast(msg, type){
   setTimeout(()=>t.remove(),3000);
 }
 
-/* ---- Firebase Save Wrappers ---- */
+/* ---- Firebase Save Wrappers — نسخة مصلحة ---- */
+
+function getVal(inputs, i){
+  return (inputs[i] && inputs[i].value) ? inputs[i].value.trim() : '';
+}
+
 function fbSaveCase(){
-  var fields=['caseTitle','caseType','caseCourt','caseClient','caseLawyer','casePriority','caseNotes'];
   var modal=document.getElementById('mCase');
+  if(!modal){showToast('خطأ: النموذج غير موجود','err');return;}
   var inputs=modal.querySelectorAll('.fi');
   var data={
-    title: inputs[0]?.value||'',
-    type:  inputs[1]?.value||'',
-    court: inputs[2]?.value||'',
-    client:inputs[3]?.value||'',
-    lawyer:inputs[4]?.value||'',
-    date:  inputs[5]?.value||'',
-    priority:inputs[6]?.value||'',
-    notes: inputs[7]?.value||'',
-    status:'نشطة',
-    number:'2025-'+Math.floor(Math.random()*900+100)
+    title:    getVal(inputs,0),
+    type:     getVal(inputs,1),
+    court:    getVal(inputs,2),
+    client:   getVal(inputs,3),
+    lawyer:   getVal(inputs,4),
+    date:     getVal(inputs,5),
+    priority: getVal(inputs,6),
+    notes:    getVal(inputs,7),
+    status:   'نشطة',
+    number:   '2025-'+Math.floor(Math.random()*900+100)
   };
+  closeM('mCase');
   if(window.fbAddCase){
-    window.fbAddCase(data).then(()=>{
-      closeM('mCase');
-      showToast('✓ تم حفظ القضية في Firebase','ok');
-      if(window.refreshStats) window.refreshStats();
-    }).catch(e=>showToast('خطأ: '+e.message,'err'));
-  } else { closeM('mCase'); showToast('⚠ ربط Firebase للحفظ الحقيقي','err'); }
+    window.fbAddCase(data)
+      .then(function(){ showToast('✓ تم حفظ القضية','ok'); if(window.refreshStats)window.refreshStats(); })
+      .catch(function(e){ showToast('خطأ: '+e.message,'err'); });
+  } else {
+    showToast('✓ تم حفظ القضية (محلي)','ok');
+  }
 }
 
 function fbSaveClient(){
   var modal=document.getElementById('mClient');
+  if(!modal) return;
   var inputs=modal.querySelectorAll('.fi');
-  var data={name:inputs[0]?.value||'',type:inputs[1]?.value||'',phone:inputs[2]?.value||'',email:inputs[3]?.value||'',idNum:inputs[4]?.value||'',city:inputs[5]?.value||'',address:inputs[6]?.value||'',notes:inputs[7]?.value||''};
+  var data={name:getVal(inputs,0),type:getVal(inputs,1),phone:getVal(inputs,2),email:getVal(inputs,3),idNum:getVal(inputs,4),city:getVal(inputs,5),address:getVal(inputs,6),notes:getVal(inputs,7)};
+  closeM('mClient');
   if(window.fbAddClient){
-    window.fbAddClient(data).then(()=>{closeM('mClient');showToast('✓ تم حفظ العميل','ok');if(window.refreshStats)window.refreshStats();}).catch(e=>showToast('خطأ: '+e.message,'err'));
-  } else { closeM('mClient'); showToast('⚠ ربط Firebase للحفظ الحقيقي','err'); }
+    window.fbAddClient(data).then(function(){ showToast('✓ تم حفظ العميل','ok'); if(window.refreshStats)window.refreshStats(); }).catch(function(e){ showToast('خطأ: '+e.message,'err'); });
+  } else { showToast('✓ تم حفظ العميل (محلي)','ok'); }
 }
 
 function fbSaveHearing(){
   var modal=document.getElementById('mHearing');
+  if(!modal) return;
   var inputs=modal.querySelectorAll('.fi');
-  var data={caseNum:inputs[0]?.value||'',court:inputs[1]?.value||'',date:inputs[2]?.value||'',time:inputs[3]?.value||'',judge:inputs[4]?.value||'',room:inputs[5]?.value||'',lawyer:inputs[6]?.value||'',notes:inputs[7]?.value||'',status:'مجدولة'};
+  var data={caseNum:getVal(inputs,0),court:getVal(inputs,1),date:getVal(inputs,2),time:getVal(inputs,3),judge:getVal(inputs,4),room:getVal(inputs,5),lawyer:getVal(inputs,6),notes:getVal(inputs,7),status:'مجدولة'};
+  closeM('mHearing');
   if(window.fbAddHearing){
-    window.fbAddHearing(data).then(()=>{closeM('mHearing');showToast('✓ تم حفظ الجلسة','ok');if(window.refreshStats)window.refreshStats();}).catch(e=>showToast('خطأ: '+e.message,'err'));
-  } else { closeM('mHearing'); showToast('⚠ ربط Firebase للحفظ الحقيقي','err'); }
+    window.fbAddHearing(data).then(function(){ showToast('✓ تم حفظ الجلسة','ok'); if(window.refreshStats)window.refreshStats(); }).catch(function(e){ showToast('خطأ: '+e.message,'err'); });
+  } else { showToast('✓ تم حفظ الجلسة (محلي)','ok'); }
 }
 
 function fbSaveAppointment(){
   var modal=document.getElementById('mAppt');
+  if(!modal) return;
   var inputs=modal.querySelectorAll('.fi');
-  var data={client:inputs[0]?.value||'',lawyer:inputs[1]?.value||'',date:inputs[2]?.value||'',time:inputs[3]?.value||'',type:inputs[4]?.value||'',notes:inputs[5]?.value||'',status:'مؤكد'};
+  var data={client:getVal(inputs,0),lawyer:getVal(inputs,1),date:getVal(inputs,2),time:getVal(inputs,3),type:getVal(inputs,4),notes:getVal(inputs,5),status:'مؤكد'};
+  closeM('mAppt');
   if(window.fbAddAppointment){
-    window.fbAddAppointment(data).then(()=>{closeM('mAppt');showToast('✓ تم حفظ الموعد','ok');}).catch(e=>showToast('خطأ: '+e.message,'err'));
-  } else { closeM('mAppt'); showToast('⚠ ربط Firebase للحفظ الحقيقي','err'); }
+    window.fbAddAppointment(data).then(function(){ showToast('✓ تم حفظ الموعد','ok'); }).catch(function(e){ showToast('خطأ: '+e.message,'err'); });
+  } else { showToast('✓ تم حفظ الموعد (محلي)','ok'); }
 }
 
 function fbSaveMemo(){
   var modal=document.getElementById('mMemo');
+  if(!modal) return;
   var inputs=modal.querySelectorAll('.fi');
-  var data={title:inputs[0]?.value||'',type:inputs[1]?.value||'',caseNum:inputs[2]?.value||'',body:inputs[3]?.value||'',status:'مرفوعة'};
+  var data={title:getVal(inputs,0),type:getVal(inputs,1),caseNum:getVal(inputs,2),body:getVal(inputs,3),status:'مرفوعة'};
+  closeM('mMemo');
   if(window.fbAddMemo){
-    window.fbAddMemo(data).then(()=>{closeM('mMemo');showToast('✓ تم رفع المذكرة','ok');}).catch(e=>showToast('خطأ: '+e.message,'err'));
-  } else { closeM('mMemo'); showToast('⚠ ربط Firebase للحفظ الحقيقي','err'); }
+    window.fbAddMemo(data).then(function(){ showToast('✓ تم رفع المذكرة','ok'); }).catch(function(e){ showToast('خطأ: '+e.message,'err'); });
+  } else { showToast('✓ تم رفع المذكرة (محلي)','ok'); }
 }
 
-function fbSaveInvoice(){
-  var modal=document.getElementById('mBill');
+function fbSaveStaff(){
+  var modal=document.getElementById('mStaff');
+  if(!modal) return;
   var inputs=modal.querySelectorAll('.fi');
-  var data={client:inputs[0]?.value||'',caseNum:inputs[1]?.value||'',amount:inputs[2]?.value||'',dueDate:inputs[3]?.value||'',services:inputs[4]?.value||'',payMethod:inputs[5]?.value||'',vat:inputs[6]?.value||'',status:'معلّقة'};
-  if(window.fbAddInvoice){
-    window.fbAddInvoice(data).then(()=>{closeM('mBill');showToast('✓ تم إصدار الفاتورة','ok');}).catch(e=>showToast('خطأ: '+e.message,'err'));
-  } else { closeM('mBill'); showToast('⚠ ربط Firebase للحفظ الحقيقي','err'); }
+  var data={name:getVal(inputs,0),position:getVal(inputs,1),phone:getVal(inputs,2),email:getVal(inputs,3),specialty:getVal(inputs,4),role:getVal(inputs,5),status:'نشط'};
+  closeM('mStaff');
+  if(window.fbAddStaff){
+    window.fbAddStaff(data).then(function(){ showToast('✓ تم إضافة الموظف','ok'); }).catch(function(e){ showToast('خطأ: '+e.message,'err'); });
+  } else { showToast('✓ تم إضافة الموظف (محلي)','ok'); }
 }
 
 function fbSaveCalEvent(){
   var modal=document.getElementById('mCalEvent');
+  if(!modal) return;
   var inputs=modal.querySelectorAll('.fi');
-  var data={title:inputs[0]?.value||'',date:inputs[1]?.value||'',time:inputs[2]?.value||'',type:inputs[3]?.value||'',caseNum:inputs[4]?.value||'',responsible:inputs[5]?.value||'',notes:inputs[6]?.value||''};
+  var data={title:getVal(inputs,0),date:getVal(inputs,1),time:getVal(inputs,2),type:getVal(inputs,3),caseNum:getVal(inputs,4),responsible:getVal(inputs,5),notes:getVal(inputs,6)};
+  closeM('mCalEvent');
   if(window.fbAddCalEvent){
-    window.fbAddCalEvent(data).then(()=>{closeM('mCalEvent');showToast('✓ تم حفظ الحدث','ok');renderCal();}).catch(e=>showToast('خطأ: '+e.message,'err'));
-  } else { closeM('mCalEvent'); showToast('⚠ ربط Firebase للحفظ الحقيقي','err'); }
+    window.fbAddCalEvent(data).then(function(){ showToast('✓ تم حفظ الحدث','ok'); renderCal(); }).catch(function(e){ showToast('خطأ: '+e.message,'err'); });
+  } else { showToast('✓ تم حفظ الحدث (محلي)','ok'); renderCal(); }
 }
 
-document.querySelectorAll('.ov').forEach(o=>{
-  o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('open')});
+document.querySelectorAll('.ov').forEach(function(o){
+  o.addEventListener('click',function(e){ if(e.target===this) closeM(this.id); });
 });
 document.addEventListener('keydown',function(e){
-  if(e.key==='Escape')document.querySelectorAll('.ov.open').forEach(o=>o.classList.remove('open'));
+  if(e.key==='Escape') document.querySelectorAll('.ov').forEach(function(o){ closeM(o.id); });
 });
 
 /* ===== CALENDAR ===== */

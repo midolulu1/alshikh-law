@@ -938,14 +938,14 @@ function go(id,el){
   var pt=document.getElementById('pgTitle'); if(pt)pt.textContent=titles[id]||id;
   if(id==='calendar')renderCal();
   if(id==='reports')loadReports();
+  if(id==='contracts')loadContracts();
+  if(id==='casefile')loadCaseFileSelect();
+  if(id==='kanban')loadKanban();
+  if(id==='laws')loadLaws();
+  if(id==='verdicts')loadVerdicts();
 }
 
 // ===== MODAL =====
-function openM(id){
-  var e=document.getElementById(id);
-  if(e)e.classList.add('open');
-  if(id==='mCase'){loadClientDropdown();loadStaffDropdown();}
-}
 function closeM(id){var e=document.getElementById(id);if(e)e.classList.remove('open');}
 document.addEventListener('click',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('ov'))closeM(e.target.id);});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ov.open').forEach(function(o){o.classList.remove('open');});});
@@ -1394,8 +1394,8 @@ function refreshAllDropdowns(){
 function openM(id){
   var e=document.getElementById(id);
   if(e) e.classList.add('open');
-  // تحديث القوائم عند فتح أي modal
   loadAllDropdownData();
+  if(id==='mContract'||id==='mVerdict'){ refreshNewDropdowns(); }
 }
 
 // إعادة تسمية القديمة
@@ -1989,34 +1989,22 @@ function delVerdict(id){
   db.collection('verdicts').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadVerdicts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
-// تحديث loadAll و go
-var _origGo = go;
-go = function(id, el){
-  _origGo(id, el);
+// تحديث go لتشمل الأقسام الجديدة - مدمج في الدالة الأصلية أدناه
+function goExtra(id){
   if(id==='contracts') loadContracts();
   else if(id==='casefile') loadCaseFileSelect();
   else if(id==='kanban') loadKanban();
   else if(id==='laws') loadLaws();
   else if(id==='verdicts') loadVerdicts();
-};
+}
 
 // إضافة القوائم للـ dropdowns الجديدة
-var _origRefresh = refreshAllDropdowns;
-refreshAllDropdowns = function(){
-  _origRefresh();
-  fillSelect('con_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'');}}),'-- اختياري --');
+function refreshNewDropdowns(){
+  fillSelect('con_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};}),'-- اختياري --');
   fillSelect('con_p1', _clients.map(function(n){return {val:n,txt:n};}),'-- اختر العميل --');
-  fillSelect('vrd_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'');}}),'-- اختر القضية --');
+  fillSelect('vrd_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};}),'-- اختر القضية --');
   fillSelect('vrd_l', _staff.map(function(s){return {val:s.name,txt:s.name+(s.pos?' — '+s.pos:'')};}),'-- اختر المحامي --');
-  // ملف القضية
-  var cfsEl=g('casefileSelect');
-  if(cfsEl&&_cases.length){
-    var cur=cfsEl.value;
-    cfsEl.innerHTML='<option value="">-- اختر قضية --</option>';
-    _cases.forEach(function(c){cfsEl.innerHTML+='<option value="">'+c.num+(c.title?' | '+c.title:'')+'</option>';});
-    if(cur) cfsEl.value=cur;
-  }
-};
+}
 </script>
 </body>
 </html>

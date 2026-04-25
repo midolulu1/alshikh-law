@@ -240,15 +240,15 @@ textarea.fi{resize:vertical;min-height:70px}
       <!-- القضايا -->
       <div class="sec" id="sec-cases">
         <div class="pact"><button class="add-btn" onclick="openM('mCase')">＋ إضافة قضية</button><div class="tot">إجمالي: <span id="tot-cases">0</span></div></div>
-        <div class="card"><table class="tbl"><thead><tr><th>رقم</th><th>العنوان</th><th>العميل</th><th>المحكمة</th><th>النوع</th><th>المحامي</th><th>الحالة</th></tr></thead>
-        <tbody id="tb-cases"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+        <div class="card"><table class="tbl"><thead><tr><th>رقم</th><th>العنوان</th><th>العميل</th><th>المحكمة</th><th>النوع</th><th>المحامي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody id="tb-cases"><tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
       </div>
 
       <!-- العملاء -->
       <div class="sec" id="sec-clients">
         <div class="pact"><button class="add-btn" onclick="openM('mClient')">＋ إضافة عميل</button><div class="tot">إجمالي: <span id="tot-clients">0</span></div></div>
-        <div class="card"><table class="tbl"><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th></tr></thead>
-        <tbody id="tb-clients"><tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+        <div class="card"><table class="tbl"><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th><th>إجراءات</th></tr></thead>
+        <tbody id="tb-clients"><tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
       </div>
 
       <!-- الجلسات -->
@@ -460,8 +460,93 @@ textarea.fi{resize:vertical;min-height:70px}
   </div>
 </div>
 
-<script>
-// ===== FIREBASE =====
+<!-- Modal: تفاصيل وتعديل قضية -->
+<div class="ov" id="mCaseDetail">
+  <div class="modal" style="width:540px">
+    <div class="mh">تفاصيل القضية <span class="mx" onclick="closeM('mCaseDetail')">×</span></div>
+    <div id="caseDetailView"></div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br2);display:flex;gap:8px">
+      <button class="btn-s" style="flex:1" onclick="switchToEdit()">✏️ تعديل</button>
+      <button class="btn-c" style="flex:1;color:#E07080;border-color:rgba(224,112,128,.4)" onclick="deleteCurrentCase()">🗑️ حذف</button>
+      <button class="btn-c" onclick="closeM('mCaseDetail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: تعديل قضية -->
+<div class="ov" id="mCaseEdit">
+  <div class="modal">
+    <div class="mh">تعديل القضية <span class="mx" onclick="closeM('mCaseEdit')">×</span></div>
+    <input type="hidden" id="edit_c_id"/>
+    <label class="fl">عنوان القضية</label><input class="fi" id="edit_c_t"/>
+    <div class="fr">
+      <div><label class="fl">النوع</label><select class="fi" id="edit_c_ty"><option>تجاري</option><option>جنائي</option><option>أحوال شخصية</option><option>عمالي</option><option>عقاري</option><option>مدني</option></select></div>
+      <div><label class="fl">المحكمة</label><input class="fi" id="edit_c_co"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">العميل</label><input class="fi" id="edit_c_cl"/></div>
+      <div><label class="fl">المحامي</label><input class="fi" id="edit_c_la"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الحالة</label><select class="fi" id="edit_c_st"><option>نشطة</option><option>عاجلة</option><option>قيد الانتظار</option><option>مغلقة</option></select></div>
+      <div><label class="fl">الأولوية</label><select class="fi" id="edit_c_p"><option>عادية</option><option>متوسطة</option><option>عاجلة</option></select></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="edit_c_n" rows="3"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mCaseEdit')">إلغاء</button><button class="btn-s" onclick="updateCase()">حفظ التعديلات 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: تفاصيل وتعديل عميل -->
+<div class="ov" id="mClientDetail">
+  <div class="modal" style="width:540px">
+    <div class="mh">تفاصيل العميل <span class="mx" onclick="closeM('mClientDetail')">×</span></div>
+    <div id="clientDetailView"></div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br2);display:flex;gap:8px">
+      <button class="btn-s" style="flex:1" onclick="switchToClientEdit()">✏️ تعديل</button>
+      <button class="btn-c" style="flex:1;color:#E07080;border-color:rgba(224,112,128,.4)" onclick="deleteCurrentClient()">🗑️ حذف</button>
+      <button class="btn-c" onclick="closeM('mClientDetail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: تعديل عميل -->
+<div class="ov" id="mClientEdit">
+  <div class="modal">
+    <div class="mh">تعديل العميل <span class="mx" onclick="closeM('mClientEdit')">×</span></div>
+    <input type="hidden" id="edit_cl_id"/>
+    <div class="fr">
+      <div><label class="fl">الاسم</label><input class="fi" id="edit_cl_n"/></div>
+      <div><label class="fl">النوع</label><select class="fi" id="edit_cl_ty"><option>فرد</option><option>شركة</option><option>مؤسسة</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الجوال</label><input class="fi" id="edit_cl_p"/></div>
+      <div><label class="fl">البريد</label><input class="fi" id="edit_cl_e"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">رقم الهوية</label><input class="fi" id="edit_cl_i"/></div>
+      <div><label class="fl">الرقم الموحد</label><input class="fi" id="edit_cl_u"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">المدينة</label><input class="fi" id="edit_cl_c"/></div>
+      <div></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="edit_cl_no" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mClientEdit')">إلغاء</button><button class="btn-s" onclick="updateClient()">حفظ التعديلات 🔥</button></div>
+  </div>
+</div>
+
+<style>
+.act-btns{display:flex;gap:4px}
+.act-btn{padding:4px 10px;border-radius:6px;border:none;font-family:'Cairo',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.act-btn:hover{opacity:.8}
+.ab-view{background:rgba(74,144,217,.15);color:#4A90D9}
+.ab-edit{background:rgba(212,175,55,.15);color:var(--g)}
+.ab-del{background:rgba(224,112,128,.15);color:#E07080}
+.detail-row{display:flex;padding:9px 0;border-bottom:1px solid var(--br2);font-size:13px}
+.detail-row:last-child{border:none}
+.detail-lbl{width:140px;color:var(--tx2);flex-shrink:0;font-weight:600}
+.detail-val{color:var(--tx);flex:1}
+</style>
 firebase.initializeApp({
   apiKey:"AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ",
   authDomain:"alshikh-law.firebaseapp.com",
@@ -561,8 +646,12 @@ function loadStats(){
 function loadCases(){
   db.collection('cases').orderBy('createdAt','desc').get().then(function(snap){
     g('tot-cases').textContent=snap.size;
-    var rows=snap.docs.map(function(d){var c=d.data();return '<tr><td class="cno">'+(c.number||'—')+'</td><td>'+(c.title||'—')+'</td><td>'+(c.client||'—')+'</td><td>'+(c.court||'—')+'</td><td>'+(c.type||'—')+'</td><td>'+(c.lawyer||'—')+'</td><td><span class="badge '+sc(c.status)+'">'+(c.status||'نشطة')+'</span></td></tr>';});
-    g('tb-cases').innerHTML=rows.length?rows.join(''):empty(7);
+    g('cBadge').textContent=snap.size;
+    var rows=snap.docs.map(function(d){
+      var c=d.data(), id=d.id;
+      return '<tr><td class="cno">'+(c.number||'—')+'</td><td>'+(c.title||'—')+'</td><td>'+(c.client||'—')+'</td><td>'+(c.court||'—')+'</td><td>'+(c.type||'—')+'</td><td>'+(c.lawyer||'—')+'</td><td><span class="badge '+sc(c.status)+'">'+(c.status||'نشطة')+'</span></td><td><div class="act-btns"><button class="act-btn ab-view" onclick="viewCase(\''+id+'\')">عرض</button><button class="act-btn ab-edit" onclick="editCase(\''+id+'\')">تعديل</button><button class="act-btn ab-del" onclick="delCase(\''+id+'\')">حذف</button></div></td></tr>';
+    });
+    g('tb-cases').innerHTML=rows.length?rows.join(''):empty(8);
     var dr=snap.docs.slice(0,5).map(function(d){var c=d.data();return '<tr><td class="cno">'+(c.number||'—')+'</td><td>'+(c.title||'—')+'</td><td>'+(c.client||'—')+'</td><td>'+(c.court||'—')+'</td><td><span class="badge '+sc(c.status)+'">'+(c.status||'نشطة')+'</span></td></tr>';});
     g('dCases').innerHTML=dr.length?dr.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:16px">لا توجد قضايا</td></tr>';
   }).catch(function(){});
@@ -571,8 +660,11 @@ function loadCases(){
 function loadClients(){
   db.collection('clients').orderBy('createdAt','desc').get().then(function(snap){
     g('tot-clients').textContent=snap.size;
-    var rows=snap.docs.map(function(d){var c=d.data();return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td><td>'+(c.city||'—')+'</td></tr>';});
-    g('tb-clients').innerHTML=rows.length?rows.join(''):empty(7);
+    var rows=snap.docs.map(function(d){
+      var c=d.data(), id=d.id;
+      return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td><td>'+(c.city||'—')+'</td><td><div class="act-btns"><button class="act-btn ab-view" onclick="viewClient(\''+id+'\')">عرض</button><button class="act-btn ab-edit" onclick="editClient(\''+id+'\')">تعديل</button><button class="act-btn ab-del" onclick="delClient(\''+id+'\')">حذف</button></div></td></tr>';
+    });
+    g('tb-clients').innerHTML=rows.length?rows.join(''):empty(8);
   }).catch(function(){});
 }
 
@@ -728,7 +820,129 @@ function saveCalEvent(){
   db.collection('calEvents').add(data).then(function(){toast('✓ تم حفظ الحدث','ok');renderCal();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
-// ===== CALENDAR =====
+// ===== CASES: VIEW / EDIT / DELETE =====
+var currentCaseId = null;
+
+function viewCase(id){
+  currentCaseId = id;
+  db.collection('cases').doc(id).get().then(function(d){
+    if(!d.exists){toast('القضية غير موجودة','err');return;}
+    var c=d.data();
+    var html='<div class="detail-row"><div class="detail-lbl">رقم القضية</div><div class="detail-val cno">'+(c.number||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">العنوان</div><div class="detail-val"><strong>'+(c.title||'—')+'</strong></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">النوع</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحكمة</div><div class="detail-val">'+(c.court||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">العميل</div><div class="detail-val">'+(c.client||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحامي</div><div class="detail-val">'+(c.lawyer||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الحالة</div><div class="detail-val"><span class="badge '+sc(c.status)+'">'+(c.status||'—')+'</span></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الأولوية</div><div class="detail-val">'+(c.priority||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ الاستلام</div><div class="detail-val">'+(c.date||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(c.notes||'—')+'</div></div>';
+    g('caseDetailView').innerHTML=html;
+    openM('mCaseDetail');
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function switchToEdit(){
+  closeM('mCaseDetail');
+  editCase(currentCaseId);
+}
+
+function editCase(id){
+  currentCaseId=id;
+  db.collection('cases').doc(id).get().then(function(d){
+    if(!d.exists)return;
+    var c=d.data();
+    g('edit_c_id').value=id;
+    g('edit_c_t').value=c.title||'';
+    g('edit_c_ty').value=c.type||'تجاري';
+    g('edit_c_co').value=c.court||'';
+    g('edit_c_cl').value=c.client||'';
+    g('edit_c_la').value=c.lawyer||'';
+    g('edit_c_st').value=c.status||'نشطة';
+    g('edit_c_p').value=c.priority||'عادية';
+    g('edit_c_n').value=c.notes||'';
+    openM('mCaseEdit');
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function updateCase(){
+  var id=g('edit_c_id').value;
+  if(!id)return;
+  closeM('mCaseEdit');
+  var data={title:v('edit_c_t'),type:v('edit_c_ty'),court:v('edit_c_co'),client:v('edit_c_cl'),lawyer:v('edit_c_la'),status:v('edit_c_st'),priority:v('edit_c_p'),notes:v('edit_c_n'),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  toast('جاري الحفظ...','ok');
+  db.collection('cases').doc(id).update(data).then(function(){toast('✓ تم تحديث القضية','ok');loadCases();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function delCase(id){
+  if(!confirm('هل أنت متأكد من حذف هذه القضية؟'))return;
+  closeM('mCaseDetail');
+  db.collection('cases').doc(id).delete().then(function(){toast('✓ تم حذف القضية','ok');loadCases();loadStats();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function deleteCurrentCase(){ if(currentCaseId) delCase(currentCaseId); }
+
+// ===== CLIENTS: VIEW / EDIT / DELETE =====
+var currentClientId = null;
+
+function viewClient(id){
+  currentClientId=id;
+  db.collection('clients').doc(id).get().then(function(d){
+    if(!d.exists){toast('العميل غير موجود','err');return;}
+    var c=d.data();
+    var html='<div class="detail-row"><div class="detail-lbl">الاسم</div><div class="detail-val"><strong>'+(c.name||'—')+'</strong></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">النوع</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">رقم الجوال</div><div class="detail-val">'+(c.phone||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">البريد الإلكتروني</div><div class="detail-val">'+(c.email||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">رقم الهوية</div><div class="detail-val">'+(c.idNum||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الرقم الموحد</div><div class="detail-val">'+(c.unifiedNum||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المدينة</div><div class="detail-val">'+(c.city||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(c.notes||'—')+'</div></div>';
+    g('clientDetailView').innerHTML=html;
+    openM('mClientDetail');
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function switchToClientEdit(){
+  closeM('mClientDetail');
+  editClient(currentClientId);
+}
+
+function editClient(id){
+  currentClientId=id;
+  db.collection('clients').doc(id).get().then(function(d){
+    if(!d.exists)return;
+    var c=d.data();
+    g('edit_cl_id').value=id;
+    g('edit_cl_n').value=c.name||'';
+    g('edit_cl_ty').value=c.type||'فرد';
+    g('edit_cl_p').value=c.phone||'';
+    g('edit_cl_e').value=c.email||'';
+    g('edit_cl_i').value=c.idNum||'';
+    g('edit_cl_u').value=c.unifiedNum||'';
+    g('edit_cl_c').value=c.city||'';
+    g('edit_cl_no').value=c.notes||'';
+    openM('mClientEdit');
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function updateClient(){
+  var id=g('edit_cl_id').value;
+  if(!id)return;
+  closeM('mClientEdit');
+  var data={name:v('edit_cl_n'),type:v('edit_cl_ty'),phone:v('edit_cl_p'),email:v('edit_cl_e'),idNum:v('edit_cl_i'),unifiedNum:v('edit_cl_u'),city:v('edit_cl_c'),notes:v('edit_cl_no'),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  toast('جاري الحفظ...','ok');
+  db.collection('clients').doc(id).update(data).then(function(){toast('✓ تم تحديث العميل','ok');loadClients();loadClientDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function delClient(id){
+  if(!confirm('هل أنت متأكد من حذف هذا العميل؟'))return;
+  closeM('mClientDetail');
+  db.collection('clients').doc(id).delete().then(function(){toast('✓ تم حذف العميل','ok');loadClients();loadStats();loadClientDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function deleteCurrentClient(){ if(currentClientId) delClient(currentClientId); }
 var calD=new Date(), calEvs={};
 var mns=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 var dys=['ح','ن','ث','ر','خ','ج','س'];

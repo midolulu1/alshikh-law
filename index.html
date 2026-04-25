@@ -196,6 +196,12 @@ textarea.fi{resize:vertical;min-height:70px}
     <div class="nav-item" onclick="go('appointments',this)">📅 المواعيد</div>
     <div class="nav-item" onclick="go('memos',this)">📝 المذكرات</div>
     <div class="nav-item" onclick="go('calendar',this)">🗓️ مذكرة التواريخ</div>
+    <div class="nav-grp">قانوني متقدم</div>
+    <div class="nav-item" onclick="go('contracts',this)">📋 إدارة العقود</div>
+    <div class="nav-item" onclick="go('casefile',this)">📁 ملف القضية</div>
+    <div class="nav-item" onclick="go('kanban',this)">📌 مراحل القضايا</div>
+    <div class="nav-item" onclick="go('laws',this)">🏛️ بنك الأنظمة</div>
+    <div class="nav-item" onclick="go('verdicts',this)">⚖️ سجل الأحكام</div>
     <div class="nav-grp mgmt-g">الإدارة</div>
     <div class="nav-item mgmt-i" onclick="go('staff',this)">👔 الموظفون</div>
     <div class="nav-item mgmt-i" onclick="go('reports',this)">📈 التقارير</div>
@@ -446,7 +452,210 @@ textarea.fi{resize:vertical;min-height:70px}
         </div>
       </div>
 
+      <!-- ① إدارة العقود -->
+      <div class="sec" id="sec-contracts">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mContract')">＋ إضافة عقد</button>
+          <div class="tot">إجمالي: <span id="tot-contracts">0</span> عقد</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-h"><div class="card-t">⚠️ عقود تنتهي قريباً (خلال 30 يوم)</div></div>
+          <div id="expiring-contracts" style="font-size:13px;color:var(--tx2)">جاري الفحص...</div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>عنوان العقد</th><th>النوع</th><th>الطرف الأول</th><th>الطرف الثاني</th><th>تاريخ البداية</th><th>تاريخ الانتهاء</th><th>القضية</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="tb-contracts"><tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:20px">لا توجد عقود بعد</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ② ملف القضية الكامل -->
+      <div class="sec" id="sec-casefile">
+        <div class="pact">
+          <div style="display:flex;gap:8px;align-items:center">
+            <label class="fl" style="margin:0;white-space:nowrap">اختر القضية:</label>
+            <select class="fi" id="casefileSelect" style="margin:0;width:220px" onchange="loadCaseFile(this.value)">
+              <option value="">-- اختر قضية --</option>
+            </select>
+          </div>
+          <div class="tot" id="casefileName">اختر قضية لعرض ملفها</div>
+        </div>
+        <div id="casefileContent">
+          <div style="text-align:center;padding:3rem;color:var(--tx3);font-size:14px">
+            🗂️<br>اختر قضية من القائمة أعلاه لعرض ملفها الكامل
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ مراحل القضايا - Kanban -->
+      <div class="sec" id="sec-kanban">
+        <div class="pact">
+          <div class="tot">متابعة مراحل جميع القضايا</div>
+          <button class="add-btn" onclick="loadKanban()">🔄 تحديث</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start" id="kanbanBoard">
+          <div class="kanban-col" id="k-استلام">
+            <div class="kanban-head" style="background:rgba(74,144,217,.15);color:#4A90D9">📥 استلام<span class="kanban-count" id="kc-استلام">0</span></div>
+            <div class="kanban-cards" id="kl-استلام"></div>
+          </div>
+          <div class="kanban-col" id="k-تحضير">
+            <div class="kanban-head" style="background:rgba(224,176,64,.15);color:#E0B040">📋 تحضير<span class="kanban-count" id="kc-تحضير">0</span></div>
+            <div class="kanban-cards" id="kl-تحضير"></div>
+          </div>
+          <div class="kanban-col" id="k-مرافعة">
+            <div class="kanban-head" style="background:rgba(212,175,55,.15);color:#D4AF37">⚖️ مرافعة<span class="kanban-count" id="kc-مرافعة">0</span></div>
+            <div class="kanban-cards" id="kl-مرافعة"></div>
+          </div>
+          <div class="kanban-col" id="k-حكم">
+            <div class="kanban-head" style="background:rgba(61,170,112,.15);color:#3DAA70">🏛️ حكم<span class="kanban-count" id="kc-حكم">0</span></div>
+            <div class="kanban-cards" id="kl-حكم"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ بنك الأنظمة والأحكام -->
+      <div class="sec" id="sec-laws">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mLaw')">＋ إضافة نظام/حكم</button>
+          <div class="tot">إجمالي: <span id="tot-laws">0</span> مدخل</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-h"><div class="card-t">🔍 البحث في البنك</div></div>
+          <input class="fi" id="lawSearch" placeholder="ابحث في الأنظمة والأحكام..." oninput="searchLaws(this.value)" style="margin:0"/>
+        </div>
+        <div class="g2">
+          <div>
+            <div class="card" style="margin-bottom:1rem">
+              <div class="card-h"><div class="card-t">📚 الأنظمة السعودية</div></div>
+              <div id="lawsList" style="display:flex;flex-direction:column;gap:6px">
+                <div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">جاري التحميل...</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">📖 تفاصيل المدخل</div></div>
+            <div id="lawDetail" style="font-size:13px;color:var(--tx2);min-height:200px;line-height:1.8">اختر مدخلاً من القائمة لعرض تفاصيله</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ سجل الأحكام والنتائج -->
+      <div class="sec" id="sec-verdicts">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mVerdict')">＋ إضافة حكم</button>
+          <div class="tot">إجمالي: <span id="tot-verdicts">0</span> حكم</div>
+        </div>
+        <!-- إحصاءات سريعة -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem">
+          <div class="stat"><div class="stat-l">فوز</div><div class="stat-n" id="vWin" style="color:#3DAA70">0</div></div>
+          <div class="stat"><div class="stat-l">خسارة</div><div class="stat-n" id="vLose" style="color:#E07080">0</div></div>
+          <div class="stat"><div class="stat-l">تسوية</div><div class="stat-n" id="vSettle" style="color:#E0B040">0</div></div>
+          <div class="stat hl"><div class="stat-l">نسبة النجاح</div><div class="stat-n" id="vRate">—</div></div>
+        </div>
+        <!-- جدول الأحكام -->
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>رقم القضية</th><th>العنوان</th><th>العميل</th><th>المحكمة</th><th>المحامي</th><th>تاريخ الحكم</th><th>النتيجة</th><th>ملخص الحكم</th><th>إجراءات</th></tr></thead>
+            <tbody id="tb-verdicts"><tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:20px">لا توجد أحكام بعد</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
     </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STYLES FOR NEW SECTIONS -->
+<!-- ============================================================ -->
+<style>
+.kanban-col{background:var(--bg3);border-radius:12px;padding:10px;min-height:200px}
+.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:10px}
+.kanban-count{background:rgba(0,0,0,.15);color:inherit;padding:1px 8px;border-radius:10px;font-size:11px}
+.kanban-cards{display:flex;flex-direction:column;gap:8px}
+.kcard{background:var(--bg2);border:0.5px solid var(--br2);border-radius:9px;padding:10px;cursor:pointer;transition:all .2s}
+.kcard:hover{border-color:var(--g);transform:translateY(-1px)}
+.kcard-num{font-size:10px;color:var(--g);font-weight:700;margin-bottom:3px}
+.kcard-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.kcard-client{font-size:11px;color:var(--tx2)}
+.kcard-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:'Cairo',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.kcard-btn:hover{border-color:var(--g);color:var(--g)}
+.law-item{padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;transition:all .15s;border:0.5px solid transparent}
+.law-item:hover,.law-item.sel{border-color:var(--g);background:var(--gl)}
+.law-type{font-size:10px;color:var(--g);font-weight:700;margin-bottom:2px;text-transform:uppercase}
+.law-title{font-size:13px;font-weight:700;color:var(--tx)}
+.law-sub{font-size:11px;color:var(--tx2);margin-top:2px}
+.cf-section{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;padding:1rem;margin-bottom:1rem}
+.cf-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.contract-expiry{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--br2)}
+.contract-expiry:last-child{border:none}
+.exp-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.exp-urgent{background:rgba(224,112,128,.15);color:#E07080}
+.exp-warn{background:rgba(224,176,64,.15);color:#E0B040}
+</style>
+
+<!-- MODALS FOR NEW SECTIONS -->
+
+<!-- Modal: إضافة عقد -->
+<div class="ov" id="mContract">
+  <div class="modal">
+    <div class="mh">إضافة عقد جديد <span class="mx" onclick="closeM('mContract')">×</span></div>
+    <label class="fl">عنوان العقد</label><input class="fi" id="con_t" placeholder="عنوان العقد"/>
+    <div class="fr">
+      <div><label class="fl">نوع العقد</label><select class="fi" id="con_ty"><option>عقد عمل</option><option>عقد إيجار</option><option>عقد شراكة</option><option>عقد بيع</option><option>عقد خدمات</option><option>اتفاقية</option></select></div>
+      <div><label class="fl">القضية المرتبطة</label><select class="fi" id="con_c"><option value="">-- اختياري --</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الطرف الأول</label><select class="fi" id="con_p1"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">الطرف الثاني</label><input class="fi" id="con_p2" placeholder="اسم الطرف الثاني"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">تاريخ البداية</label><input class="fi" id="con_sd" type="date"/></div>
+      <div><label class="fl">تاريخ الانتهاء</label><input class="fi" id="con_ed" type="date"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">قيمة العقد (ر.س)</label><input class="fi" id="con_val" type="number" placeholder="0"/></div>
+      <div><label class="fl">الحالة</label><select class="fi" id="con_st"><option>ساري</option><option>قيد التفاوض</option><option>منتهي</option><option>ملغي</option></select></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="con_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mContract')">إلغاء</button><button class="btn-s" onclick="saveContract()">حفظ العقد 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: إضافة نظام/حكم -->
+<div class="ov" id="mLaw">
+  <div class="modal">
+    <div class="mh">إضافة للبنك القانوني <span class="mx" onclick="closeM('mLaw')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">النوع</label><select class="fi" id="law_ty"><option>نظام</option><option>لائحة</option><option>حكم قضائي</option><option>مبدأ قانوني</option><option>تعميم</option></select></div>
+      <div><label class="fl">المجال</label><select class="fi" id="law_field"><option>تجاري</option><option>عمالي</option><option>أحوال شخصية</option><option>جنائي</option><option>عقاري</option><option>مدني</option></select></div>
+    </div>
+    <label class="fl">العنوان</label><input class="fi" id="law_t" placeholder="عنوان النظام أو الحكم"/>
+    <label class="fl">رقم النظام / المرجع</label><input class="fi" id="law_ref" placeholder="مثال: م.ع 1434/1"/>
+    <label class="fl">النص الكامل / الملخص</label><textarea class="fi" id="law_body" rows="5" placeholder="النص أو الملخص..."></textarea>
+    <label class="fl">الكلمات المفتاحية</label><input class="fi" id="law_tags" placeholder="عمل، فصل، تعويض..."/>
+    <div class="ma"><button class="btn-c" onclick="closeM('mLaw')">إلغاء</button><button class="btn-s" onclick="saveLaw()">حفظ 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: إضافة حكم -->
+<div class="ov" id="mVerdict">
+  <div class="modal">
+    <div class="mh">تسجيل حكم قضية <span class="mx" onclick="closeM('mVerdict')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">القضية</label><select class="fi" id="vrd_c"><option value="">-- اختر القضية --</option></select></div>
+      <div><label class="fl">تاريخ الحكم</label><input class="fi" id="vrd_d" type="date"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">النتيجة</label><select class="fi" id="vrd_r"><option>فوز كامل</option><option>فوز جزئي</option><option>خسارة</option><option>تسوية ودية</option><option>إسقاط الدعوى</option></select></div>
+      <div><label class="fl">المحكمة</label><input class="fi" id="vrd_co" placeholder="اسم المحكمة"/></div>
+    </div>
+    <label class="fl">المحامي المرافع</label><select class="fi" id="vrd_l"><option value="">-- اختر المحامي --</option></select>
+    <label class="fl">ملخص الحكم</label><textarea class="fi" id="vrd_sum" rows="3" placeholder="ملخص قرار المحكمة..."></textarea>
+    <label class="fl">ملاحظات إضافية</label><textarea class="fi" id="vrd_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mVerdict')">إلغاء</button><button class="btn-s" onclick="saveVerdict()">حفظ الحكم 🔥</button></div>
   </div>
 </div>
 
@@ -720,7 +929,7 @@ function doLogout(){
 }
 
 // ===== NAV =====
-var titles={dashboard:'الصفحة الرئيسية',cases:'القضايا',clients:'العملاء',hearings:'الجلسات',appointments:'المواعيد',memos:'المذكرات',calendar:'مذكرة التواريخ',staff:'الموظفون',reports:'التقارير'};
+var titles={dashboard:'الصفحة الرئيسية',cases:'القضايا',clients:'العملاء',hearings:'الجلسات',appointments:'المواعيد',memos:'المذكرات',calendar:'مذكرة التواريخ',staff:'الموظفون',reports:'التقارير',contracts:'إدارة العقود',casefile:'ملف القضية الكامل',kanban:'مراحل القضايا',laws:'بنك الأنظمة والأحكام',verdicts:'سجل الأحكام والنتائج'};
 function go(id,el){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('on');});
@@ -1512,6 +1721,302 @@ function showDay(ds){
 }
 
 function calMv(dir){calD.setMonth(calD.getMonth()+dir);renderCal();}
+
+// ================================================================
+// ① إدارة العقود
+// ================================================================
+function saveContract(){
+  closeM('mContract');
+  var data={title:v('con_t'),type:v('con_ty'),caseNum:g('con_c').value||'',party1:g('con_p1').value||'',party2:v('con_p2'),startDate:v('con_sd'),endDate:v('con_ed'),value:v('con_val'),status:v('con_st'),notes:v('con_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['con_t','con_p2','con_sd','con_ed','con_val','con_n']);
+  toast('جاري الحفظ...','ok');
+  db.collection('contracts').add(data).then(function(){toast('✓ تم حفظ العقد','ok');loadContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadContracts(){
+  db.collection('contracts').orderBy('createdAt','desc').get().then(function(snap){
+    g('tot-contracts').textContent=snap.size;
+    var today=new Date(); var warn30=new Date(); warn30.setDate(warn30.getDate()+30);
+    var expiring=[];
+    var rows=snap.docs.map(function(d){
+      var c=d.data(), id=d.id;
+      var ed=c.endDate?new Date(c.endDate):null;
+      var expClass='ba'; var expLabel='ساري';
+      if(ed){
+        if(ed<today){expClass='bc';expLabel='منتهي';}
+        else if(ed<warn30){expClass='bu';expLabel='قريب الانتهاء';expiring.push({title:c.title,date:c.endDate,id:id});}
+      }
+      return '<tr><td><strong>'+(c.title||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.party1||'—')+'</td><td>'+(c.party2||'—')+'</td><td>'+(c.startDate||'—')+'</td><td>'+(c.endDate||'—')+'</td><td class="cno">'+(c.caseNum||'—')+'</td><td><span class="badge '+expClass+'">'+(c.status||expLabel)+'</span></td><td><div class="act-btns"><button class="act-btn ab-del" onclick="delContract(\''+id+'\')">حذف</button></div></td></tr>';
+    });
+    g('tb-contracts').innerHTML=rows.length?rows.join(''):empty(9);
+    // عقود تنتهي قريباً
+    var expEl=g('expiring-contracts');
+    if(expiring.length===0){expEl.innerHTML='<div style="color:#3DAA70;padding:8px">✅ لا توجد عقود تنتهي خلال 30 يوماً</div>';}
+    else{expEl.innerHTML=expiring.map(function(e){return '<div class="contract-expiry"><div class="exp-badge exp-urgent">⚠ '+e.date+'</div><div style="font-size:13px;color:var(--tx)">'+e.title+'</div></div>';}).join('');}
+  }).catch(function(){});
+}
+
+function delContract(id){
+  if(!confirm('حذف هذا العقد؟'))return;
+  db.collection('contracts').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// ② ملف القضية الكامل
+// ================================================================
+function loadCaseFileSelect(){
+  db.collection('cases').orderBy('createdAt','desc').get().then(function(snap){
+    var sel=g('casefileSelect');
+    if(!sel) return;
+    sel.innerHTML='<option value="">-- اختر قضية --</option>';
+    snap.docs.forEach(function(d){
+      var c=d.data();
+      sel.innerHTML+='<option value="'+d.id+'">'+(c.number||'')+(c.title?' | '+c.title:'')+'</option>';
+    });
+  }).catch(function(){});
+}
+
+function loadCaseFile(id){
+  if(!id){g('casefileContent').innerHTML='<div style="text-align:center;padding:3rem;color:var(--tx3)">🗂️<br>اختر قضية</div>';return;}
+  g('casefileContent').innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div>';
+  db.collection('cases').doc(id).get().then(function(d){
+    if(!d.exists){toast('القضية غير موجودة','err');return;}
+    var c=d.data();
+    if(g('casefileName')) g('casefileName').textContent='ملف القضية: '+(c.number||'')+(c.title?' | '+c.title:'');
+    var sc2=c.status==='نشطة'?'ba':c.status==='عاجلة'?'bu':c.status==='مغلقة'?'bc':'bp';
+    var html='<div class="cf-section"><div class="cf-title">📋 بيانات القضية الأساسية</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+      '<div class="detail-row"><div class="detail-lbl">رقم القضية</div><div class="detail-val cno">'+(c.number||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الحالة</div><div class="detail-val"><span class="badge '+sc2+'">'+(c.status||'—')+'</span></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">النوع</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحكمة</div><div class="detail-val">'+(c.court||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">العميل</div><div class="detail-val">'+(c.client||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحامي</div><div class="detail-val">'+(c.lawyer||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الأولوية</div><div class="detail-val">'+(c.priority||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الجلسة القادمة</div><div class="detail-val">'+(c.nextHearing||'—')+'</div></div>'+
+      '</div>'+
+      '<div class="detail-row" style="margin-top:8px"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(c.notes||'—')+'</div></div>'+
+      '</div>';
+    // جلسات القضية
+    html+='<div class="cf-section"><div class="cf-title">🏛️ الجلسات المرتبطة</div><div id="cf-hearings">جاري التحميل...</div></div>';
+    // مذكرات القضية
+    html+='<div class="cf-section"><div class="cf-title">📝 المذكرات المرتبطة</div><div id="cf-memos">جاري التحميل...</div></div>';
+    // سجل الأحكام
+    html+='<div class="cf-section"><div class="cf-title">⚖️ الحكم النهائي</div><div id="cf-verdict">جاري التحميل...</div></div>';
+    g('casefileContent').innerHTML=html;
+    // تحميل الجلسات
+    db.collection('hearings').get().then(function(snap){
+      var h=snap.docs.filter(function(d){return d.data().caseNum===c.number;});
+      var el=g('cf-hearings');
+      if(!el) return;
+      if(!h.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px">لا توجد جلسات مرتبطة</div>';return;}
+      el.innerHTML='<table class="tbl"><thead><tr><th>التاريخ</th><th>الوقت</th><th>المحكمة</th><th>القاضي</th></tr></thead><tbody>'+
+        h.map(function(d){var hh=d.data();return '<tr><td>'+(hh.date||'—')+'</td><td>'+(hh.time||'—')+'</td><td>'+(hh.court||'—')+'</td><td>'+(hh.judge||'—')+'</td></tr>';}).join('')+
+      '</tbody></table>';
+    }).catch(function(){});
+    // تحميل المذكرات
+    db.collection('memos').get().then(function(snap){
+      var m=snap.docs.filter(function(d){return d.data().caseNum===c.number;});
+      var el=g('cf-memos');
+      if(!el) return;
+      if(!m.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px">لا توجد مذكرات مرتبطة</div>';return;}
+      el.innerHTML='<table class="tbl"><thead><tr><th>العنوان</th><th>النوع</th><th>المحامي</th></tr></thead><tbody>'+
+        m.map(function(d){var mm=d.data();return '<tr><td>'+(mm.title||'—')+'</td><td>'+(mm.type||'—')+'</td><td>'+(mm.lawyer||'—')+'</td></tr>';}).join('')+
+      '</tbody></table>';
+    }).catch(function(){});
+    // الحكم
+    db.collection('verdicts').get().then(function(snap){
+      var vv=snap.docs.find(function(d){return d.data().caseNum===c.number;});
+      var el=g('cf-verdict');
+      if(!el) return;
+      if(!vv){el.innerHTML='<div style="color:var(--tx3);font-size:13px">لم يُسجّل حكم بعد</div>';return;}
+      var vd=vv.data();
+      var rc=vd.result&&vd.result.includes('فوز')?'ba':vd.result==='خسارة'?'bu':'bp';
+      el.innerHTML='<div class="detail-row"><div class="detail-lbl">النتيجة</div><div class="detail-val"><span class="badge '+rc+'">'+(vd.result||'—')+'</span></div></div>'+
+        '<div class="detail-row"><div class="detail-lbl">تاريخ الحكم</div><div class="detail-val">'+(vd.date||'—')+'</div></div>'+
+        '<div class="detail-row"><div class="detail-lbl">ملخص الحكم</div><div class="detail-val">'+(vd.summary||'—')+'</div></div>';
+    }).catch(function(){});
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// ③ مراحل القضايا - Kanban
+// ================================================================
+var stages=['استلام','تحضير','مرافعة','حكم'];
+
+function loadKanban(){
+  stages.forEach(function(s){
+    var el=g('kl-'+s); if(el) el.innerHTML='';
+    var cnt=g('kc-'+s); if(cnt) cnt.textContent='0';
+  });
+  db.collection('cases').get().then(function(snap){
+    var counts={};
+    snap.docs.forEach(function(d){
+      var c=d.data(), id=d.id;
+      var stage=c.stage||'استلام';
+      if(!counts[stage]) counts[stage]=0;
+      counts[stage]++;
+      var listEl=g('kl-'+stage);
+      if(!listEl) return;
+      var sc2=c.status==='عاجلة'?'bu':c.status==='مغلقة'?'bc':'ba';
+      var card=document.createElement('div');
+      card.className='kcard';
+      card.innerHTML='<div class="kcard-num">'+(c.number||'—')+'</div>'+
+        '<div class="kcard-title">'+(c.title||'—')+'</div>'+
+        '<div class="kcard-client">👤 '+(c.client||'—')+'</div>'+
+        '<div style="margin-top:4px"><span class="badge '+sc2+'">'+(c.status||'نشطة')+'</span></div>'+
+        '<div class="kcard-btns">'+
+          stages.filter(function(s){return s!==stage;}).map(function(s){
+            return '<button class="kcard-btn" onclick="moveStage(\''+id+'\',\''+s+'\')">← '+s+'</button>';
+          }).join('')+
+        '</div>';
+      listEl.appendChild(card);
+    });
+    Object.keys(counts).forEach(function(s){
+      var cnt=g('kc-'+s); if(cnt) cnt.textContent=counts[s];
+    });
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function moveStage(id, stage){
+  db.collection('cases').doc(id).update({stage:stage,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){toast('✓ تم نقل القضية إلى مرحلة: '+stage,'ok');loadKanban();})
+    .catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// ④ بنك الأنظمة والأحكام
+// ================================================================
+var allLaws=[];
+
+function saveLaw(){
+  closeM('mLaw');
+  var data={type:v('law_ty'),field:v('law_field'),title:v('law_t'),reference:v('law_ref'),body:v('law_body'),tags:v('law_tags'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['law_t','law_ref','law_body','law_tags']);
+  toast('جاري الحفظ...','ok');
+  db.collection('laws').add(data).then(function(){toast('✓ تم الحفظ في البنك','ok');loadLaws();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadLaws(){
+  db.collection('laws').orderBy('createdAt','desc').get().then(function(snap){
+    g('tot-laws').textContent=snap.size;
+    allLaws=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    renderLawsList(allLaws);
+  }).catch(function(){});
+}
+
+function renderLawsList(laws){
+  var el=g('lawsList'); if(!el) return;
+  if(!laws.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">لا توجد مدخلات بعد</div>';return;}
+  el.innerHTML=laws.map(function(l,i){
+    return '<div class="law-item" onclick="showLaw('+i+',this)">'+
+      '<div class="law-type">'+(l.type||'—')+' • '+(l.field||'—')+'</div>'+
+      '<div class="law-title">'+(l.title||'—')+'</div>'+
+      (l.reference?'<div class="law-sub">المرجع: '+l.reference+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function showLaw(idx, el){
+  document.querySelectorAll('.law-item').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');
+  var l=allLaws[idx]; if(!l) return;
+  var detail=g('lawDetail'); if(!detail) return;
+  detail.innerHTML='<div style="margin-bottom:12px"><span class="badge bp" style="margin-left:8px">'+(l.type||'—')+'</span><span class="badge ba">'+(l.field||'—')+'</span></div>'+
+    '<div style="font-size:15px;font-weight:800;color:var(--tx);margin-bottom:8px">'+(l.title||'—')+'</div>'+
+    (l.reference?'<div style="font-size:12px;color:var(--tx2);margin-bottom:10px">📎 المرجع: <strong>'+l.reference+'</strong></div>':'')+
+    '<div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px;color:var(--tx);line-height:1.8;margin-bottom:10px">'+(l.body||'—')+'</div>'+
+    (l.tags?'<div style="font-size:11px;color:var(--tx3)">🏷️ '+l.tags+'</div>':'');
+}
+
+function searchLaws(q){
+  if(!q){renderLawsList(allLaws);return;}
+  var filtered=allLaws.filter(function(l){
+    return (l.title&&l.title.includes(q))||(l.body&&l.body.includes(q))||(l.tags&&l.tags.includes(q))||(l.field&&l.field.includes(q));
+  });
+  renderLawsList(filtered);
+}
+
+// ================================================================
+// ⑤ سجل الأحكام والنتائج
+// ================================================================
+function saveVerdict(){
+  closeM('mVerdict');
+  var caseNum=g('vrd_c').value||'';
+  var data={caseNum:caseNum,date:v('vrd_d'),result:v('vrd_r'),court:v('vrd_co'),lawyer:g('vrd_l').value||'',summary:v('vrd_sum'),notes:v('vrd_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['vrd_d','vrd_co','vrd_sum','vrd_n']);
+  g('vrd_c').value=''; g('vrd_l').value='';
+  toast('جاري الحفظ...','ok');
+  // حفظ الحكم
+  db.collection('verdicts').add(data).then(function(){
+    // تحديث حالة القضية إلى مغلقة إذا كان فوزاً
+    if(caseNum){
+      db.collection('cases').where('number','==',caseNum).get().then(function(snap){
+        snap.docs.forEach(function(d){
+          d.ref.update({status:'مغلقة',stage:'حكم'});
+        });
+      });
+    }
+    toast('✓ تم تسجيل الحكم','ok');
+    loadVerdicts();
+    loadCases();
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadVerdicts(){
+  db.collection('verdicts').orderBy('createdAt','desc').get().then(function(snap){
+    g('tot-verdicts').textContent=snap.size;
+    var win=0,lose=0,settle=0;
+    var rows=snap.docs.map(function(d){
+      var vv=d.data(), id=d.id;
+      if(vv.result&&vv.result.includes('فوز')) win++;
+      else if(vv.result==='خسارة') lose++;
+      else settle++;
+      var rc=vv.result&&vv.result.includes('فوز')?'ba':vv.result==='خسارة'?'bu':'bp';
+      return '<tr><td class="cno">'+(vv.caseNum||'—')+'</td><td>—</td><td>—</td><td>'+(vv.court||'—')+'</td><td>'+(vv.lawyer||'—')+'</td><td>'+(vv.date||'—')+'</td><td><span class="badge '+rc+'">'+(vv.result||'—')+'</span></td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(vv.summary||'—')+'</td><td><button class="act-btn ab-del" onclick="delVerdict(\''+id+'\')">حذف</button></td></tr>';
+    });
+    g('tb-verdicts').innerHTML=rows.length?rows.join(''):empty(9);
+    if(g('vWin')) g('vWin').textContent=win;
+    if(g('vLose')) g('vLose').textContent=lose;
+    if(g('vSettle')) g('vSettle').textContent=settle;
+    var total=win+lose+settle;
+    if(g('vRate')) g('vRate').textContent=total>0?Math.round((win/total)*100)+'%':'—';
+  }).catch(function(){});
+}
+
+function delVerdict(id){
+  if(!confirm('حذف هذا الحكم؟'))return;
+  db.collection('verdicts').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadVerdicts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// تحديث loadAll و go
+var _origGo = go;
+go = function(id, el){
+  _origGo(id, el);
+  if(id==='contracts') loadContracts();
+  else if(id==='casefile') loadCaseFileSelect();
+  else if(id==='kanban') loadKanban();
+  else if(id==='laws') loadLaws();
+  else if(id==='verdicts') loadVerdicts();
+};
+
+// إضافة القوائم للـ dropdowns الجديدة
+var _origRefresh = refreshAllDropdowns;
+refreshAllDropdowns = function(){
+  _origRefresh();
+  fillSelect('con_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'');}}),'-- اختياري --');
+  fillSelect('con_p1', _clients.map(function(n){return {val:n,txt:n};}),'-- اختر العميل --');
+  fillSelect('vrd_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'');}}),'-- اختر القضية --');
+  fillSelect('vrd_l', _staff.map(function(s){return {val:s.name,txt:s.name+(s.pos?' — '+s.pos:'')};}),'-- اختر المحامي --');
+  // ملف القضية
+  var cfsEl=g('casefileSelect');
+  if(cfsEl&&_cases.length){
+    var cur=cfsEl.value;
+    cfsEl.innerHTML='<option value="">-- اختر قضية --</option>';
+    _cases.forEach(function(c){cfsEl.innerHTML+='<option value="">'+c.num+(c.title?' | '+c.title:'')+'</option>';});
+    if(cur) cfsEl.value=cur;
+  }
+};
 </script>
 </body>
 </html>

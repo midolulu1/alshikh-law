@@ -303,7 +303,17 @@ textarea.fi{resize:vertical;min-height:80px}
 .btn-s{padding:9px 22px;background:linear-gradient(135deg,#D4AF37,#7A6200);border:none;border-radius:8px;color:#0D0F14;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:opacity 0.15s}
 .btn-s:hover{opacity:0.9}
 
-/* ========= PAGE ACTIONS ========= */
+.notif-item{display:flex;gap:10px;align-items:flex-start;padding:10px 16px;cursor:pointer;transition:background 0.15s;border-bottom:0.5px solid var(--border2)}
+.notif-item:last-child{border:none}
+.notif-item:hover{background:var(--dark3)}
+.notif-item.unread{background:rgba(184,150,12,0.05)}
+.ni-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ni-t{font-size:13px;color:var(--text);line-height:1.4}
+.ni-m{font-size:11px;color:var(--text3);margin-top:2px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border2);font-size:13px;color:var(--text2)}
+.setting-row:last-child{border:none}
+.help-item{padding:9px 12px;background:var(--dark3);border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;transition:background 0.15s}
+.help-item:hover{background:rgba(184,150,12,0.1);color:var(--gold-light)}
 .pact{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
 .add-btn{padding:8px 18px;background:linear-gradient(135deg,rgba(184,150,12,0.2),rgba(122,98,0,0.2));border:0.5px solid var(--border);border-radius:9px;color:var(--gold-light);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
 .add-btn:hover{background:rgba(184,150,12,0.25)}
@@ -401,18 +411,109 @@ body.light .theme-toggle{background:var(--dark3);border-color:var(--border2)}
     <div class="topbar">
       <div class="page-ttl" id="pTitle">لوحة التحكم</div>
       <div class="tb-right">
-        <div class="sbar"><span style="color:var(--text3);font-size:13px">🔍</span><input placeholder="بحث في النظام..."/></div>
+        <!-- بحث -->
+        <div class="sbar" onclick="document.getElementById('searchInput').focus()">
+          <span style="color:var(--text3);font-size:13px">🔍</span>
+          <input id="searchInput" placeholder="بحث في النظام..." oninput="doSearch(this.value)" onblur="hideSearch()"/>
+        </div>
+        <!-- نتائج البحث -->
+        <div id="searchResults" style="display:none;position:absolute;top:58px;left:50%;transform:translateX(-50%);background:var(--dark2);border:0.5px solid var(--border);border-radius:12px;width:320px;z-index:200;padding:8px;box-shadow:0 8px 32px rgba(0,0,0,0.4)"></div>
+
         <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="تبديل المظهر"><span class="t-sun">☀️</span><span class="t-moon">🌙</span></button>
+
         <div style="display:flex;align-items:center;gap:6px;background:var(--dark3);border:0.5px solid var(--border2);border-radius:8px;padding:5px 10px">
           <div id="fbStatusDot" style="width:8px;height:8px;border-radius:50%;background:#E07080;flex-shrink:0;transition:background 0.3s"></div>
           <span id="fbStatusTxt" style="font-size:11px;color:var(--text2);white-space:nowrap">Firebase: غير متصل</span>
         </div>
-        <div class="icobtn ndot" title="الإشعارات">🔔</div>
-        <div class="icobtn" title="الإعدادات">⚙️</div>
-        <div class="icobtn" title="المساعدة">❓</div>
+
+        <!-- الإشعارات -->
+        <div class="icobtn ndot" title="الإشعارات" onclick="togglePanel('notifPanel')">🔔</div>
+        <!-- الإعدادات -->
+        <div class="icobtn" title="الإعدادات" onclick="togglePanel('settingsPanel')">⚙️</div>
+        <!-- المساعدة -->
+        <div class="icobtn" title="المساعدة" onclick="togglePanel('helpPanel')">❓</div>
       </div>
     </div>
-    <div class="content">
+
+    <!-- لوحة الإشعارات -->
+    <div id="notifPanel" style="display:none;position:fixed;top:66px;left:60px;background:var(--dark2);border:0.5px solid var(--border);border-radius:14px;width:320px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,0.5);overflow:hidden">
+      <div style="padding:14px 16px;border-bottom:0.5px solid var(--border2);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:14px;font-weight:700;color:var(--text)">الإشعارات</span>
+        <span style="font-size:11px;color:var(--gold);cursor:pointer" onclick="clearNotifs()">تحديد الكل كمقروء</span>
+      </div>
+      <div style="max-height:320px;overflow-y:auto">
+        <div class="notif-item unread" onclick="this.classList.remove('unread')">
+          <div class="ni-dot" style="background:#E07080"></div>
+          <div><div class="ni-t">جلسة عاجلة غداً — 2024-091</div><div class="ni-m">منذ ساعة</div></div>
+        </div>
+        <div class="notif-item unread" onclick="this.classList.remove('unread')">
+          <div class="ni-dot" style="background:#E0B040"></div>
+          <div><div class="ni-t">فاتورة INV-031 متأخرة</div><div class="ni-m">منذ 3 ساعات</div></div>
+        </div>
+        <div class="notif-item unread" onclick="this.classList.remove('unread')">
+          <div class="ni-dot" style="background:#3DAA70"></div>
+          <div><div class="ni-t">تم إضافة عميل جديد</div><div class="ni-m">منذ 5 ساعات</div></div>
+        </div>
+        <div class="notif-item" onclick="this.classList.remove('unread')">
+          <div class="ni-dot" style="background:#4A90D9"></div>
+          <div><div class="ni-t">موعد جديد: أحمد العتيبي</div><div class="ni-m">البارحة</div></div>
+        </div>
+        <div class="notif-item">
+          <div class="ni-dot" style="background:#4A90D9"></div>
+          <div><div class="ni-t">تم رفع مذكرة دفاع</div><div class="ni-m">البارحة</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- لوحة الإعدادات -->
+    <div id="settingsPanel" style="display:none;position:fixed;top:66px;left:60px;background:var(--dark2);border:0.5px solid var(--border);border-radius:14px;width:300px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+      <div style="padding:14px 16px;border-bottom:0.5px solid var(--border2)">
+        <span style="font-size:14px;font-weight:700;color:var(--text)">⚙️ الإعدادات</span>
+      </div>
+      <div style="padding:12px 16px">
+        <div class="setting-row">
+          <span>المظهر</span>
+          <button onclick="toggleTheme();updateThemeLabel()" id="themeLabel" style="background:var(--dark3);border:0.5px solid var(--border2);border-radius:7px;padding:4px 12px;color:var(--gold-light);font-family:Cairo,sans-serif;font-size:12px;cursor:pointer">🌙 داكن</button>
+        </div>
+        <div class="setting-row">
+          <span>اللغة</span>
+          <span style="color:var(--gold-light);font-size:13px">العربية 🇸🇦</span>
+        </div>
+        <div class="setting-row">
+          <span>اسم المكتب</span>
+          <span style="color:var(--text2);font-size:11px">م. عبدالمحسن الشيخ</span>
+        </div>
+        <div class="setting-row">
+          <span>الإصدار</span>
+          <span style="color:var(--text3);font-size:12px">v2.0 🔥</span>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border2)">
+          <button onclick="doLogout();togglePanel('settingsPanel')" style="width:100%;padding:8px;background:rgba(138,26,42,0.15);border:0.5px solid rgba(224,112,128,0.3);border-radius:8px;color:#E07080;font-family:Cairo,sans-serif;font-size:13px;cursor:pointer">تسجيل الخروج</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- لوحة المساعدة -->
+    <div id="helpPanel" style="display:none;position:fixed;top:66px;left:60px;background:var(--dark2);border:0.5px solid var(--border);border-radius:14px;width:300px;z-index:300;box-shadow:0 8px 32px rgba(0,0,0,0.5)">
+      <div style="padding:14px 16px;border-bottom:0.5px solid var(--border2)">
+        <span style="font-size:14px;font-weight:700;color:var(--text)">❓ المساعدة</span>
+      </div>
+      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+        <div class="help-item" onclick="go('cases',null);togglePanel('helpPanel')">⚖️ إضافة قضية جديدة</div>
+        <div class="help-item" onclick="go('clients',null);togglePanel('helpPanel')">👥 إضافة عميل جديد</div>
+        <div class="help-item" onclick="go('hearings',null);togglePanel('helpPanel')">🏛️ جدولة جلسة</div>
+        <div class="help-item" onclick="go('billing',null);togglePanel('helpPanel')">💰 إنشاء فاتورة</div>
+        <div class="help-item" onclick="go('reports',null);togglePanel('helpPanel')">📈 عرض التقارير</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:0.5px solid var(--border2);font-size:11px;color:var(--text3);text-align:center">
+          نظام مكتب م. عبدالمحسن الشيخ v2.0<br>مدعوم بـ Firebase 🔥
+        </div>
+      </div>
+    </div>
+
+    <!-- طبقة إغلاق اللوحات -->
+    <div id="panelOverlay" style="display:none;position:fixed;inset:0;z-index:299" onclick="closeAllPanels()"></div>
+
+
 
       <!-- DASHBOARD -->
       <div class="sec on" id="sec-dashboard">
@@ -1004,7 +1105,70 @@ function closeM(id){
   el.classList.remove('open');
 }
 
-/* ---- Toast Notification ---- */
+/* ---- Panel Toggle ---- */
+function togglePanel(id){
+  var panels=['notifPanel','settingsPanel','helpPanel'];
+  var overlay=document.getElementById('panelOverlay');
+  var isOpen=document.getElementById(id).style.display==='block';
+  panels.forEach(function(p){ document.getElementById(p).style.display='none'; });
+  if(!isOpen){
+    document.getElementById(id).style.display='block';
+    overlay.style.display='block';
+  } else {
+    overlay.style.display='none';
+  }
+}
+function closeAllPanels(){
+  ['notifPanel','settingsPanel','helpPanel'].forEach(function(p){
+    document.getElementById(p).style.display='none';
+  });
+  document.getElementById('panelOverlay').style.display='none';
+}
+function clearNotifs(){
+  document.querySelectorAll('.notif-item.unread').forEach(function(el){
+    el.classList.remove('unread');
+  });
+  document.querySelector('.icobtn.ndot').classList.remove('ndot');
+}
+function updateThemeLabel(){
+  var lbl=document.getElementById('themeLabel');
+  if(lbl) lbl.textContent=isDark?'🌙 داكن':'☀️ نهاري';
+}
+
+/* ---- Search ---- */
+var searchData=[
+  {t:'القضايا',s:'cases',k:'قضية نزاع تجاري محكمة'},
+  {t:'العملاء',s:'clients',k:'عميل شركة فرد'},
+  {t:'الجلسات',s:'hearings',k:'جلسة محكمة قاضي'},
+  {t:'المواعيد',s:'appointments',k:'موعد استشارة'},
+  {t:'المذكرات',s:'memos',k:'مذكرة دفاع طلب'},
+  {t:'الفواتير والأتعاب',s:'billing',k:'فاتورة أتعاب مبلغ'},
+  {t:'التقارير',s:'reports',k:'تقرير إحصاء'},
+  {t:'مذكرة التواريخ',s:'calendar',k:'تقويم موعد تاريخ'},
+  {t:'الموظفون',s:'staff',k:'موظف محامي'},
+  {t:'المستندات',s:'docs',k:'مستند ملف وثيقة'},
+  {t:'المهام',s:'tasks',k:'مهمة'},
+];
+function doSearch(val){
+  var box=document.getElementById('searchResults');
+  if(!val||val.length<1){box.style.display='none';return;}
+  var res=searchData.filter(function(d){
+    return d.t.includes(val)||d.k.includes(val);
+  });
+  if(res.length===0){
+    box.innerHTML='<div style="padding:12px;font-size:13px;color:var(--text3);text-align:center">لا توجد نتائج</div>';
+  } else {
+    box.innerHTML=res.map(function(r){
+      return '<div onclick="go(\''+r.s+'\',null);hideSearch()" style="padding:10px 14px;cursor:pointer;font-size:13px;color:var(--text);border-radius:8px;transition:background 0.15s" onmouseover="this.style.background=\'var(--dark3)\'" onmouseout="this.style.background=\'\'">'+r.t+'</div>';
+    }).join('');
+  }
+  box.style.display='block';
+}
+function hideSearch(){
+  setTimeout(function(){
+    document.getElementById('searchResults').style.display='none';
+  },200);
+}
 function showToast(msg, type){
   var t=document.createElement('div');
   t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:'+(type==='ok'?'rgba(26,138,74,0.95)':'rgba(138,26,42,0.95)')+';color:#fff;padding:10px 22px;border-radius:10px;font-size:13px;font-family:Cairo,sans-serif;z-index:9999;direction:rtl;box-shadow:0 4px 20px rgba(0,0,0,0.3)';

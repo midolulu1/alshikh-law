@@ -564,7 +564,7 @@ textarea.fi{resize:vertical;min-height:70px}
 
         <!-- بحث Claude AI -->
         <div class="card" style="margin-bottom:1rem;border-color:rgba(184,150,12,0.4);background:rgba(184,150,12,0.03)">
-          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Gemini)</div><span style="font-size:11px;color:var(--tx2)">ابحث في الأنظمة السعودية مباشرة</span></div>
+          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Groq AI)</div><span style="font-size:11px;color:var(--tx2)">مجاني وسريع — ابحث في الأنظمة السعودية مباشرة</span></div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <input class="fi" id="claudeLawQ" style="margin:0;flex:1" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
             <button class="btn-s" style="flex-shrink:0;padding:10px 18px" onclick="searchWithClaude()">🔍 بحث</button>
@@ -584,7 +584,7 @@ textarea.fi{resize:vertical;min-height:70px}
           </div>
           <div id="claudeLawLoading" style="display:none;text-align:center;padding:16px;color:var(--tx2)">
             <div style="font-size:18px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
-            <div style="font-size:13px;margin-top:6px">جاري البحث بـ Gemini AI...</div>
+            <div style="font-size:13px;margin-top:6px">جاري البحث بـ Groq AI...</div>
           </div>
         </div>
 
@@ -2350,25 +2350,28 @@ function searchWithClaude(){
   g('claudeLawResult').style.display='none';
   g('claudeLawText').textContent='';
 
-  var GEMINI_KEY='AIzaSyBRBbcMkLUINEoJPnlwK_OOjJNEyFdAI7o';
-  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_KEY;
-
-  fetch(url,{
+  fetch('https://api.groq.com/openai/v1/chat/completions',{
     method:'POST',
-    headers:{'Content-Type':'application/json'},
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer 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'
+    },
     body:JSON.stringify({
-      contents:[{parts:[{text:
-        'أنت مستشار قانوني متخصص في الأنظمة واللوائح السعودية. أجب بشكل مفصل ومنظم مع الاستشهاد بالمواد القانونية عند الإمكان. اكتب بالعربية فقط من اليمين لليسار.\n\nسؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q
-      }]}],
-      generationConfig:{maxOutputTokens:1500,temperature:0.3}
+      model:'llama-3.3-70b-versatile',
+      messages:[
+        {role:'system',content:'أنت مستشار قانوني متخصص في الأنظمة واللوائح السعودية. أجب بشكل مفصل ومنظم مع الاستشهاد بالمواد القانونية عند الإمكان. اكتب بالعربية فقط من اليمين إلى اليسار.'},
+        {role:'user',content:'سؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q}
+      ],
+      max_tokens:1500,
+      temperature:0.3
     })
   })
   .then(function(r){return r.json();})
   .then(function(data){
     g('claudeLawLoading').style.display='none';
     var text='';
-    if(data.candidates&&data.candidates[0]&&data.candidates[0].content){
-      data.candidates[0].content.parts.forEach(function(p){text+=p.text||'';});
+    if(data.choices&&data.choices[0]){
+      text=data.choices[0].message.content||'';
     } else if(data.error){
       text='خطأ: '+data.error.message;
     }

@@ -198,6 +198,8 @@ textarea.fi{resize:vertical;min-height:70px}
     <div class="nav-item" onclick="go('calendar',this)">🗓️ مذكرة التواريخ</div>
     <div class="nav-grp">قانوني متقدم</div>
     <div class="nav-item" onclick="go('contracts',this)">📋 إدارة العقود</div>
+    <div class="nav-item" onclick="go('poa',this)">📜 الوكالات <div class="nb" id="poaBadge">0</div></div>
+    <div class="nav-item" onclick="go('officecontracts',this)">🗂️ عقود المكتب</div>
     <div class="nav-item" onclick="go('casefile',this)">📁 ملف القضية</div>
     <div class="nav-item" onclick="go('kanban',this)">📌 مراحل القضايا</div>
     <div class="nav-item" onclick="go('laws',this)">🏛️ بنك الأنظمة</div>
@@ -470,6 +472,41 @@ textarea.fi{resize:vertical;min-height:70px}
         </div>
       </div>
 
+      <!-- الوكالات -->
+      <div class="sec" id="sec-poa">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mPoa')">＋ إضافة وكالة</button>
+          <div class="tot">إجمالي: <span id="tot-poa">0</span> وكالة</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-h"><div class="card-t">⚠️ وكالات تنتهي خلال 30 يوماً</div></div>
+          <div id="poa-alerts" style="font-size:13px;color:var(--tx2)">جاري الفحص...</div>
+        </div>
+        <div id="poa-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div>
+        </div>
+      </div>
+
+      <!-- عقود المكتب -->
+      <div class="sec" id="sec-officecontracts">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mOfficeContract')">＋ إضافة عقد مكتب</button>
+          <div class="tot">إجمالي: <span id="tot-oc">0</span> عقد</div>
+        </div>
+        <div id="oc-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div>
+        </div>
+        <div id="oc-detail" style="display:none;margin-top:1rem">
+          <div class="card">
+            <div class="card-h">
+              <div class="card-t" id="oc-detail-title">تفاصيل العقد</div>
+              <button class="card-b" onclick="g('oc-detail').style.display='none'">✕ إغلاق</button>
+            </div>
+            <div id="oc-detail-body"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- ② ملف القضية الكامل -->
       <div class="sec" id="sec-casefile">
         <div class="pact">
@@ -522,12 +559,39 @@ textarea.fi{resize:vertical;min-height:70px}
         </div>
         <div class="card" style="margin-bottom:1rem">
           <div class="card-h"><div class="card-t">🔍 البحث في البنك</div></div>
-          <input class="fi" id="lawSearch" placeholder="ابحث في الأنظمة والأحكام..." oninput="searchLaws(this.value)" style="margin:0"/>
+          <input class="fi" id="lawSearch" placeholder="ابحث في الأنظمة والأحكام المحفوظة..." oninput="searchLaws(this.value)" style="margin:0"/>
         </div>
+
+        <!-- بحث Claude AI -->
+        <div class="card" style="margin-bottom:1rem;border-color:rgba(184,150,12,0.4);background:rgba(184,150,12,0.03)">
+          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Claude)</div><span style="font-size:11px;color:var(--tx2)">ابحث في الأنظمة السعودية مباشرة</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input class="fi" id="claudeLawQ" style="margin:0;flex:1" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
+            <button class="btn-s" style="flex-shrink:0;padding:10px 18px" onclick="searchWithClaude()">🔍 بحث</button>
+          </div>
+          <div id="claudeLawResult" style="display:none">
+            <div style="border-top:0.5px solid var(--br2);padding-top:12px;margin-top:4px">
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                <span style="width:8px;height:8px;border-radius:50%;background:#3DAA70;display:inline-block"></span>
+                إجابة Claude AI
+              </div>
+              <div id="claudeLawText" style="font-size:13px;color:var(--tx);line-height:1.9;white-space:pre-wrap"></div>
+              <div style="margin-top:10px;display:flex;gap:8px">
+                <button class="card-b" onclick="saveLawFromClaude()">💾 حفظ في البنك</button>
+                <button class="card-b" onclick="clearClaudeResult()">✕ مسح</button>
+              </div>
+            </div>
+          </div>
+          <div id="claudeLawLoading" style="display:none;text-align:center;padding:16px;color:var(--tx2)">
+            <div style="font-size:18px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
+            <div style="font-size:13px;margin-top:6px">جاري البحث بالذكاء الاصطناعي...</div>
+          </div>
+        </div>
+
         <div class="g2">
           <div>
             <div class="card" style="margin-bottom:1rem">
-              <div class="card-h"><div class="card-t">📚 الأنظمة السعودية</div></div>
+              <div class="card-h"><div class="card-t">📚 الأنظمة المحفوظة</div></div>
               <div id="lawsList" style="display:flex;flex-direction:column;gap:6px">
                 <div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">جاري التحميل...</div>
               </div>
@@ -594,6 +658,17 @@ textarea.fi{resize:vertical;min-height:70px}
 .exp-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
 .exp-urgent{background:rgba(224,112,128,.15);color:#E07080}
 .exp-warn{background:rgba(224,176,64,.15);color:#E0B040}
+/* وكالات وعقود مكتب */
+.doc-card{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.doc-card:hover{border-color:var(--g);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.doc-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--tx3)}
+.doc-img img{width:100%;height:140px;object-fit:cover}
+.doc-body{padding:12px}
+.doc-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.doc-meta{font-size:11px;color:var(--tx2);margin-bottom:6px}
+.doc-exp{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+/* Claude loading animation */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 
 <!-- MODALS FOR NEW SECTIONS -->
@@ -624,7 +699,56 @@ textarea.fi{resize:vertical;min-height:70px}
   </div>
 </div>
 
-<!-- Modal: إضافة نظام/حكم -->
+<!-- Modal: إضافة وكالة -->
+<div class="ov" id="mPoa">
+  <div class="modal">
+    <div class="mh">إضافة وكالة جديدة <span class="mx" onclick="closeM('mPoa')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">عنوان الوكالة</label><input class="fi" id="poa_t" placeholder="موضوع الوكالة"/></div>
+      <div><label class="fl">رقم الوكالة</label><input class="fi" id="poa_num" placeholder="رقم الوكالة"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الموكّل</label><select class="fi" id="poa_client"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">نوع الوكالة</label><select class="fi" id="poa_ty"><option>وكالة عامة</option><option>وكالة خاصة</option><option>وكالة قضائية</option><option>وكالة تجارية</option><option>وكالة عقارية</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">تاريخ البداية</label><input class="fi" id="poa_sd" type="date"/></div>
+      <div><label class="fl">تاريخ الانتهاء</label><input class="fi" id="poa_ed" type="date"/></div>
+    </div>
+    <label class="fl">صورة الوكالة (رابط أو Base64)</label>
+    <input type="file" accept="image/*" id="poa_img_file" class="fi" style="padding:6px" onchange="previewImg('poa_img_file','poa_img_preview','poa_img')"/>
+    <input type="hidden" id="poa_img"/>
+    <div id="poa_img_preview" style="display:none;margin-bottom:12px"><img style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:0.5px solid var(--br2)" src=""/></div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="poa_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mPoa')">إلغاء</button><button class="btn-s" onclick="savePoa()">حفظ الوكالة 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: إضافة عقد مكتب -->
+<div class="ov" id="mOfficeContract">
+  <div class="modal">
+    <div class="mh">إضافة عقد مكتب <span class="mx" onclick="closeM('mOfficeContract')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">عنوان العقد</label><input class="fi" id="oc_t" placeholder="عنوان العقد"/></div>
+      <div><label class="fl">نوع العقد</label><select class="fi" id="oc_ty"><option>عقد إيجار</option><option>عقد خدمات</option><option>عقد توريد</option><option>عقد صيانة</option><option>عقد عمل</option><option>اتفاقية تعاون</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الطرف الثاني</label><input class="fi" id="oc_p2" placeholder="اسم الطرف الثاني"/></div>
+      <div><label class="fl">قيمة العقد (ر.س)</label><input class="fi" id="oc_val" type="number" placeholder="0"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">تاريخ البداية</label><input class="fi" id="oc_sd" type="date"/></div>
+      <div><label class="fl">تاريخ الانتهاء</label><input class="fi" id="oc_ed" type="date"/></div>
+    </div>
+    <label class="fl">صورة/وثيقة العقد</label>
+    <input type="file" accept="image/*" id="oc_img_file" class="fi" style="padding:6px" onchange="previewImg('oc_img_file','oc_img_preview','oc_img')"/>
+    <input type="hidden" id="oc_img"/>
+    <div id="oc_img_preview" style="display:none;margin-bottom:12px"><img style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:0.5px solid var(--br2)" src=""/></div>
+    <label class="fl">تفاصيل العقد</label><textarea class="fi" id="oc_detail" rows="3" placeholder="بنود ومواد العقد الرئيسية..."></textarea>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="oc_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mOfficeContract')">إلغاء</button><button class="btn-s" onclick="saveOfficeContract()">حفظ العقد 🔥</button></div>
+  </div>
+</div>
 <div class="ov" id="mLaw">
   <div class="modal">
     <div class="mh">إضافة للبنك القانوني <span class="mx" onclick="closeM('mLaw')">×</span></div>
@@ -929,7 +1053,7 @@ function doLogout(){
 }
 
 // ===== NAV =====
-var titles={dashboard:'الصفحة الرئيسية',cases:'القضايا',clients:'العملاء',hearings:'الجلسات',appointments:'المواعيد',memos:'المذكرات',calendar:'مذكرة التواريخ',staff:'الموظفون',reports:'التقارير',contracts:'إدارة العقود',casefile:'ملف القضية الكامل',kanban:'مراحل القضايا',laws:'بنك الأنظمة والأحكام',verdicts:'سجل الأحكام والنتائج'};
+var titles={dashboard:'الصفحة الرئيسية',cases:'القضايا',clients:'العملاء',hearings:'الجلسات',appointments:'المواعيد',memos:'المذكرات',calendar:'مذكرة التواريخ',staff:'الموظفون',reports:'التقارير',contracts:'إدارة العقود',poa:'الوكالات',officecontracts:'عقود المكتب',casefile:'ملف القضية الكامل',kanban:'مراحل القضايا',laws:'بنك الأنظمة والأحكام',verdicts:'سجل الأحكام والنتائج'};
 function go(id,el){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('on');});
@@ -1992,18 +2116,286 @@ function delVerdict(id){
 // تحديث go لتشمل الأقسام الجديدة - مدمج في الدالة الأصلية أدناه
 function goExtra(id){
   if(id==='contracts') loadContracts();
+  else if(id==='poa') loadPoa();
+  else if(id==='officecontracts') loadOfficeContracts();
   else if(id==='casefile') loadCaseFileSelect();
   else if(id==='kanban') loadKanban();
   else if(id==='laws') loadLaws();
   else if(id==='verdicts') loadVerdicts();
 }
 
-// إضافة القوائم للـ dropdowns الجديدة
+// ================================================================
+// صور المستندات - تحويل لـ Base64
+// ================================================================
+function previewImg(fileInputId, previewId, hiddenId){
+  var file=document.getElementById(fileInputId).files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var b64=e.target.result;
+    document.getElementById(hiddenId).value=b64;
+    var prev=document.getElementById(previewId);
+    prev.style.display='block';
+    prev.querySelector('img').src=b64;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ================================================================
+// الوكالات - POA
+// ================================================================
+function savePoa(){
+  closeM('mPoa');
+  var data={title:v('poa_t'),number:v('poa_num'),client:g('poa_client').value||'',type:v('poa_ty'),startDate:v('poa_sd'),endDate:v('poa_ed'),image:g('poa_img').value||'',notes:v('poa_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['poa_t','poa_num','poa_sd','poa_ed','poa_n']);
+  g('poa_img').value='';
+  var prev=g('poa_img_preview'); if(prev){prev.style.display='none';prev.querySelector('img').src='';}
+  toast('جاري الحفظ...','ok');
+  db.collection('poa').add(data).then(function(){toast('✓ تم حفظ الوكالة','ok');loadPoa();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadPoa(){
+  db.collection('poa').orderBy('createdAt','desc').get().then(function(snap){
+    var tot=snap.size;
+    if(g('tot-poa')) g('tot-poa').textContent=tot;
+    if(g('poaBadge')) g('poaBadge').textContent=tot;
+    var today=new Date(); var warn30=new Date(); warn30.setDate(warn30.getDate()+30);
+    var expiring=[], grid=g('poa-grid'), alerts=g('poa-alerts');
+    if(!grid) return;
+    if(!snap.size){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">📜 لا توجد وكالات بعد — أضف أول وكالة!</div>';if(alerts)alerts.innerHTML='<div style="color:#3DAA70;padding:8px">✅ لا توجد وكالات تنتهي قريباً</div>';return;}
+    var cards='';
+    snap.docs.forEach(function(d){
+      var p=d.data(), id=d.id;
+      var ed=p.endDate?new Date(p.endDate):null;
+      var expCls='ba', expTxt='ساريه'; var daysLeft='';
+      if(ed){
+        var diff=Math.ceil((ed-today)/(1000*60*60*24));
+        if(ed<today){expCls='bc';expTxt='منتهية';}
+        else if(ed<warn30){expCls='bu';expTxt='تنتهي قريباً';daysLeft=' ('+diff+' يوم)';expiring.push({title:p.title||'وكالة',date:p.endDate,days:diff});}
+        else{expCls='ba';expTxt='سارية';}
+      }
+      var imgHtml=p.image?'<img src="'+p.image+'" style="width:100%;height:140px;object-fit:cover"/>':'<div class="doc-img">📜</div>';
+      cards+='<div class="doc-card" onclick="viewPoa(\''+id+'\')">'+imgHtml+'<div class="doc-body">'+
+        '<div class="doc-title">'+(p.title||'—')+'</div>'+
+        '<div class="doc-meta">'+
+          (p.number?'رقم: '+p.number+' • ':'')+
+          (p.client?'الموكّل: '+p.client:'')+'<br>'+
+          (p.startDate?'من: '+p.startDate+' ':'')+
+          (p.endDate?'حتى: '+p.endDate:'')+ daysLeft+
+        '</div>'+
+        '<span class="doc-exp badge '+expCls+'">'+expTxt+'</span>'+
+        '<div style="margin-top:8px;display:flex;gap:4px"><button class="act-btn ab-del" onclick="event.stopPropagation();delPoa(\''+id+'\')">حذف</button></div>'+
+      '</div></div>';
+    });
+    grid.innerHTML=cards;
+    if(alerts){
+      if(!expiring.length){alerts.innerHTML='<div style="color:#3DAA70;padding:8px">✅ لا توجد وكالات تنتهي خلال 30 يوماً</div>';}
+      else{alerts.innerHTML=expiring.map(function(e){return '<div class="contract-expiry"><div class="exp-badge exp-urgent">⚠ ينتهي خلال '+e.days+' يوم</div><div style="font-size:13px;color:var(--tx)">'+e.title+' • '+e.date+'</div></div>';}).join('');}
+    }
+    // إشعار المتصفح
+    if(expiring.length>0 && 'Notification' in window && Notification.permission==='granted'){
+      new Notification('⚠️ وكالات تنتهي قريباً', {body: expiring.length+' وكالة تنتهي خلال 30 يوماً في مكتب الشيخ للمحاماة'});
+    } else if(expiring.length>0 && 'Notification' in window && Notification.permission!=='denied'){
+      Notification.requestPermission();
+    }
+  }).catch(function(e){console.log(e);});
+}
+
+function viewPoa(id){
+  db.collection('poa').doc(id).get().then(function(d){
+    if(!d.exists) return;
+    var p=d.data();
+    var html='<div style="display:flex;flex-direction:column;gap:12px">'+
+      (p.image?'<img src="'+p.image+'" style="width:100%;max-height:300px;object-fit:contain;border-radius:10px;border:0.5px solid var(--br2)"/>':'')+
+      '<div class="detail-row"><div class="detail-lbl">عنوان الوكالة</div><div class="detail-val"><strong>'+(p.title||'—')+'</strong></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">رقم الوكالة</div><div class="detail-val cno">'+(p.number||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">نوع الوكالة</div><div class="detail-val">'+(p.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الموكّل</div><div class="detail-val">'+(p.client||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ البداية</div><div class="detail-val">'+(p.startDate||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ الانتهاء</div><div class="detail-val">'+(p.endDate||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(p.notes||'—')+'</div></div>'+
+    '</div>';
+    var win=window.open('','_blank','width=700,height=600');
+    win.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>وكالة: '+(p.title||'')+'</title>'+
+      '<style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;background:#fff;color:#000}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
+      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
+      '@media print{@page{margin:1cm}}</style></head><body>'+
+      '<div class="hdr"><div style="font-size:24px">📜</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1><div style="font-size:12px;color:#666">وكالة: '+(p.title||'')+'</div></div>'+
+      (p.image?'<img src="'+p.image+'"/>':'')+
+      '<div class="row"><div class="lbl">رقم الوكالة</div><div class="val">'+(p.number||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">النوع</div><div class="val">'+(p.type||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">الموكّل</div><div class="val">'+(p.client||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">تاريخ البداية</div><div class="val">'+(p.startDate||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">تاريخ الانتهاء</div><div class="val">'+(p.endDate||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+(p.notes||'—')+'</div></div>'+
+      '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨️ طباعة</button></div>'+
+      '</body></html>');
+    win.document.close();
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function delPoa(id){
+  if(!confirm('حذف هذه الوكالة؟'))return;
+  db.collection('poa').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadPoa();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// عقود المكتب
+// ================================================================
+function saveOfficeContract(){
+  closeM('mOfficeContract');
+  var data={title:v('oc_t'),type:v('oc_ty'),party2:v('oc_p2'),value:v('oc_val'),startDate:v('oc_sd'),endDate:v('oc_ed'),image:g('oc_img').value||'',detail:v('oc_detail'),notes:v('oc_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['oc_t','oc_p2','oc_val','oc_sd','oc_ed','oc_detail','oc_n']);
+  g('oc_img').value='';
+  var prev=g('oc_img_preview'); if(prev){prev.style.display='none';prev.querySelector('img').src='';}
+  toast('جاري الحفظ...','ok');
+  db.collection('officeContracts').add(data).then(function(){toast('✓ تم حفظ العقد','ok');loadOfficeContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadOfficeContracts(){
+  db.collection('officeContracts').orderBy('createdAt','desc').get().then(function(snap){
+    if(g('tot-oc')) g('tot-oc').textContent=snap.size;
+    var grid=g('oc-grid'); if(!grid) return;
+    if(!snap.size){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">🗂️ لا توجد عقود مكتب بعد</div>';return;}
+    var today=new Date(); var warn30=new Date(); warn30.setDate(warn30.getDate()+30);
+    var cards='';
+    snap.docs.forEach(function(d){
+      var c=d.data(), id=d.id;
+      var ed=c.endDate?new Date(c.endDate):null;
+      var expCls='ba', expTxt='ساري';
+      if(ed){if(ed<today){expCls='bc';expTxt='منتهي';}else if(ed<warn30){expCls='bu';expTxt='ينتهي قريباً';}}
+      var imgHtml=c.image?'<img src="'+c.image+'" style="width:100%;height:140px;object-fit:cover"/>':'<div class="doc-img" style="display:flex;align-items:center;justify-content:center;height:140px;background:var(--bg3);font-size:40px">🗂️</div>';
+      cards+='<div class="doc-card" onclick="viewOfficeContract(\''+id+'\')">'+imgHtml+'<div class="doc-body">'+
+        '<div class="doc-title">'+(c.title||'—')+'</div>'+
+        '<div class="doc-meta">'+
+          (c.type||'—')+(c.party2?' • '+c.party2:'')+'<br>'+
+          (c.value?'القيمة: '+Number(c.value).toLocaleString()+' ر.س<br>':'')+
+          (c.startDate?'من: '+c.startDate+' ':'')+
+          (c.endDate?'حتى: '+c.endDate:'')
+        +'</div>'+
+        '<span class="doc-exp badge '+expCls+'">'+expTxt+'</span>'+
+        '<div style="margin-top:8px;display:flex;gap:4px">'+
+          '<button class="act-btn ab-view" onclick="event.stopPropagation();viewOfficeContract(\''+id+'\')">تفاصيل</button>'+
+          '<button class="act-btn ab-del" onclick="event.stopPropagation();delOfficeContract(\''+id+'\')">حذف</button>'+
+        '</div>'+
+      '</div></div>';
+    });
+    grid.innerHTML=cards;
+  }).catch(function(e){console.log(e);});
+}
+
+function viewOfficeContract(id){
+  db.collection('officeContracts').doc(id).get().then(function(d){
+    if(!d.exists) return;
+    var c=d.data();
+    var detEl=g('oc-detail'), titleEl=g('oc-detail-title'), bodyEl=g('oc-detail-body');
+    if(!detEl) return;
+    titleEl.textContent='تفاصيل عقد: '+(c.title||'');
+    bodyEl.innerHTML=
+      (c.image?'<img src="'+c.image+'" style="width:100%;max-height:250px;object-fit:contain;border-radius:10px;border:0.5px solid var(--br2);margin-bottom:1rem"/>':'')+
+      '<div class="detail-row"><div class="detail-lbl">نوع العقد</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الطرف الثاني</div><div class="detail-val">'+(c.party2||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">قيمة العقد</div><div class="detail-val cno">'+(c.value?Number(c.value).toLocaleString()+' ر.س':'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ البداية</div><div class="detail-val">'+(c.startDate||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ الانتهاء</div><div class="detail-val">'+(c.endDate||'—')+'</div></div>'+
+      (c.detail?'<div class="detail-row" style="flex-direction:column;gap:6px"><div class="detail-lbl">تفاصيل العقد</div><div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:13px;line-height:1.8;color:var(--tx);margin-top:4px">'+c.detail+'</div></div>':'')+
+      (c.notes?'<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+c.notes+'</div></div>':'')+
+      '<div style="margin-top:12px"><button class="btn-s" onclick="printOfficeContract(\''+id+'\')">🖨️ طباعة العقد</button></div>';
+    detEl.style.display='block';
+    detEl.scrollIntoView({behavior:'smooth'});
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function printOfficeContract(id){
+  db.collection('officeContracts').doc(id).get().then(function(d){
+    var c=d.data();
+    var win=window.open('','_blank','width=800,height=700');
+    win.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>عقد: '+(c.title||'')+'</title>'+
+      '<style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
+      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
+      '.detail-box{background:#f9f7f2;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;margin-top:8px}'+
+      '@page{size:A4;margin:1.5cm}@media print{button{display:none}}</style></head><body>'+
+      '<div class="hdr"><div style="font-size:24px">🗂️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
+      '<div style="font-size:12px;color:#666">عقد: '+(c.title||'')+'</div></div>'+
+      (c.image?'<img src="'+c.image+'"/>':'')+
+      '<div class="row"><div class="lbl">نوع العقد</div><div class="val">'+(c.type||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">الطرف الثاني</div><div class="val">'+(c.party2||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">القيمة</div><div class="val">'+(c.value?Number(c.value).toLocaleString()+' ر.س':'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">من</div><div class="val">'+(c.startDate||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">حتى</div><div class="val">'+(c.endDate||'—')+'</div></div>'+
+      (c.detail?'<div style="margin-top:12px"><div style="font-weight:700;margin-bottom:6px;color:#666">تفاصيل العقد:</div><div class="detail-box">'+c.detail+'</div></div>':'')+
+      (c.notes?'<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+c.notes+'</div></div>':'')+
+      '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨️ طباعة</button></div>'+
+      '</body></html>');
+    win.document.close();
+  });
+}
+
+function delOfficeContract(id){
+  if(!confirm('حذف هذا العقد؟'))return;
+  db.collection('officeContracts').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadOfficeContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// بحث Claude AI في الأنظمة
+// ================================================================
+function searchWithClaude(){
+  var q=v('claudeLawQ');
+  if(!q){toast('أدخل سؤالاً للبحث','err');return;}
+  g('claudeLawLoading').style.display='block';
+  g('claudeLawResult').style.display='none';
+  g('claudeLawText').textContent='';
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1500,
+      system:'أنت مستشار قانوني متخصص في الأنظمة واللوائح السعودية. أجب بشكل مفصل ومنظم. استشهد بالمواد القانونية عند الإمكان. اكتب بالعربية فقط.',
+      messages:[{role:'user',content:'سؤال قانوني من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q}]
+    })
+  }).then(function(r){return r.json();})
+  .then(function(data){
+    g('claudeLawLoading').style.display='none';
+    var text='';
+    if(data.content&&data.content.length>0){
+      data.content.forEach(function(block){if(block.type==='text')text+=block.text;});
+    } else if(data.error){
+      text='خطأ: '+data.error.message;
+    }
+    g('claudeLawText').textContent=text;
+    g('claudeLawResult').style.display='block';
+    window._claudeLawAnswer={q:q,a:text};
+  }).catch(function(e){
+    g('claudeLawLoading').style.display='none';
+    g('claudeLawText').textContent='حدث خطأ في الاتصال بـ Claude. تأكد من اتصال الإنترنت.';
+    g('claudeLawResult').style.display='block';
+  });
+}
+
+function clearClaudeResult(){
+  g('claudeLawResult').style.display='none';
+  g('claudeLawQ').value='';
+  window._claudeLawAnswer=null;
+}
+
+function saveLawFromClaude(){
+  if(!window._claudeLawAnswer) return;
+  var data={type:'مبدأ قانوني',field:'عام',title:window._claudeLawAnswer.q.slice(0,60),reference:'Claude AI - '+new Date().toLocaleDateString('ar-SA'),body:window._claudeLawAnswer.a,tags:'ذكاء اصطناعي، بحث، Claude',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  db.collection('laws').add(data).then(function(){toast('✓ تم الحفظ في بنك الأنظمة','ok');loadLaws();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// إضافة القوائم الجديدة للـ dropdowns
 function refreshNewDropdowns(){
   fillSelect('con_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};}),'-- اختياري --');
   fillSelect('con_p1', _clients.map(function(n){return {val:n,txt:n};}),'-- اختر العميل --');
   fillSelect('vrd_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};}),'-- اختر القضية --');
   fillSelect('vrd_l', _staff.map(function(s){return {val:s.name,txt:s.name+(s.pos?' — '+s.pos:'')};}),'-- اختر المحامي --');
+  fillSelect('poa_client', _clients.map(function(n){return {val:n,txt:n};}),'-- اختر العميل --');
 }
 </script>
 </body>

@@ -564,7 +564,7 @@ textarea.fi{resize:vertical;min-height:70px}
 
         <!-- بحث Claude AI -->
         <div class="card" style="margin-bottom:1rem;border-color:rgba(184,150,12,0.4);background:rgba(184,150,12,0.03)">
-          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Claude)</div><span style="font-size:11px;color:var(--tx2)">ابحث في الأنظمة السعودية مباشرة</span></div>
+          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Gemini)</div><span style="font-size:11px;color:var(--tx2)">ابحث في الأنظمة السعودية مباشرة</span></div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <input class="fi" id="claudeLawQ" style="margin:0;flex:1" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
             <button class="btn-s" style="flex-shrink:0;padding:10px 18px" onclick="searchWithClaude()">🔍 بحث</button>
@@ -575,7 +575,7 @@ textarea.fi{resize:vertical;min-height:70px}
                 <span style="width:8px;height:8px;border-radius:50%;background:#3DAA70;display:inline-block"></span>
                 إجابة Claude AI
               </div>
-              <div id="claudeLawText" style="font-size:13px;color:var(--tx);line-height:1.9;white-space:pre-wrap"></div>
+              <div id="claudeLawText" style="font-size:13px;color:var(--tx);line-height:1.9;white-space:pre-wrap;direction:rtl;text-align:right"></div>
               <div style="margin-top:10px;display:flex;gap:8px">
                 <button class="card-b" onclick="saveLawFromClaude()">💾 حفظ في البنك</button>
                 <button class="card-b" onclick="clearClaudeResult()">✕ مسح</button>
@@ -584,7 +584,7 @@ textarea.fi{resize:vertical;min-height:70px}
           </div>
           <div id="claudeLawLoading" style="display:none;text-align:center;padding:16px;color:var(--tx2)">
             <div style="font-size:18px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
-            <div style="font-size:13px;margin-top:6px">جاري البحث بالذكاء الاصطناعي...</div>
+            <div style="font-size:13px;margin-top:6px">جاري البحث بـ Gemini AI...</div>
           </div>
         </div>
 
@@ -2349,30 +2349,36 @@ function searchWithClaude(){
   g('claudeLawLoading').style.display='block';
   g('claudeLawResult').style.display='none';
   g('claudeLawText').textContent='';
-  fetch('https://api.anthropic.com/v1/messages',{
+
+  var GEMINI_KEY='AIzaSyBRBbcMkLUINEoJPnlwK_OOjJNEyFdAI7o';
+  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+GEMINI_KEY;
+
+  fetch(url,{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
-      model:'claude-sonnet-4-20250514',
-      max_tokens:1500,
-      system:'أنت مستشار قانوني متخصص في الأنظمة واللوائح السعودية. أجب بشكل مفصل ومنظم. استشهد بالمواد القانونية عند الإمكان. اكتب بالعربية فقط.',
-      messages:[{role:'user',content:'سؤال قانوني من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q}]
+      contents:[{parts:[{text:
+        'أنت مستشار قانوني متخصص في الأنظمة واللوائح السعودية. أجب بشكل مفصل ومنظم مع الاستشهاد بالمواد القانونية عند الإمكان. اكتب بالعربية فقط من اليمين لليسار.\n\nسؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q
+      }]}],
+      generationConfig:{maxOutputTokens:1500,temperature:0.3}
     })
-  }).then(function(r){return r.json();})
+  })
+  .then(function(r){return r.json();})
   .then(function(data){
     g('claudeLawLoading').style.display='none';
     var text='';
-    if(data.content&&data.content.length>0){
-      data.content.forEach(function(block){if(block.type==='text')text+=block.text;});
+    if(data.candidates&&data.candidates[0]&&data.candidates[0].content){
+      data.candidates[0].content.parts.forEach(function(p){text+=p.text||'';});
     } else if(data.error){
       text='خطأ: '+data.error.message;
     }
     g('claudeLawText').textContent=text;
     g('claudeLawResult').style.display='block';
     window._claudeLawAnswer={q:q,a:text};
-  }).catch(function(e){
+  })
+  .catch(function(e){
     g('claudeLawLoading').style.display='none';
-    g('claudeLawText').textContent='حدث خطأ في الاتصال بـ Claude. تأكد من اتصال الإنترنت.';
+    g('claudeLawText').textContent='حدث خطأ: '+e.message;
     g('claudeLawResult').style.display='block';
   });
 }

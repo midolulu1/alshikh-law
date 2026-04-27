@@ -1541,16 +1541,16 @@ function loadStats(){
     if(g('closeRate')){g('closeRate').textContent=cp+'%';setTimeout(function(){g('closeRateBar').style.width=cp+'%';},400);}
     if(g('activeRate')){g('activeRate').textContent=ap+'%';setTimeout(function(){g('activeRateBar').style.width=ap+'%';},500);}
     if(g('urgentRate')){g('urgentRate').textContent=up+'%';setTimeout(function(){g('urgentRateBar').style.width=up+'%';},600);}
-  }).catch(function(){});
-  db.collection('clients').get().then(function(s){animateCount(g('st2'),s.size);}).catch(function(){});
-  db.collection('hearings').get().then(function(s){animateCount(g('st3'),s.size);}).catch(function(){});
-  db.collection('staff').get().then(function(s){animateCount(g('st4'),s.size);}).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('clients').get().then(function(s){animateCount(g('st2'),s.size);}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('hearings').get().then(function(s){animateCount(g('st3'),s.size);}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('staff').get().then(function(s){animateCount(g('st4'),s.size);}).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 // charts handled by Chart.js above
 
 function loadCases(){
-  db.collection('cases').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('cases').get().then(function(snap){
     g('tot-cases').textContent=snap.size;
     g('cBadge').textContent=snap.size;
     var rows=snap.docs.map(function(d){
@@ -1560,59 +1560,59 @@ function loadCases(){
     g('tb-cases').innerHTML=rows.length?rows.join(''):empty(8);
     var dr=snap.docs.slice(0,5).map(function(d){var c=d.data();return '<tr><td class="cno">'+(c.number||'—')+'</td><td>'+(c.title||'—')+'</td><td>'+(c.client||'—')+'</td><td>'+(c.court||'—')+'</td><td><span class="badge '+sc(c.status)+'">'+(c.status||'نشطة')+'</span></td></tr>';});
     g('dCases').innerHTML=dr.length?dr.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:16px">لا توجد قضايا</td></tr>';
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function loadClients(){
-  db.collection('clients').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('clients').get().then(function(snap){
     g('tot-clients').textContent=snap.size;
     var rows=snap.docs.map(function(d){
       var c=d.data(), id=d.id;
       return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td><td>'+(c.city||'—')+'</td><td><div class="act-btns"><button class="act-btn ab-view" onclick="viewClient(\''+id+'\')">عرض</button><button class="act-btn ab-edit" onclick="editClient(\''+id+'\')">تعديل</button><button class="act-btn ab-del" onclick="delClient(\''+id+'\')">حذف</button></div></td></tr>';
     });
     g('tb-clients').innerHTML=rows.length?rows.join(''):empty(8);
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function loadHearings(){
-  db.collection('hearings').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('hearings').get().then(function(snap){
     g('tot-hearings').textContent=snap.size;
     var rows=snap.docs.map(function(d){var h=d.data();return '<tr><td class="cno">'+(h.caseNum||'—')+'</td><td>'+(h.court||'—')+'</td><td>'+(h.date||'—')+'</td><td>'+(h.time||'—')+'</td><td>'+(h.judge||'—')+'</td><td>'+(h.lawyer||'—')+'</td></tr>';});
     g('tb-hearings').innerHTML=rows.length?rows.join(''):empty(6);
     var dh=snap.docs.slice(0,4).map(function(d){var h=d.data();return '<div class="tl-i"><div class="tl-d" style="background:var(--g)"></div><div><div class="tl-tt">'+(h.caseNum||'—')+' • '+(h.court||'—')+'</div><div class="tl-ss">'+(h.date||'—')+' • '+(h.time||'—')+'</div></div></div>';});
     g('dHearings').innerHTML=dh.length?dh.join(''):'<div style="color:var(--tx3);font-size:13px">لا توجد جلسات</div>';
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function loadAppts(){
-  db.collection('appointments').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('appointments').get().then(function(snap){
     g('tot-appts').textContent=snap.size;
     var rows=snap.docs.map(function(d){var a=d.data();return '<tr><td>'+(a.client||'—')+'</td><td>'+(a.lawyer||'—')+'</td><td>'+(a.date||'—')+'</td><td>'+(a.time||'—')+'</td><td>'+(a.type||'—')+'</td></tr>';});
     g('tb-appts').innerHTML=rows.length?rows.join(''):empty(5);
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function loadMemos(){
-  db.collection('memos').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('memos').get().then(function(snap){
     g('tot-memos').textContent=snap.size;
     var rows=snap.docs.map(function(d){var m=d.data();return '<tr><td><strong>'+(m.title||'—')+'</strong></td><td>'+(m.type||'—')+'</td><td class="cno">'+(m.caseNum||'—')+'</td><td>'+(m.lawyer||'—')+'</td></tr>';});
     g('tb-memos').innerHTML=rows.length?rows.join(''):empty(4);
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function loadStaff(){
-  db.collection('staff').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('staff').get().then(function(snap){
     g('tot-staff').textContent=snap.size;
     var rows=snap.docs.map(function(d){var s=d.data();return '<tr><td><strong>'+(s.name||'—')+'</strong></td><td>'+(s.position||'—')+'</td><td>'+(s.specialty||'—')+'</td><td>'+(s.phone||'—')+'</td><td>'+(s.email||'—')+'</td></tr>';});
     g('tb-staff').innerHTML=rows.length?rows.join(''):empty(5);
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 // ===== REPORTS =====
 var allCasesData = [];
 
 function loadReports(){
-  db.collection('cases').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('cases').get().then(function(snap){
     allCasesData = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
     renderReportTable(allCasesData);
     renderCharts(allCasesData);
@@ -1630,10 +1630,10 @@ function loadReports(){
     g('r_active').textContent=allCasesData.filter(function(c){return c.status==='نشطة';}).length;
     g('r_urgent').textContent=allCasesData.filter(function(c){return c.status==='عاجلة';}).length;
     g('r_closed').textContent=allCasesData.filter(function(c){return c.status==='مغلقة';}).length;
-  }).catch(function(){});
-  db.collection('clients').get().then(function(s){var el=g('r2');if(el)el.textContent=s.size;}).catch(function(){});
-  db.collection('hearings').get().then(function(s){var el=g('r3');if(el)el.textContent=s.size;}).catch(function(){});
-  db.collection('staff').get().then(function(s){var el=g('r4');if(el)el.textContent=s.size;}).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('clients').get().then(function(s){var el=g('r2');if(el)el.textContent=s.size;}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('hearings').get().then(function(s){var el=g('r3');if(el)el.textContent=s.size;}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('staff').get().then(function(s){var el=g('r4');if(el)el.textContent=s.size;}).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function renderReportTable(cases){
@@ -1744,7 +1744,7 @@ function printDetailedHTML(cases, title){
 }
 
 function printAllClients(){
-  db.collection('clients').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('clients').get().then(function(snap){
     var rows=snap.docs.map(function(d){
       var c=d.data();
       return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td>'+
@@ -1767,7 +1767,7 @@ function printAllClients(){
 }
 
 function printAllHearings(){
-  db.collection('hearings').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('hearings').get().then(function(snap){
     var rows=snap.docs.map(function(d){
       var h=d.data();
       return '<tr><td class="cno">'+(h.caseNum||'—')+'</td><td>'+(h.court||'—')+'</td>'+
@@ -1804,6 +1804,7 @@ function saveCase(){
   closeM('mCase');
   var data={title:v('c_t'),type:v('c_ty'),court:v('c_co'),client:v('c_cl'),lawyer:v('c_la'),date:v('c_d'),priority:v('c_p'),notes:v('c_n'),status:'نشطة',number:'2025-'+Math.floor(Math.random()*900+100),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
   clr(['c_t','c_co','c_cl','c_la','c_d','c_n']);
+  console.log('saveCase called, data:', JSON.stringify(data));
   toast('جاري الحفظ...','ok');
   db.collection('cases').add(data).then(function(){toast('✓ تم حفظ القضية','ok');loadCases();loadStats();}).catch(function(e){
     var msg=e.message||'';
@@ -1821,6 +1822,7 @@ function saveClient(){
   var data={name:v('cl_n'),type:v('cl_ty'),phone:v('cl_p'),email:v('cl_e'),idNum:v('cl_i'),unifiedNum:v('cl_u'),city:v('cl_c'),notes:v('cl_no'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
   clr(['cl_n','cl_p','cl_e','cl_i','cl_u','cl_c','cl_no']);
   toast('جاري الحفظ...','ok');
+  console.log('Saving to clients:', JSON.stringify(data));
   db.collection('clients').add(data).then(function(){toast('✓ تم حفظ العميل','ok');loadClients();loadStats();loadClientDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
@@ -1828,24 +1830,24 @@ function saveClient(){
 var _clients=[], _staff=[], _cases=[];
 
 function loadAllDropdownData(){
-  db.collection('clients').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('clients').get().then(function(snap){
     _clients=snap.docs.map(function(d){return d.data().name||'';}).filter(Boolean);
     refreshAllDropdowns();
-  }).catch(function(){});
-  db.collection('staff').orderBy('createdAt','desc').get().then(function(snap){
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('staff').get().then(function(snap){
     _staff=snap.docs.map(function(d){
       var s=d.data();
       return {name:s.name||'',pos:s.position||''};
     }).filter(function(s){return s.name;});
     refreshAllDropdowns();
-  }).catch(function(){});
-  db.collection('cases').orderBy('createdAt','desc').get().then(function(snap){
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('cases').get().then(function(snap){
     _cases=snap.docs.map(function(d){
       var c=d.data();
       return {num:c.number||'',title:c.title||''};
     }).filter(function(c){return c.num;});
     refreshAllDropdowns();
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function fillSelect(id, opts, placeholder){
@@ -1902,6 +1904,7 @@ function saveHearing(){
   clr(['h_co','h_d','h_t','h_j','h_n']);
   g('h_c').value=''; g('h_l').value='';
   toast('جاري الحفظ...','ok');
+  console.log('Saving to hearings:', JSON.stringify(data));
   db.collection('hearings').add(data).then(function(){toast('✓ تم حفظ الجلسة','ok');loadHearings();loadStats();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
@@ -1911,6 +1914,7 @@ function saveAppt(){
   clr(['a_d','a_t','a_n']);
   g('a_c').value=''; g('a_l').value='';
   toast('جاري الحفظ...','ok');
+  console.log('Saving to appointments:', JSON.stringify(data));
   db.collection('appointments').add(data).then(function(){toast('✓ تم حفظ الموعد','ok');loadAppts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
@@ -1920,6 +1924,7 @@ function saveMemo(){
   clr(['m_t','m_b']);
   g('m_c').value=''; g('m_l').value='';
   toast('جاري الحفظ...','ok');
+  console.log('Saving to memos:', JSON.stringify(data));
   db.collection('memos').add(data).then(function(){toast('✓ تم رفع المذكرة','ok');loadMemos();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
@@ -1928,6 +1933,7 @@ function saveStaff(){
   var data={name:v('s_n'),position:v('s_p'),phone:v('s_ph'),email:v('s_e'),specialty:v('s_sp'),role:v('s_r'),status:'نشط',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
   clr(['s_n','s_ph','s_e','s_sp']);
   toast('جاري الحفظ...','ok');
+  console.log('Saving to staff:', JSON.stringify(data));
   db.collection('staff').add(data).then(function(){toast('✓ تم إضافة الموظف','ok');loadStaff();loadStats();loadStaffDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
@@ -1985,8 +1991,8 @@ function editCase(id){
     var savedClient=c.client||'';
     var savedLawyer=c.lawyer||'';
     Promise.all([
-      db.collection('clients').orderBy('createdAt','desc').get(),
-      db.collection('staff').orderBy('createdAt','desc').get()
+      db.collection('clients').get(),
+      db.collection('staff').get()
     ]).then(function(results){
       var clientSel=g('edit_c_cl');
       clientSel.innerHTML='<option value="">-- اختر العميل --</option>';
@@ -2057,7 +2063,7 @@ function printCase(){
 }
 
 function printAllCases(){
-  db.collection('cases').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('cases').get().then(function(snap){
     var cases = snap.docs.map(function(d){ return d.data(); });
     var w = window.open('','_blank','width=800,height=600');
     w.document.write(printCaseHTML(cases,'تقرير جميع القضايا'));
@@ -2217,7 +2223,7 @@ function saveContract(){
 }
 
 function loadContracts(){
-  db.collection('contracts').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('contracts').get().then(function(snap){
     g('tot-contracts').textContent=snap.size;
     var today=new Date(); var warn30=new Date(); warn30.setDate(warn30.getDate()+30);
     var expiring=[];
@@ -2236,7 +2242,7 @@ function loadContracts(){
     var expEl=g('expiring-contracts');
     if(expiring.length===0){expEl.innerHTML='<div style="color:#3DAA70;padding:8px">✅ لا توجد عقود تنتهي خلال 30 يوماً</div>';}
     else{expEl.innerHTML=expiring.map(function(e){return '<div class="contract-expiry"><div class="exp-badge exp-urgent">⚠ '+e.date+'</div><div style="font-size:13px;color:var(--tx)">'+e.title+'</div></div>';}).join('');}
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function delContract(id){
@@ -2248,7 +2254,7 @@ function delContract(id){
 // ② ملف القضية الكامل
 // ================================================================
 function loadCaseFileSelect(){
-  db.collection('cases').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('cases').get().then(function(snap){
     var sel=g('casefileSelect');
     if(!sel) return;
     sel.innerHTML='<option value="">-- اختر قضية --</option>';
@@ -2256,7 +2262,7 @@ function loadCaseFileSelect(){
       var c=d.data();
       sel.innerHTML+='<option value="'+d.id+'">'+(c.number||'')+(c.title?' | '+c.title:'')+'</option>';
     });
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function loadCaseFile(id){
@@ -2296,7 +2302,7 @@ function loadCaseFile(id){
       el.innerHTML='<table class="tbl"><thead><tr><th>التاريخ</th><th>الوقت</th><th>المحكمة</th><th>القاضي</th></tr></thead><tbody>'+
         h.map(function(d){var hh=d.data();return '<tr><td>'+(hh.date||'—')+'</td><td>'+(hh.time||'—')+'</td><td>'+(hh.court||'—')+'</td><td>'+(hh.judge||'—')+'</td></tr>';}).join('')+
       '</tbody></table>';
-    }).catch(function(){});
+    }).catch(function(e){console.error("Firebase load error:", e.message||e);});
     // تحميل المذكرات
     db.collection('memos').get().then(function(snap){
       var m=snap.docs.filter(function(d){return d.data().caseNum===c.number;});
@@ -2306,7 +2312,7 @@ function loadCaseFile(id){
       el.innerHTML='<table class="tbl"><thead><tr><th>العنوان</th><th>النوع</th><th>المحامي</th></tr></thead><tbody>'+
         m.map(function(d){var mm=d.data();return '<tr><td>'+(mm.title||'—')+'</td><td>'+(mm.type||'—')+'</td><td>'+(mm.lawyer||'—')+'</td></tr>';}).join('')+
       '</tbody></table>';
-    }).catch(function(){});
+    }).catch(function(e){console.error("Firebase load error:", e.message||e);});
     // الحكم
     db.collection('verdicts').get().then(function(snap){
       var vv=snap.docs.find(function(d){return d.data().caseNum===c.number;});
@@ -2318,7 +2324,7 @@ function loadCaseFile(id){
       el.innerHTML='<div class="detail-row"><div class="detail-lbl">النتيجة</div><div class="detail-val"><span class="badge '+rc+'">'+(vd.result||'—')+'</span></div></div>'+
         '<div class="detail-row"><div class="detail-lbl">تاريخ الحكم</div><div class="detail-val">'+(vd.date||'—')+'</div></div>'+
         '<div class="detail-row"><div class="detail-lbl">ملخص الحكم</div><div class="detail-val">'+(vd.summary||'—')+'</div></div>';
-    }).catch(function(){});
+    }).catch(function(e){console.error("Firebase load error:", e.message||e);});
   }).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
@@ -2381,11 +2387,11 @@ function saveLaw(){
 }
 
 function loadLaws(){
-  db.collection('laws').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('laws').get().then(function(snap){
     g('tot-laws').textContent=snap.size;
     allLaws=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
     renderLawsList(allLaws);
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function renderLawsList(laws){
@@ -2447,7 +2453,7 @@ function saveVerdict(){
 }
 
 function loadVerdicts(){
-  db.collection('verdicts').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('verdicts').get().then(function(snap){
     g('tot-verdicts').textContent=snap.size;
     var win=0,lose=0,settle=0;
     var rows=snap.docs.map(function(d){
@@ -2464,7 +2470,7 @@ function loadVerdicts(){
     if(g('vSettle')) g('vSettle').textContent=settle;
     var total=win+lose+settle;
     if(g('vRate')) g('vRate').textContent=total>0?Math.round((win/total)*100)+'%':'—';
-  }).catch(function(){});
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
 }
 
 function delVerdict(id){
@@ -2514,7 +2520,7 @@ function savePoa(){
 }
 
 function loadPoa(){
-  db.collection('poa').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('poa').get().then(function(snap){
     var tot=snap.size;
     if(g('tot-poa')) g('tot-poa').textContent=tot;
     if(g('poaBadge')) g('poaBadge').textContent=tot;
@@ -2610,7 +2616,7 @@ function saveOfficeContract(){
 }
 
 function loadOfficeContracts(){
-  db.collection('officeContracts').orderBy('createdAt','desc').get().then(function(snap){
+  db.collection('officeContracts').get().then(function(snap){
     if(g('tot-oc')) g('tot-oc').textContent=snap.size;
     var grid=g('oc-grid'); if(!grid) return;
     if(!snap.size){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">🗂️ لا توجد عقود مكتب بعد</div>';return;}

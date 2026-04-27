@@ -602,7 +602,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
               <div class="card-t" id="calTitle"></div>
               <button class="card-b" onclick="calMv(1)">التالي ←</button>
             </div>
-            <div class="cal-grid" id="calGrid"></div>
+            <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;width:100%"></div>
           </div>
           <div class="card" style="display:flex;flex-direction:column">
             <div class="card-h">
@@ -2210,27 +2210,29 @@ function buildCal(){
   if(g('calLbl')) g('calLbl').textContent=mns[m]+' '+y;
   var grid=g('calGrid'); if(!grid) return;
   grid.innerHTML='';
-  dys.forEach(function(d){grid.innerHTML+='<div class="cal-h">'+d+'</div>';});
+  dys.forEach(function(d){grid.innerHTML+='<div style="font-size:11px;color:var(--tx3);padding:5px 2px;font-weight:600;text-align:center">'+d+'</div>';});
   var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
   var today=new Date();
-  for(var i=0;i<first;i++) grid.innerHTML+='<div class="cal-c dm">'+(new Date(y,m,0).getDate()-first+i+1)+'</div>';
+  for(var i=0;i<first;i++) grid.innerHTML+='<div style="opacity:.2;text-align:center;padding:5px 2px;font-size:12px">'+(new Date(y,m,0).getDate()-first+i+1)+'</div>';
   for(var d=1;d<=days;d++){
     var isT=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
     var ds=y+'-'+((m+1)<10?'0'+(m+1):(m+1))+'-'+(d<10?'0'+d:d);
     var evs=calEvsFull[ds]||[];
     var dots=evs.slice(0,3).map(function(e){
       var col=evColors[e.type]||'var(--g)';
-      return '<div class="ev-d" style="background:'+col+'"></div>';
+      return '<div style="width:5px;height:5px;border-radius:50%;background:'+col+'"></div>';
     }).join('');
-    var isSel=ds===selectedDay?' sel':'';
-    grid.innerHTML+='<div class="cal-c'+(isT?' td':'')+isSel+'" onclick="showDay(\''+ds+'\')" data-d="'+ds+'">'+
-      '<span>'+d+'</span>'+
-      (evs.length?'<div style="font-size:9px;color:var(--g);font-weight:700;line-height:1">'+evs.length+'</div>':'')+
+    var isSel=ds===selectedDay;
+    var bg=isT?'background:rgba(212,175,55,.2);border:1px solid rgba(212,175,55,.3);font-weight:800;color:#D4AF37;':
+            isSel?'background:rgba(122,98,0,.6);border:1px solid #D4AF37;color:#fff;':'';
+    grid.innerHTML+='<div onclick="showDay(\''+ds+'\')" data-d="'+ds+'" style="'+bg+'padding:4px 2px;border-radius:7px;cursor:pointer;min-height:38px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;transition:background .15s">'+
+      '<span style="font-size:12px;line-height:1.3;font-weight:600">'+d+'</span>'+
+      (evs.length?'<span style="font-size:9px;color:#D4AF37;font-weight:700">'+evs.length+'</span>':'')+
       dots+
     '</div>';
   }
   var rem=42-(first+days);
-  for(var i=1;i<=rem;i++) grid.innerHTML+='<div class="cal-c dm">'+i+'</div>';
+  for(var i=1;i<=rem;i++) grid.innerHTML+='<div style="opacity:.2;text-align:center;padding:5px 2px;font-size:12px">'+i+'</div>';
 }
 
 function showDay(ds){

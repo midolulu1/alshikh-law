@@ -407,7 +407,8 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
       '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
       '.detail-box{background:#f9f7f2;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;margin-top:8px}'+
-      '@page{size:A4;margin:1.5cm}@media print{button{display:none}}</style>
+      '@page{size:A4;margin:1.5cm}@media print{button{display:none}}<\/style>
+</style>
 <body>
 
 <!-- ① شاشة التحميل المتحركة -->
@@ -2930,3 +2931,14 @@ function testFirebase(){
 </script>
 </body>
 </html>
+/* ===== CALENDAR ===== */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-h{font-size:11px;color:var(--tx3);padding:5px 2px;font-weight:600;text-align:center}
+.cal-c{padding:4px 2px;border-radius:7px;cursor:pointer;font-size:12px;min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;transition:background .15s}
+.cal-c:hover{background:var(--bg3)}
+.cal-c.td{background:rgba(212,175,55,.2);color:var(--g);font-weight:800;border:1px solid rgba(212,175,55,.3)}
+.cal-c.sel{background:rgba(122,98,0,.5);color:#fff;border:1px solid var(--g)}
+.cal-c.dm{opacity:.2;cursor:default;pointer-events:none}
+.ev-d{width:5px;height:5px;border-radius:50%;background:var(--g)}
+.cal-c span{font-size:12px;line-height:1.2;font-weight:600}
+

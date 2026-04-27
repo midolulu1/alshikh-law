@@ -486,7 +486,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
         <button class="tm-btn" onclick="toggleTheme()" title="تبديل المظهر"></button>
         <div class="fb-s"><div class="fb-d" id="fbDot"></div><span class="fb-t" id="fbTxt">Firebase: جاري...</span></div>
         <div class="ib" onclick="alert('لا توجد إشعارات جديدة')">🔔</div>
-        <div class="ib" onclick="testFirebase()" title="اختبار Firebase">🔬</div>
         <div class="ib" onclick="alert('الإصدار 2.0\nمكتب محمد عبدالمحسن الشيخ\nمدعوم بـ Firebase')">⚙️</div>
       </div>
     </div>
@@ -604,10 +603,23 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
             </div>
             <div class="cal-grid" id="calGrid"></div>
           </div>
-          <div class="card">
-            <div class="card-h"><div class="card-t">📌 أحداث اليوم</div></div>
-            <div id="dayEvs" style="font-size:13px;color:var(--tx2)">اضغط على يوم لعرض أحداثه</div>
+          <div class="card" style="display:flex;flex-direction:column">
+            <div class="card-h">
+              <div class="card-t" id="dayTitle">📅 تفاصيل اليوم</div>
+              <button class="card-b" id="addEventDay" style="display:none" onclick="addEventForDay()">＋ إضافة حدث</button>
+            </div>
+            <div id="dayEvs" style="flex:1;font-size:13px;color:var(--tx2)">
+              <div style="text-align:center;padding:2rem;color:var(--tx3)">
+                <div style="font-size:24px;margin-bottom:8px">📅</div>
+                اضغط على أي يوم لعرض تفاصيله
+              </div>
+            </div>
           </div>
+        </div>
+        <!-- قائمة جميع الأحداث -->
+        <div class="card" style="margin-top:1rem">
+          <div class="card-h"><div class="card-t">📋 جميع أحداث الشهر</div><span id="monthEvCount" style="font-size:12px;color:var(--tx2)"></span></div>
+          <div id="monthEvList"><div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">لا توجد أحداث هذا الشهر</div></div>
         </div>
       </div>
 
@@ -2168,47 +2180,152 @@ function delClient(id){
 }
 
 function deleteCurrentClient(){ if(currentClientId) delClient(currentClientId); }
-var calD=new Date(), calEvs={};
+var calD=new Date(), calEvs={}, calEvsFull={}, selectedDay='';
 var mns=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 var dys=['ح','ن','ث','ر','خ','ج','س'];
+var evColors={جلسة:'#E07080',موعد:'#4A90D9',مذكرة:'#E0B040',تذكير:'#A070D0',إداري:'#3DAA70'};
 
 function renderCal(){
   db.collection('calEvents').get().then(function(snap){
-    calEvs={};
-    snap.docs.forEach(function(d){var ev=d.data();if(ev.date){if(!calEvs[ev.date])calEvs[ev.date]=[];calEvs[ev.date].push(ev.title||'حدث');}});
+    calEvs={}; calEvsFull={};
+    snap.docs.forEach(function(d){
+      var ev=d.data(), id=d.id;
+      if(ev.date){
+        if(!calEvs[ev.date]) calEvs[ev.date]=[];
+        if(!calEvsFull[ev.date]) calEvsFull[ev.date]=[];
+        calEvs[ev.date].push(ev.title||'حدث');
+        calEvsFull[ev.date].push({id:id,title:ev.title||'حدث',time:ev.time||'',type:ev.type||'',caseNum:ev.caseNum||'',notes:ev.notes||''});
+      }
+    });
     buildCal();
+    renderMonthEvents();
+    if(selectedDay) showDay(selectedDay);
   }).catch(function(){buildCal();});
 }
 
 function buildCal(){
   var y=calD.getFullYear(), m=calD.getMonth();
-  g('calTitle').textContent=mns[m]+' '+y;
-  g('calLbl').textContent=mns[m]+' '+y;
-  var grid=g('calGrid'); grid.innerHTML='';
+  if(g('calTitle')) g('calTitle').textContent=mns[m]+' '+y;
+  if(g('calLbl')) g('calLbl').textContent=mns[m]+' '+y;
+  var grid=g('calGrid'); if(!grid) return;
+  grid.innerHTML='';
   dys.forEach(function(d){grid.innerHTML+='<div class="cal-h">'+d+'</div>';});
   var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
   var today=new Date();
-  for(var i=0;i<first;i++)grid.innerHTML+='<div class="cal-c dm">'+(new Date(y,m,0).getDate()-first+i+1)+'</div>';
+  for(var i=0;i<first;i++) grid.innerHTML+='<div class="cal-c dm">'+(new Date(y,m,0).getDate()-first+i+1)+'</div>';
   for(var d=1;d<=days;d++){
     var isT=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
     var ds=y+'-'+((m+1)<10?'0'+(m+1):(m+1))+'-'+(d<10?'0'+d:d);
-    var evs=calEvs[ds]||[], dots=evs.slice(0,3).map(function(){return '<div class="ev-d"></div>';}).join('');
-    grid.innerHTML+='<div class="cal-c'+(isT?' td':'')+'" onclick="showDay(\''+ds+'\')" data-d="'+ds+'"><span>'+d+'</span>'+dots+'</div>';
+    var evs=calEvsFull[ds]||[];
+    var dots=evs.slice(0,3).map(function(e){
+      var col=evColors[e.type]||'var(--g)';
+      return '<div class="ev-d" style="background:'+col+'"></div>';
+    }).join('');
+    var isSel=ds===selectedDay?' sel':'';
+    grid.innerHTML+='<div class="cal-c'+(isT?' td':'')+isSel+'" onclick="showDay(\''+ds+'\')" data-d="'+ds+'">'+
+      '<span>'+d+'</span>'+
+      (evs.length?'<div style="font-size:9px;color:var(--g);font-weight:700;line-height:1">'+evs.length+'</div>':'')+
+      dots+
+    '</div>';
   }
   var rem=42-(first+days);
-  for(var i=1;i<=rem;i++)grid.innerHTML+='<div class="cal-c dm">'+i+'</div>';
+  for(var i=1;i<=rem;i++) grid.innerHTML+='<div class="cal-c dm">'+i+'</div>';
 }
 
 function showDay(ds){
-  var evs=calEvs[ds]||[];
+  selectedDay=ds;
+  var evs=calEvsFull[ds]||[];
   var box=g('dayEvs');
+  var titleEl=g('dayTitle');
+  var addBtn=g('addEventDay');
+  if(!box) return;
+
+  // تحديث العنصر المحدد في التقويم
   document.querySelectorAll('.cal-c').forEach(function(c){c.classList.remove('sel');});
   var sel=document.querySelector('[data-d="'+ds+'"]'); if(sel)sel.classList.add('sel');
-  if(!evs.length){box.innerHTML='<div style="color:var(--tx3);text-align:center;padding:16px">لا توجد أحداث</div>';}
-  else{box.innerHTML=evs.map(function(e){return '<div style="padding:8px 0;border-bottom:1px solid var(--br2)">📌 '+e+'</div>';}).join('');}
+
+  // عنوان اليوم
+  var parts=ds.split('-');
+  var dayDate=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+  var dayNames=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  var dayName=dayNames[dayDate.getDay()];
+  if(titleEl) titleEl.textContent='📅 '+dayName+' '+parseInt(parts[2])+' '+mns[parseInt(parts[1])-1]+' '+parts[0];
+  if(addBtn) addBtn.style.display='block';
+
+  if(!evs.length){
+    box.innerHTML='<div style="text-align:center;padding:1.5rem;color:var(--tx3)">'+
+      '<div style="font-size:20px;margin-bottom:6px">📭</div>'+
+      '<div>لا توجد أحداث في هذا اليوم</div>'+
+    '</div>';
+    return;
+  }
+
+  box.innerHTML=evs.map(function(e){
+    var col=evColors[e.type]||'var(--g)';
+    return '<div style="padding:10px 12px;margin-bottom:8px;background:var(--bg3);border-radius:10px;border-right:3px solid '+col+';position:relative">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'+
+        '<div style="font-size:13px;font-weight:700;color:var(--tx)">'+e.title+'</div>'+
+        '<button onclick="delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:Tajawal,sans-serif">حذف</button>'+
+      '</div>'+
+      (e.time?'<div style="font-size:11px;color:var(--tx2);margin-bottom:3px">🕐 '+e.time+'</div>':'')+
+      (e.type?'<div style="font-size:11px;margin-bottom:3px"><span style="background:'+col+'22;color:'+col+';padding:2px 7px;border-radius:10px;font-weight:600">'+e.type+'</span></div>':'')+
+      (e.caseNum?'<div style="font-size:11px;color:var(--tx2);margin-bottom:3px">⚖️ القضية: <span style="color:var(--g);font-weight:700">'+e.caseNum+'</span></div>':'')+
+      (e.notes?'<div style="font-size:11px;color:var(--tx3);line-height:1.5">📝 '+e.notes+'</div>':'')+
+    '</div>';
+  }).join('');
 }
 
-function calMv(dir){calD.setMonth(calD.getMonth()+dir);renderCal();}
+function addEventForDay(){
+  if(selectedDay){
+    var dateEl=g('ce_d');
+    if(dateEl) dateEl.value=selectedDay;
+  }
+  openM('mCalEvent');
+}
+
+function delCalEvent(id){
+  if(!confirm('حذف هذا الحدث؟')) return;
+  db.collection('calEvents').doc(id).delete()
+    .then(function(){toast('✓ تم حذف الحدث','ok');renderCal();})
+    .catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function renderMonthEvents(){
+  var y=calD.getFullYear(), m=calD.getMonth();
+  var monthEvs=[];
+  Object.keys(calEvsFull).forEach(function(ds){
+    var parts=ds.split('-');
+    if(parseInt(parts[0])===y && parseInt(parts[1])-1===m){
+      calEvsFull[ds].forEach(function(e){
+        var ev2=Object.assign({date:ds,day:parseInt(parts[2])},e); monthEvs.push(ev2);
+      });
+    }
+  });
+  monthEvs.sort(function(a,b){return a.day-b.day;});
+  var cnt=g('monthEvCount'); if(cnt) cnt.textContent=monthEvs.length+' حدث';
+  var list=g('monthEvList'); if(!list) return;
+  if(!monthEvs.length){
+    list.innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">لا توجد أحداث هذا الشهر</div>';
+    return;
+  }
+  var rows=monthEvs.map(function(e){
+    var col=evColors[e.type]||'var(--g)';
+    var parts=e.date.split('-');
+    var dayNames=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    var dayDate=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+    return '<tr onclick="showDay(\''+e.date+'\')" style="cursor:pointer">'+
+      '<td><strong style="color:var(--g)">'+e.day+'</strong> '+mns[parseInt(parts[1])-1]+'<div style="font-size:10px;color:var(--tx3)">'+dayNames[dayDate.getDay()]+'</div></td>'+
+      '<td>'+(e.time||'—')+'</td>'+
+      '<td><strong>'+e.title+'</strong></td>'+
+      '<td><span style="background:'+col+'22;color:'+col+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">'+(e.type||'—')+'</span></td>'+
+      '<td style="color:var(--g)">'+(e.caseNum||'—')+'</td>'+
+      '<td><button onclick="event.stopPropagation();delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:Tajawal,sans-serif">حذف</button></td>'+
+    '</tr>';
+  }).join('');
+  list.innerHTML='<table class="tbl"><thead><tr><th>التاريخ</th><th>الوقت</th><th>الحدث</th><th>النوع</th><th>القضية</th><th>إجراء</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function calMv(dir){calD.setMonth(calD.getMonth()+dir);selectedDay='';renderCal();}
 
 // ================================================================
 // ① إدارة العقود

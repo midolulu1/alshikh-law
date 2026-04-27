@@ -334,7 +334,80 @@ textarea.fi{resize:vertical;min-height:70px}
 .ph{display:none;text-align:center;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid #B8960C}
 .ph h2{font-size:16px;font-weight:800;color:#8A6A00;font-family:'Amiri',serif}
 .ph p{font-size:11px;color:#666;margin-top:3px}
-</style>
+
+.kanban-col{background:var(--bg3);border-radius:12px;padding:10px;min-height:200px}
+.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:10px}
+.kanban-count{background:rgba(0,0,0,.15);color:inherit;padding:1px 8px;border-radius:10px;font-size:11px}
+.kanban-cards{display:flex;flex-direction:column;gap:8px}
+.kcard{background:var(--bg2);border:0.5px solid var(--br2);border-radius:9px;padding:10px;cursor:pointer;transition:all .2s}
+.kcard:hover{border-color:var(--g);transform:translateY(-1px)}
+.kcard-num{font-size:10px;color:var(--g);font-weight:700;margin-bottom:3px}
+.kcard-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.kcard-client{font-size:11px;color:var(--tx2)}
+.kcard-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:'Cairo',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.kcard-btn:hover{border-color:var(--g);color:var(--g)}
+.law-item{padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;transition:all .15s;border:0.5px solid transparent}
+.law-item:hover,.law-item.sel{border-color:var(--g);background:var(--gl)}
+.law-type{font-size:10px;color:var(--g);font-weight:700;margin-bottom:2px;text-transform:uppercase}
+.law-title{font-size:13px;font-weight:700;color:var(--tx)}
+.law-sub{font-size:11px;color:var(--tx2);margin-top:2px}
+.cf-section{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;padding:1rem;margin-bottom:1rem}
+.cf-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.contract-expiry{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--br2)}
+.contract-expiry:last-child{border:none}
+.exp-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.exp-urgent{background:rgba(224,112,128,.15);color:#E07080}
+.exp-warn{background:rgba(224,176,64,.15);color:#E0B040}
+/* وكالات وعقود مكتب */
+.doc-card{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.doc-card:hover{border-color:var(--g);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.doc-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--tx3)}
+.doc-img img{width:100%;height:140px;object-fit:cover}
+.doc-body{padding:12px}
+.doc-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.doc-meta{font-size:11px;color:var(--tx2);margin-bottom:6px}
+.doc-exp{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+/* Claude loading animation */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+
+body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
+    'h1{font-size:16px;color:#8A6A00;margin:0}.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
+    'table{width:100%;border-collapse:collapse}th{background:#8A6A00;color:#fff;padding:7px 6px;text-align:right;border:1px solid #ccc;font-size:11px}'+
+    'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
+    '.foot{margin-top:12px;text-align:center;font-size:10px;color:#999;border-top:1px solid #ddd;padding-top:8px}'+
+    '@page{size:A4 landscape;margin:1cm}@media print{body{padding:0}}body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
+      'h1{font-size:16px;color:#8A6A00}table{width:100%;border-collapse:collapse}'+
+      'th{background:#8A6A00;color:#fff;padding:7px;text-align:right;border:1px solid #ccc}'+
+      'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
+      '@page{size:A4 landscape;margin:1cm}body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
+      'h1{font-size:16px;color:#8A6A00}table{width:100%;border-collapse:collapse}'+
+      'th{background:#8A6A00;color:#fff;padding:7px;text-align:right;border:1px solid #ccc}'+
+      'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
+      '@page{size:A4 landscape;margin:1cm}'+
+      'body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000}'+
+      'h1{font-size:18px;color:#8A6A00;margin-bottom:4px}'+
+      '.sub{font-size:12px;color:#666;margin-bottom:20px}'+
+      '.header{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      '.logo{font-size:28px;margin-bottom:6px}'+
+      'table{width:100%;border-collapse:collapse;font-size:12px}'+
+      'th{background:#8A6A00;color:#fff;padding:9px 8px;text-align:right;border:1px solid #ddd}'+
+      'tr:nth-child(even){background:#f9f7f2}'+
+      '.footer{margin-top:20px;font-size:11px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:10px}'+
+      '@media print{body{padding:10px}}'+
+    'body{font-family:Arial,sans-serif;direction:rtl;padding:20px;background:#fff;color:#000}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
+      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
+      '@media print{@page{margin:1cm}}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
+      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
+      '.detail-box{background:#f9f7f2;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;margin-top:8px}'+
+      '@page{size:A4;margin:1.5cm}@media print{button{display:none}}</style>
 <body>
 
 <!-- ① شاشة التحميل المتحركة -->
@@ -802,46 +875,7 @@ textarea.fi{resize:vertical;min-height:70px}
   </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- STYLES FOR NEW SECTIONS -->
-<!-- ============================================================ -->
-<style>
-.kanban-col{background:var(--bg3);border-radius:12px;padding:10px;min-height:200px}
-.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:10px}
-.kanban-count{background:rgba(0,0,0,.15);color:inherit;padding:1px 8px;border-radius:10px;font-size:11px}
-.kanban-cards{display:flex;flex-direction:column;gap:8px}
-.kcard{background:var(--bg2);border:0.5px solid var(--br2);border-radius:9px;padding:10px;cursor:pointer;transition:all .2s}
-.kcard:hover{border-color:var(--g);transform:translateY(-1px)}
-.kcard-num{font-size:10px;color:var(--g);font-weight:700;margin-bottom:3px}
-.kcard-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
-.kcard-client{font-size:11px;color:var(--tx2)}
-.kcard-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
-.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:'Cairo',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
-.kcard-btn:hover{border-color:var(--g);color:var(--g)}
-.law-item{padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;transition:all .15s;border:0.5px solid transparent}
-.law-item:hover,.law-item.sel{border-color:var(--g);background:var(--gl)}
-.law-type{font-size:10px;color:var(--g);font-weight:700;margin-bottom:2px;text-transform:uppercase}
-.law-title{font-size:13px;font-weight:700;color:var(--tx)}
-.law-sub{font-size:11px;color:var(--tx2);margin-top:2px}
-.cf-section{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;padding:1rem;margin-bottom:1rem}
-.cf-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
-.contract-expiry{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--br2)}
-.contract-expiry:last-child{border:none}
-.exp-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
-.exp-urgent{background:rgba(224,112,128,.15);color:#E07080}
-.exp-warn{background:rgba(224,176,64,.15);color:#E0B040}
-/* وكالات وعقود مكتب */
-.doc-card{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
-.doc-card:hover{border-color:var(--g);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.2)}
-.doc-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--tx3)}
-.doc-img img{width:100%;height:140px;object-fit:cover}
-.doc-body{padding:12px}
-.doc-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px}
-.doc-meta{font-size:11px;color:var(--tx2);margin-bottom:6px}
-.doc-exp{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
-/* Claude loading animation */
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-</style>
+
 
 <!-- MODALS FOR NEW SECTIONS -->
 
@@ -1406,6 +1440,16 @@ function finishLogin(){
   document.getElementById('authScreen').style.display='none';
   document.getElementById('appShell').classList.add('on');
   setTimeout(initDashCanvas, 300);
+  // اختبار الاتصال بـ Firebase
+  db.collection('_test').limit(1).get()
+    .then(function(){
+      console.log('Firebase متصل ✓');
+    })
+    .catch(function(e){
+      if(e.code==='permission-denied'||e.message.includes('permission')){
+        toast('⚠️ Firestore Rules تحتاج تحديث — اذهب لـ Firebase Console','err');
+      }
+    });
   loadAll(); renderCal();
 }
 function doLogout(){
@@ -1673,12 +1717,7 @@ function printDetailedHTML(cases, title){
   }).join('');
   return '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/>'+
     '<title>'+title+'</title>'+
-    '<style>body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
-    'h1{font-size:16px;color:#8A6A00;margin:0}.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
-    'table{width:100%;border-collapse:collapse}th{background:#8A6A00;color:#fff;padding:7px 6px;text-align:right;border:1px solid #ccc;font-size:11px}'+
-    'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
-    '.foot{margin-top:12px;text-align:center;font-size:10px;color:#999;border-top:1px solid #ddd;padding-top:8px}'+
-    '@page{size:A4 landscape;margin:1cm}@media print{body{padding:0}}</style></head><body>'+
+    '</head><body>'+
     '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</h1>'+
     '<div style="font-size:11px;color:#666;margin-top:4px">'+title+' • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
     '<table><thead><tr><th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th><th>المحكمة</th><th>المحامي</th><th>الأولوية</th><th>الجلسة القادمة</th><th>الحالة</th><th>ملاحظات</th></tr></thead>'+
@@ -1698,12 +1737,7 @@ function printAllClients(){
     }).join('');
     var w=window.open('','_blank','width=900,height=700');
     w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير العملاء</title>'+
-      '<style>body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
-      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
-      'h1{font-size:16px;color:#8A6A00}table{width:100%;border-collapse:collapse}'+
-      'th{background:#8A6A00;color:#fff;padding:7px;text-align:right;border:1px solid #ccc}'+
-      'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
-      '@page{size:A4 landscape;margin:1cm}</style></head><body>'+
+      '</head><body>'+
       '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
       '<div style="font-size:11px;color:#666">تقرير العملاء • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
       '<table><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th></tr></thead>'+
@@ -1726,12 +1760,7 @@ function printAllHearings(){
     }).join('');
     var w=window.open('','_blank','width=900,height=700');
     w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير الجلسات</title>'+
-      '<style>body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
-      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
-      'h1{font-size:16px;color:#8A6A00}table{width:100%;border-collapse:collapse}'+
-      'th{background:#8A6A00;color:#fff;padding:7px;text-align:right;border:1px solid #ccc}'+
-      'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
-      '@page{size:A4 landscape;margin:1cm}</style></head><body>'+
+      '</head><body>'+
       '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
       '<div style="font-size:11px;color:#666">تقرير الجلسات • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
       '<table><thead><tr><th>رقم القضية</th><th>المحكمة</th><th>التاريخ</th><th>الوقت</th><th>القاضي</th><th>المحامي</th><th>ملاحظات</th></tr></thead>'+
@@ -1759,7 +1788,15 @@ function saveCase(){
   var data={title:v('c_t'),type:v('c_ty'),court:v('c_co'),client:v('c_cl'),lawyer:v('c_la'),date:v('c_d'),priority:v('c_p'),notes:v('c_n'),status:'نشطة',number:'2025-'+Math.floor(Math.random()*900+100),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
   clr(['c_t','c_co','c_cl','c_la','c_d','c_n']);
   toast('جاري الحفظ...','ok');
-  db.collection('cases').add(data).then(function(){toast('✓ تم حفظ القضية','ok');loadCases();loadStats();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+  db.collection('cases').add(data).then(function(){toast('✓ تم حفظ القضية','ok');loadCases();loadStats();}).catch(function(e){
+    var msg=e.message||'';
+    if(msg.includes('permission')||msg.includes('Missing')||msg.includes('PERMISSION')){
+      toast('خطأ: تحقق من Firestore Rules — اجعلها allow read,write:if true','err');
+    } else {
+      toast('خطأ: '+msg,'err');
+    }
+    console.error('Firebase error:',e);
+  });
 }
 
 function saveClient(){
@@ -2031,18 +2068,7 @@ function printCaseHTML(cases, title){
   return '<!DOCTYPE html><html lang="ar" dir="rtl"><head>'+
     '<meta charset="UTF-8"/>'+
     '<title>'+title+'</title>'+
-    '<style>'+
-      'body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000}'+
-      'h1{font-size:18px;color:#8A6A00;margin-bottom:4px}'+
-      '.sub{font-size:12px;color:#666;margin-bottom:20px}'+
-      '.header{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
-      '.logo{font-size:28px;margin-bottom:6px}'+
-      'table{width:100%;border-collapse:collapse;font-size:12px}'+
-      'th{background:#8A6A00;color:#fff;padding:9px 8px;text-align:right;border:1px solid #ddd}'+
-      'tr:nth-child(even){background:#f9f7f2}'+
-      '.footer{margin-top:20px;font-size:11px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:10px}'+
-      '@media print{body{padding:10px}}'+
-    '</style>'+
+    ''+
     '</head><body>'+
     '<div class="header">'+
       '<div class="logo">⚖️</div>'+
@@ -2533,11 +2559,7 @@ function viewPoa(id){
     '</div>';
     var win=window.open('','_blank','width=700,height=600');
     win.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>وكالة: '+(p.title||'')+'</title>'+
-      '<style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;background:#fff;color:#000}'+
-      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
-      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
-      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
-      '@media print{@page{margin:1cm}}</style></head><body>'+
+      '</head><body>'+
       '<div class="hdr"><div style="font-size:24px">📜</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1><div style="font-size:12px;color:#666">وكالة: '+(p.title||'')+'</div></div>'+
       (p.image?'<img src="'+p.image+'"/>':'')+
       '<div class="row"><div class="lbl">رقم الوكالة</div><div class="val">'+(p.number||'—')+'</div></div>'+
@@ -2629,12 +2651,7 @@ function printOfficeContract(id){
     var c=d.data();
     var win=window.open('','_blank','width=800,height=700');
     win.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>عقد: '+(c.title||'')+'</title>'+
-      '<style>body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000}'+
-      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
-      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
-      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
-      '.detail-box{background:#f9f7f2;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;margin-top:8px}'+
-      '@page{size:A4;margin:1.5cm}@media print{button{display:none}}</style></head><body>'+
+      '</head><body>'+
       '<div class="hdr"><div style="font-size:24px">🗂️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
       '<div style="font-size:12px;color:#666">عقد: '+(c.title||'')+'</div></div>'+
       (c.image?'<img src="'+c.image+'"/>':'')+

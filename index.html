@@ -486,6 +486,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
         <button class="tm-btn" onclick="toggleTheme()" title="تبديل المظهر"></button>
         <div class="fb-s"><div class="fb-d" id="fbDot"></div><span class="fb-t" id="fbTxt">Firebase: جاري...</span></div>
         <div class="ib" onclick="alert('لا توجد إشعارات جديدة')">🔔</div>
+        <div class="ib" onclick="testFirebase()" title="اختبار Firebase">🔬</div>
         <div class="ib" onclick="alert('الإصدار 2.0\nمكتب محمد عبدالمحسن الشيخ\nمدعوم بـ Firebase')">⚙️</div>
       </div>
     </div>
@@ -1340,17 +1341,27 @@ function animateCount(el, target){
 // ⑤ إشعارات فاخرة
 // ================================================================
 function toast(msg, type){
+  // Try new container first, fallback to old element
   var container = document.getElementById('toastContainer');
-  if(!container){ console.log(msg); return; }
-  var icons = {ok:'✅', err:'❌', info:'ℹ️'};
-  var div = document.createElement('div');
-  div.className = 'toast-item ' + (type||'ok');
-  div.innerHTML = '<span class="toast-ic">'+(icons[type]||'✅')+'</span><span>'+msg+'</span>';
-  container.appendChild(div);
-  setTimeout(function(){
-    div.style.animation='toastOut .4s ease forwards';
-    setTimeout(function(){ if(div.parentNode) div.parentNode.removeChild(div); }, 400);
-  }, 3000);
+  var oldEl = document.getElementById('toast');
+  if(container){
+    var icons = {ok:'✅', err:'❌', info:'ℹ️'};
+    var div = document.createElement('div');
+    div.className = 'toast-item ' + (type||'ok');
+    div.innerHTML = '<span class="toast-ic">'+(icons[type]||'✅')+'</span><span>'+msg+'</span>';
+    container.appendChild(div);
+    setTimeout(function(){
+      div.style.animation='toastOut .4s ease forwards';
+      setTimeout(function(){ if(div.parentNode) div.parentNode.removeChild(div); }, 400);
+    }, 3000);
+  } else if(oldEl){
+    oldEl.textContent = msg;
+    oldEl.style.display = 'block';
+    oldEl.className = 't-'+(type||'ok');
+    setTimeout(function(){ oldEl.style.display='none'; }, 3000);
+  } else {
+    console.log('Toast:', msg);
+  }
 }
 
 // ================================================================
@@ -1450,6 +1461,12 @@ function finishLogin(){
         toast('⚠️ Firestore Rules تحتاج تحديث — اذهب لـ Firebase Console','err');
       }
     });
+  // تسجيل دخول مجهول كاحتياطي لضمان عمل Firebase
+  if(!auth.currentUser){
+    auth.signInAnonymously()
+      .then(function(){ console.log('Anonymous auth OK'); })
+      .catch(function(e){ console.log('Anon auth error:', e.message); });
+  }
   loadAll(); renderCal();
 }
 function doLogout(){
@@ -2738,6 +2755,55 @@ function refreshNewDropdowns(){
   fillSelect('vrd_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};}),'-- اختر القضية --');
   fillSelect('vrd_l', _staff.map(function(s){return {val:s.name,txt:s.name+(s.pos?' — '+s.pos:'')};}),'-- اختر المحامي --');
   fillSelect('poa_client', _clients.map(function(n){return {val:n,txt:n};}),'-- اختر العميل --');
+}
+
+// ================================================================
+// اختبار Firebase - اضغط 🔬
+// ================================================================
+function testFirebase(){
+  toast('جاري اختبار Firebase...','info');
+  console.log('=== Firebase Test Start ===');
+  console.log('firebase object:', typeof firebase);
+  console.log('db object:', typeof db);
+  console.log('auth object:', typeof auth);
+  
+  // Test 1: Auth state
+  var user = auth.currentUser;
+  console.log('Current user:', user ? user.email : 'not logged in');
+  
+  // Test 2: Simple read
+  db.collection('cases').limit(1).get()
+    .then(function(snap){
+      console.log('READ test: OK, docs:', snap.size);
+      toast('قراءة Firebase: ✓ تعمل','ok');
+      
+      // Test 3: Write test
+      return db.collection('_connectionTest').add({
+        test: true,
+        time: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    })
+    .then(function(ref){
+      console.log('WRITE test: OK, id:', ref.id);
+      toast('كتابة Firebase: ✓ تعمل — المشكلة في مكان آخر','ok');
+      // Clean up
+      ref.delete();
+    })
+    .catch(function(e){
+      console.error('Firebase error:', e);
+      var msg = e.message || e.code || 'unknown';
+      if(msg.includes('permission') || e.code === 'permission-denied'){
+        toast('❌ Firebase Rules تمنع الكتابة — اضغط لرؤية الحل','err');
+        setTimeout(function(){
+          alert('المشكلة: Firestore Rules\n\nالحل:\n1. اذهب لـ console.firebase.google.com\n2. اختر مشروع alshikh-law\n3. Firestore Database ← Rules\n4. احذف كل النص وضع:\n\nrules_version = \'2\'\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}\n\n5. اضغط Publish');
+        }, 1000);
+      } else if(msg.includes('network') || msg.includes('offline')){
+        toast('❌ مشكلة في الإنترنت','err');
+      } else {
+        toast('❌ خطأ: ' + msg,'err');
+        alert('خطأ Firebase:\nCode: ' + e.code + '\nMessage: ' + e.message);
+      }
+    });
 }
 </script>
 </body>

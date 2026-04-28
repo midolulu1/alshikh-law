@@ -3,287 +3,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام الشيخ القضائي | الإصدار الاحترافي</title>
+    <title>نظام الشيخ القضائي | Pro Edition</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;500;700&family=Amiri:wght@700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         :root {
             --primary-gold: #D4AF37;
-            --dark-gold: #996515;
-            --bg-dark: #0f1116;
-            --card-bg: rgba(255, 255, 255, 0.05);
-            --text-main: #e0e0e0;
-            --accent: #bc9c22;
+            --accent-gold: #FFD700;
+            --bg-deep: #0D0F12;
+            --card-bg: #161A1F;
+            --sidebar-width: 280px;
+            --glass: rgba(255, 255, 255, 0.03);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
 
         body {
             font-family: 'Tajawal', sans-serif;
-            background: radial-gradient(circle at top right, #1a1d24, #0a0c10);
-            color: var(--text-main);
-            margin: 0;
+            background-color: var(--bg-deep);
+            color: #fff;
+            display: flex;
             min-height: 100vh;
-            overflow-x: hidden;
         }
 
-        /* تأثير الزجاج المتطور */
-        .glass-panel {
+        /* القائمة الجانبية المطورة */
+        .sidebar {
+            width: var(--sidebar-width);
             background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(212, 175, 55, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border-left: 1px solid rgba(212, 175, 55, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            position: fixed;
+            height: 100vh;
+            right: 0;
+            z-index: 1000;
         }
 
-        /* الهيدر الرئيسي */
-        header {
-            padding: 30px;
+        .logo-box {
             text-align: center;
-            border-bottom: 2px solid var(--primary-gold);
-            margin-bottom: 40px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.5), transparent);
+            padding-bottom: 40px;
+            border-bottom: 1px solid var(--glass);
         }
 
-        header h1 {
-            font-family: 'Amiri', serif;
-            font-size: 2.5rem;
+        .logo-box i {
+            font-size: 3rem;
             color: var(--primary-gold);
-            text-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
         }
 
-        /* شبكة الإحصائيات */
-        .stats-grid {
+        /* منطقة المحتوى الرئيسي */
+        .main-content {
+            margin-right: var(--sidebar-width);
+            flex: 1;
+            padding: 40px;
+            background: radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 50%);
+        }
+
+        /* بطاقات الإحصائيات (Dashboard) */
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 0 40px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 25px;
             margin-bottom: 40px;
         }
 
         .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass);
+            border-radius: 20px;
             padding: 25px;
-            text-align: center;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
         }
 
         .stat-card:hover {
-            transform: translateY(-10px);
+            transform: translateY(-5px);
             border-color: var(--primary-gold);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .stat-card i {
-            font-size: 2.5rem;
+        .stat-card h3 { color: var(--primary-gold); font-size: 14px; margin-bottom: 10px; opacity: 0.8; }
+        .stat-card .value { font-size: 28px; font-weight: 800; font-family: 'Amiri'; }
+
+        /* منطقة العمل والقضايا */
+        .action-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .search-container {
+            position: relative;
+            width: 400px;
+        }
+
+        .search-container input {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--glass);
+            padding: 15px 45px 15px 20px;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .search-container i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
             color: var(--primary-gold);
-            margin-bottom: 15px;
         }
 
-        .stat-value {
-            font-size: 1.8rem;
-            font-weight: 700;
-            display: block;
+        /* إضافة قضية (The Modal Look) */
+        .form-card {
+            background: linear-gradient(145deg, #1a1e24, #12151a);
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 1px solid var(--primary-gold);
         }
 
-        /* منطقة المحتوى الرئيسية */
-        .main-container {
+        .grid-inputs {
             display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 30px;
-            padding: 0 40px 40px;
-        }
-
-        /* النماذج (Forms) */
-        .form-section {
-            padding: 25px;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
         }
 
         input, select, textarea {
-            width: 100%;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid #2d343f;
             padding: 12px;
-            margin: 10px 0;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(212, 175, 55, 0.3);
-            color: white;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--primary-gold);
-            box-shadow: 0 0 10px rgba(212, 175, 55, 0.2);
-        }
-
-        .btn-gold {
-            background: linear-gradient(45deg, var(--dark-gold), var(--primary-gold));
-            color: black;
-            font-weight: 700;
-            border: none;
-            padding: 15px;
             border-radius: 10px;
-            cursor: pointer;
-            width: 100%;
+            color: #fff;
             transition: 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
-        .btn-gold:hover {
-            filter: brightness(1.2);
-            box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+        input:focus { border-color: var(--primary-gold); }
+
+        .btn-action {
+            background: linear-gradient(45deg, var(--primary-gold), var(--accent-gold));
+            border: none;
+            color: #000;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
         }
 
-        /* الجدول الفاخر */
-        .table-container {
-            overflow-x: auto;
+        .btn-action:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+        /* تصميم القضايا (List View) */
+        .case-item {
+            background: var(--card-bg);
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-right: 4px solid var(--primary-gold);
+            transition: var(--transition);
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
+        .case-item:hover { background: #1c2128; }
 
-        th {
+        .status-pill {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
             background: rgba(212, 175, 55, 0.1);
             color: var(--primary-gold);
-            padding: 15px;
-            text-align: right;
         }
 
-        td {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        /* الرسوم البيانية */
+        .chart-box {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 20px;
+            height: 300px;
         }
 
-        tr:hover {
-            background: rgba(212, 175, 55, 0.03);
-        }
-
-        /* أنيميشن الدخول */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-in {
-            animation: fadeInUp 0.6s ease-out forwards;
-        }
-
-        @media (max-width: 992px) {
-            .main-container { grid-template-columns: 1fr; }
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar { display: none; }
+            .main-content { margin-right: 0; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="animate-in">
-            <h1><i class="fas fa-gavel"></i> منظومة الشيخ للخدمات القانونية</h1>
-            <p>حلول تقنية ذكية لإدارة القضايا والتوكيلات</p>
+    <nav class="sidebar">
+        <div class="logo-box">
+            <i class="fas fa-balance-scale"></i>
+            <h2 style="font-family: 'Amiri'; margin-top: 15px; color: var(--primary-gold);">مكتب الشيخ</h2>
+            <p style="font-size: 11px; letter-spacing: 2px; opacity: 0.5;">PREMIUM SYSTEM</p>
         </div>
-    </header>
 
-    <div class="stats-grid">
-        <div class="glass-panel stat-card animate-in" style="animation-delay: 0.1s">
-            <i class="fas fa-briefcase"></i>
-            <span class="stat-value" id="caseCount">0</span>
-            <span>قضية نشطة</span>
+        <div style="margin-top: 40px;">
+            <p style="color: var(--primary-gold); font-size: 12px; margin-bottom: 20px; opacity: 0.6;">القائمة الرئيسية</p>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="cursor: pointer; display: flex; align-items: center; gap: 10px;"><i class="fas fa-home"></i> لوحة التحكم</div>
+                <div style="cursor: pointer; display: flex; align-items: center; gap: 10px;"><i class="fas fa-gavel"></i> القضايا النشطة</div>
+                <div style="cursor: pointer; display: flex; align-items: center; gap: 10px;"><i class="fas fa-file-invoice"></i> التقارير</div>
+                <div style="cursor: pointer; display: flex; align-items: center; gap: 10px;"><i class="fas fa-cog"></i> الإعدادات</div>
+            </div>
         </div>
-        <div class="glass-panel stat-card animate-in" style="animation-delay: 0.2s">
-            <i class="fas fa-users"></i>
-            <span class="stat-value" id="clientCount">0</span>
-            <span>عميل مسجل</span>
+    </nav>
+
+    <div class="main-content">
+        <header class="action-header">
+            <div>
+                <h1 style="font-family: 'Amiri'; font-size: 2.2rem;">مرحباً بك في نظام الإدارة الذكي</h1>
+                <p id="liveTime" style="opacity: 0.6;"></p>
+            </div>
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="mainSearch" placeholder="ابحث عن قضية، عميل، أو رقم ملف...">
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <h3>إجمالي القضايا</h3>
+                <div class="value" id="totalCases">0</div>
+                <i class="fas fa-briefcase" style="position: absolute; left: 10px; bottom: 10px; opacity: 0.1; font-size: 4rem;"></i>
+            </div>
+            <div class="stat-card">
+                <h3>جلسات اليوم</h3>
+                <div class="value" style="color: #4CAF50;">4</div>
+                <i class="fas fa-calendar-check" style="position: absolute; left: 10px; bottom: 10px; opacity: 0.1; font-size: 4rem;"></i>
+            </div>
+            <div class="stat-card">
+                <h3>المهام المعلقة</h3>
+                <div class="value" style="color: #FFC107;">12</div>
+            </div>
         </div>
-        <div class="glass-panel stat-card animate-in" style="animation-delay: 0.3s">
-            <i class="fas fa-file-contract"></i>
-            <span class="stat-value">١٢</span>
-            <span>توكيل ساري</span>
+
+        <div class="form-card">
+            <h3 style="margin-bottom: 20px; color: var(--primary-gold);"><i class="fas fa-plus-circle"></i> إضافة بيانات جديدة للنظام</h3>
+            <div class="grid-inputs">
+                <input type="text" id="c_name" placeholder="اسم العميل">
+                <input type="text" id="c_num" placeholder="رقم القضية">
+                <select id="c_type">
+                    <option value="قضية">قضية</option>
+                    <option value="توكيل">توكيل</option>
+                    <option value="استشارة">استشارة</option>
+                </select>
+            </div>
+            <textarea id="c_desc" style="width: 100%; margin-top: 15px;" placeholder="ملاحظات وتفاصيل القضية..."></textarea>
+            <button class="btn-action" style="margin-top: 15px;" onclick="saveToFirebase()">حفظ البيانات سحابياً</button>
+        </div>
+
+        <div id="casesList">
+            <div class="case-item">
+                <div>
+                    <h4 style="font-size: 18px;">أحمد محمد العتيبي</h4>
+                    <p style="font-size: 13px; opacity: 0.6;">رقم القضية: 44/12398-ج</p>
+                </div>
+                <div style="text-align: center;">
+                    <div class="status-pill">قيد المرافعة</div>
+                    <p style="font-size: 11px; margin-top: 5px;">تحديث: منذ ساعتين</p>
+                </div>
+                <div>
+                    <button style="background: none; border: none; color: #fff; cursor: pointer; margin-left: 15px;"><i class="fas fa-edit"></i></button>
+                    <button style="background: none; border: none; color: #ff5252; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <main class="main-container">
-        <aside class="glass-panel form-section animate-in" style="animation-delay: 0.4s">
-            <h3 style="color: var(--primary-gold); margin-bottom: 20px;"><i class="fas fa-plus-circle"></i> إضافة قضية جديدة</h3>
-            <form id="caseForm">
-                <input type="text" placeholder="اسم العميل" required>
-                <input type="text" placeholder="رقم القضية" required>
-                <select>
-                    <option>نوع القضية</option>
-                    <option>جنائية</option>
-                    <option>تجارية</option>
-                    <option>أحوال شخصية</option>
-                </select>
-                <textarea rows="4" placeholder="ملخص القضية والطلبات..."></textarea>
-                <button type="submit" class="btn-gold">حفظ في السحابة</button>
-            </form>
-        </aside>
-
-        <section class="glass-panel animate-in" style="padding: 25px; animation-delay: 0.5s">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="color: var(--primary-gold);"><i class="fas fa-list-ul"></i> سجل القضايا الحديثة</h3>
-                <input type="text" placeholder="بحث سريع..." style="width: 250px; margin: 0;">
-            </div>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>العميل</th>
-                            <th>رقم القضية</th>
-                            <th>الحالة</th>
-                            <th>التاريخ</th>
-                            <th>إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="casesTable">
-                        <tr>
-                            <td>أحمد محمد</td>
-                            <td>12345/ج</td>
-                            <td><span style="color: #2ecc71;">قيد الترافع</span></td>
-                            <td>2024/05/20</td>
-                            <td>
-                                <button style="background:none; border:none; color:var(--primary-gold); cursor:pointer;"><i class="fas fa-eye"></i></button>
-                                <button style="background:none; border:none; color:#e74c3c; cursor:pointer; margin-right:10px;"><i class="fas fa-trash"></i></button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-    </main>
-
     <script>
-        // إعدادات الأنيميشن البسيطة للأرقام
-        function animateValue(id, start, end, duration) {
-            let obj = document.getElementById(id);
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start);
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
+        // 1. إعدادات الوقت الحي
+        function updateTime() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('liveTime').innerText = now.toLocaleDateString('ar-SA', options);
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // 2. ربط الـ Firebase (ضع إعداداتك هنا من الملف الأصلي)
+        const firebaseConfig = {
+            apiKey: "AIza...",
+            authDomain: "alshikh-law.firebaseapp.com",
+            projectId: "alshikh-law",
+            storageBucket: "alshikh-law.appspot.com",
+            messagingSenderId: "...",
+            appId: "..."
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // 3. دالة الحفظ المطورة (تستخدم Logic ملفك الأصلي)
+        function saveToFirebase() {
+            const name = document.getElementById('c_name').value;
+            const num = document.getElementById('c_num').value;
+            const type = document.getElementById('c_type').value;
+
+            if(!name || !num) {
+                alert("يرجى إكمال البيانات");
+                return;
+            }
+
+            db.collection("cases").add({
+                client: name,
+                caseNo: num,
+                type: type,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(() => {
+                alert("تم الحفظ بنجاح!");
+                location.reload();
+            });
         }
 
-        // تشغيل عداد الأرقام عند التحميل
-        window.onload = () => {
-            animateValue("caseCount", 0, 142, 2000);
-            animateValue("clientCount", 0, 85, 2000);
-        };
-
-        // ملاحظة للمطور: 
-        // هنا يتم ربط الـ Firebase بنفس الطريقة السابقة 
-        // لكن مع إضافة تأثيرات Loading بصيغة CSS قبل عرض البيانات.
+        // 4. دالة البحث اللحظي
+        document.getElementById('mainSearch').addEventListener('input', function(e) {
+            let term = e.target.value.toLowerCase();
+            let items = document.querySelectorAll('.case-item');
+            items.forEach(item => {
+                let text = item.innerText.toLowerCase();
+                item.style.display = text.includes(term) ? 'flex' : 'none';
+            });
+        });
     </script>
 </body>
 </html>

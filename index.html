@@ -29,8 +29,8 @@ body.light{
   --gold-glow:0 0 20px rgba(122,88,0,0.2);
 }
 body.light /* light auth - handled by body.light */
-body.light .auth-box{background:rgba(255,253,248,0.95);backdrop-filter:blur(20px)}
-body.light #particles-canvas{opacity:.3}
+body.light 
+body.light 
 
 /* ① شاشة تحميل متحركة */
   position:fixed;inset:0;background:#0A0C10;z-index:9999;
@@ -53,77 +53,34 @@ body.light #particles-canvas{opacity:.3}
 .ls-dot{width:8px;height:8px;border-radius:50%;background:#D4AF37;animation:dotBounce .8s ease-in-out infinite}
 .ls-dot:nth-child(2){animation-delay:.15s}
 .ls-dot:nth-child(3){animation-delay:.3s}
-@keyframes logoPulse{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(212,175,55,.4)}50%{transform:scale(1.05);box-shadow:0 0 60px rgba(212,175,55,.6)}}
+50%{transform:scale(1.05);box-shadow:0 0 60px rgba(212,175,55,.6)}}
 @keyframes loadFill{0%{width:0}100%{width:100%}}
 @keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-8px);opacity:1}}
 
 /* ④ صفحة دخول مذهلة */
 body{font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;background:var(--bg);color:var(--tx);direction:rtl;height:100vh;overflow:hidden}
-.auth{
-  position:fixed!important;inset:0!important;
-  background:linear-gradient(135deg,#0A0C10 0%,#0F1218 40%,#0A0E15 100%);
-  display:flex!important;align-items:center;justify-content:center;z-index:9999!important;
-  overflow:hidden;
-}
-#particles-canvas{position:absolute;inset:0;pointer-events:none}
-.auth-glow{
-  position:absolute;width:600px;height:600px;border-radius:50%;
-  background:radial-gradient(circle,rgba(212,175,55,0.08) 0%,transparent 70%);
-  top:50%;left:50%;transform:translate(-50%,-50%);
-  animation:glowPulse 4s ease-in-out infinite;
-}
-@keyframes glowPulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
-.auth-box{
-  width:420px;position:relative;z-index:2;
-  background:rgba(17,20,24,0.85);
-  backdrop-filter:blur(20px);
-  border:1px solid rgba(212,175,55,0.25);
-  border-radius:24px;padding:2.5rem;text-align:center;
-  box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(212,175,55,0.1);
-  animation:authSlide .6s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes authSlide{from{opacity:0;transform:translateY(40px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-.auth-emblem{
-  width:80px;height:80px;margin:0 auto 1.2rem;
-  background:linear-gradient(135deg,#D4AF37,#7A6200);
-  border-radius:18px;display:flex;align-items:center;justify-content:center;
-  font-size:36px;box-shadow:0 8px 32px rgba(212,175,55,.35);
-  animation:logoPulse 3s ease-in-out infinite;
-}
-.auth-title{
-  font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:22px;font-weight:700;
-  color:#D4AF37;margin-bottom:.3rem;
-  text-shadow:0 0 20px rgba(212,175,55,.4);
-}
-.auth-sub{font-size:12px;color:var(--tx2);margin-bottom:1.5rem;letter-spacing:.02em}
-.auth-divider{display:flex;align-items:center;gap:10px;margin:.5rem 0 1.2rem;color:var(--tx3);font-size:11px}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--br2)}
-.roles{display:flex;gap:6px;background:rgba(0,0,0,.3);border-radius:12px;padding:4px;margin-bottom:1.25rem;border:1px solid var(--br2)}
-.role{flex:1;padding:8px;border-radius:9px;border:none;background:transparent;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .25s}
-.role.on{background:linear-gradient(135deg,rgba(122,98,0,.8),rgba(90,68,0,.6));color:#D4AF37;box-shadow:0 2px 10px rgba(212,175,55,.2)}
-.inp{
-  width:100%;padding:11px 14px;
-  background:rgba(255,255,255,.05);
-  border:1px solid var(--br2);border-radius:10px;
-  color:var(--tx);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:14px;
-  margin-bottom:12px;outline:none;text-align:right;
-  transition:all .2s;
-}
-.inp:focus{border-color:var(--g);background:rgba(212,175,55,.05);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
-.btn-login{
-  width:100%;padding:13px;
-  background:linear-gradient(135deg,#D4AF37,#7A6200);
-  border:none;border-radius:11px;
-  color:#0A0C10;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:15px;font-weight:800;
-  cursor:pointer;letter-spacing:.02em;
-  box-shadow:0 4px 20px rgba(212,175,55,.35);
-  transition:all .2s;position:relative;overflow:hidden;
-}
-.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s}
-.btn-login:hover::before{opacity:1}
-.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(212,175,55,.45)}
-.btn-login:active{transform:translateY(0)}
-.err{color:#E07080;font-size:12px;margin-top:8px;min-height:18px}
+
+
+
+50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+
+to{opacity:1;transform:translateY(0) scale(1)}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* App layout */
 .app{display:none;height:100vh;overflow:hidden}
@@ -273,7 +230,7 @@ textarea.fi{resize:vertical;min-height:70px}
   min-width:260px;
 }
 .toast-item.ok{background:linear-gradient(135deg,rgba(26,80,46,.95),rgba(20,60,36,.95));color:#4DDB80;border:1px solid rgba(61,170,112,.3)}
-.toast-item.err{background:linear-gradient(135deg,rgba(80,20,30,.95),rgba(60,15,24,.95));color:#F08090;border:1px solid rgba(224,112,128,.3)}
+.toast-item
 .toast-item.info{background:linear-gradient(135deg,rgba(20,40,80,.95),rgba(15,30,60,.95));color:#4A9FD9;border:1px solid rgba(74,144,217,.3)}
 .toast-ic{font-size:16px;flex-shrink:0}
 @keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -408,17 +365,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       '@page{size:A4;margin:1.5cm}@media print{button{display:none}}<\/style>
 </style>
 <body>
-<script>
-// إظهار صفحة الدخول فوراً
-document.addEventListener('DOMContentLoaded', function(){
-  var auth = document.getElementById('authScreen');
-  if(auth){
-    auth.style.cssText = 'position:fixed!important;inset:0!important;display:flex!important;align-items:center;justify-content:center;z-index:9999!important;background:linear-gradient(135deg,#0A0C10,#0F1218)!important';
-  }
-  var ls = document.getElementById('loadingScreen');
-  if(ls) ls.style.display='none';
-});
-</script>
 
 
   <div class="ls-title">مكتب محمد عبدالمحسن الشيخ</div>
@@ -431,24 +377,22 @@ document.addEventListener('DOMContentLoaded', function(){
   </div>
 </div>
 
-<!-- ④ صفحة الدخول المذهلة -->
-<div class="auth" id="authScreen">
-  <canvas id="particles-canvas"></canvas>
-  <div class="auth-glow"></div>
-  <div class="auth-box">
-    <div class="auth-emblem">⚖️</div>
-    <div class="auth-title">مكتب محمد عبدالمحسن الشيخ</div>
-    <div class="auth-sub">للمحاماة والاستشارات القانونية • المملكة العربية السعودية</div>
-    <div class="auth-divider">تسجيل الدخول</div>
-    <div class="roles">
-      <button class="role on" onclick="setRole('manager',this)">👔 مدير</button>
-      <button class="role" onclick="setRole('lawyer',this)">⚖️ محامي</button>
-      <button class="role" onclick="setRole('client',this)">👤 عميل</button>
+
+<!-- صفحة الدخول -->
+<div id="authScreen" style="position:fixed;inset:0;background:#0D0F14;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:-apple-system,sans-serif">
+  <div style="width:380px;background:#141720;border:1px solid rgba(212,175,55,0.3);border-radius:20px;padding:2rem;text-align:center;direction:rtl">
+    <div style="width:64px;height:64px;background:linear-gradient(135deg,#D4AF37,#7A6200);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 1rem">⚖️</div>
+    <div style="font-size:20px;font-weight:800;color:#D4AF37;margin-bottom:4px">مكتب محمد عبدالمحسن الشيخ</div>
+    <div style="font-size:12px;color:#A09880;margin-bottom:1.5rem">للمحاماة والاستشارات القانونية</div>
+    <div style="display:flex;gap:6px;background:#1C2030;border-radius:10px;padding:4px;margin-bottom:1.25rem">
+      <button onclick="setRole('manager',this)" style="flex:1;padding:8px;border-radius:8px;border:none;background:linear-gradient(135deg,#7A6200,rgba(122,98,0,.7));color:#D4AF37;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">👔 مدير</button>
+      <button onclick="setRole('lawyer',this)" style="flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:#A09880;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">⚖️ محامي</button>
+      <button onclick="setRole('client',this)" style="flex:1;padding:8px;border-radius:8px;border:none;background:transparent;color:#A09880;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">👤 عميل</button>
     </div>
-    <input class="inp" id="authEmail" type="email" placeholder="البريد الإلكتروني"/>
-    <input class="inp" id="authPass" type="password" placeholder="كلمة المرور"/>
-    <button class="btn-login" onclick="doLogin()">دخول إلى النظام</button>
-    <div class="err" id="errMsg"></div>
+    <input id="authEmail" type="email" placeholder="البريد الإلكتروني" style="width:100%;padding:10px 13px;background:#1C2030;border:1px solid rgba(212,175,55,0.15);border-radius:9px;color:#E8E6E0;font-size:14px;margin-bottom:10px;outline:none;text-align:right;font-family:inherit;box-sizing:border-box"/>
+    <input id="authPass" type="password" placeholder="كلمة المرور" style="width:100%;padding:10px 13px;background:#1C2030;border:1px solid rgba(212,175,55,0.15);border-radius:9px;color:#E8E6E0;font-size:14px;margin-bottom:14px;outline:none;text-align:right;font-family:inherit;box-sizing:border-box"/>
+    <button onclick="doLogin()" style="width:100%;padding:12px;background:linear-gradient(135deg,#D4AF37,#7A6200);border:none;border-radius:10px;color:#0D0F14;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">دخول إلى النظام</button>
+    <div id="errMsg" style="color:#E07080;font-size:12px;margin-top:8px;min-height:18px"></div>
   </div>
 </div>
 

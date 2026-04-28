@@ -1,121 +1,2946 @@
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام القضايا</title>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>مكتب محمد عبدالمحسن الشيخ للمحاماة</title>
+<!-- ① خط عربي فاخر -->
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<!-- Chart.js للرسوم البيانية -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
-  background:#0f172a;
-  color:#fff;
-  margin:0;
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#D4AF37;--gd:#7A6200;--gl:rgba(212,175,55,0.15);
+  --bg:#0A0C10;--bg2:#111418;--bg3:#181C24;
+  --br:rgba(212,175,55,0.3);--br2:rgba(212,175,55,0.12);
+  --tx:#EDE8E0;--tx2:#A09880;--tx3:#6B6450;
+  --gold-glow:0 0 20px rgba(212,175,55,0.3);
 }
-.container{padding:20px;max-width:1000px;margin:auto}
-h1{margin-bottom:20px}
-.card{background:rgba(255,255,255,0.05);padding:15px;border-radius:15px;margin-bottom:10px}
-input,button{padding:10px;border-radius:10px;border:none;margin:5px}
-button{background:#3b82f6;color:white;cursor:pointer}
-</style>
+/* ② وضع نهاري فاخر */
+body.light{
+  --bg:#F5F0E8;--bg2:#FFFDF8;--bg3:#EDE8DE;
+  --br:rgba(122,98,0,0.3);--br2:rgba(122,98,0,0.12);
+  --tx:#1A1510;--tx2:#6B5A3A;--tx3:#A09070;
+  --g:#7A5800;--gd:#4A3400;--gl:rgba(122,88,0,0.1);
+  --gold-glow:0 0 20px rgba(122,88,0,0.2);
+}
+body.light .auth{background:linear-gradient(135deg,#F5F0E8 0%,#EDE0C8 50%,#F0E8D8 100%)}
+body.light .auth-box{background:rgba(255,253,248,0.95);backdrop-filter:blur(20px)}
+body.light #particles-canvas{opacity:.3}
 
-</head>
+/* ① شاشة تحميل متحركة */
+#loadingScreen{
+  position:fixed;inset:0;background:#0A0C10;z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+#loadingScreen.hide{opacity:0;visibility:hidden}
+.ls-logo{
+  width:90px;height:90px;
+  background:linear-gradient(135deg,#D4AF37,#7A6200);
+  border-radius:20px;display:flex;align-items:center;justify-content:center;
+  font-size:42px;margin-bottom:1.5rem;
+  animation:logoPulse 1.5s ease-in-out infinite;
+  box-shadow:0 0 40px rgba(212,175,55,0.4);
+}
+.ls-title{font-family:'Amiri',serif;font-size:22px;color:#D4AF37;margin-bottom:.3rem;text-align:center}
+.ls-sub{font-size:13px;color:#7A6200;margin-bottom:2rem;font-family:'Tajawal',sans-serif}
+.ls-bar{width:200px;height:3px;background:rgba(212,175,55,0.2);border-radius:2px;overflow:hidden}
+.ls-fill{height:100%;background:linear-gradient(90deg,#7A6200,#D4AF37,#7A6200);border-radius:2px;animation:loadFill 2s ease forwards}
+.ls-dots{display:flex;gap:6px;margin-top:1rem}
+.ls-dot{width:8px;height:8px;border-radius:50%;background:#D4AF37;animation:dotBounce .8s ease-in-out infinite}
+.ls-dot:nth-child(2){animation-delay:.15s}
+.ls-dot:nth-child(3){animation-delay:.3s}
+@keyframes logoPulse{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(212,175,55,.4)}50%{transform:scale(1.05);box-shadow:0 0 60px rgba(212,175,55,.6)}}
+@keyframes loadFill{0%{width:0}100%{width:100%}}
+@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-8px);opacity:1}}
+
+/* ④ صفحة دخول مذهلة */
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);direction:rtl;height:100vh;overflow:hidden}
+.auth{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#0A0C10 0%,#0F1218 40%,#0A0E15 100%);
+  display:flex;align-items:center;justify-content:center;z-index:999;
+  overflow:hidden;
+}
+#particles-canvas{position:absolute;inset:0;pointer-events:none}
+.auth-glow{
+  position:absolute;width:600px;height:600px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,175,55,0.08) 0%,transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:glowPulse 4s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{opacity:.5;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)}}
+.auth-box{
+  width:420px;position:relative;z-index:2;
+  background:rgba(17,20,24,0.85);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(212,175,55,0.25);
+  border-radius:24px;padding:2.5rem;text-align:center;
+  box-shadow:0 24px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(212,175,55,0.1);
+  animation:authSlide .6s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes authSlide{from{opacity:0;transform:translateY(40px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.auth-emblem{
+  width:80px;height:80px;margin:0 auto 1.2rem;
+  background:linear-gradient(135deg,#D4AF37,#7A6200);
+  border-radius:18px;display:flex;align-items:center;justify-content:center;
+  font-size:36px;box-shadow:0 8px 32px rgba(212,175,55,.35);
+  animation:logoPulse 3s ease-in-out infinite;
+}
+.auth-title{
+  font-family:'Amiri',serif;font-size:22px;font-weight:700;
+  color:#D4AF37;margin-bottom:.3rem;
+  text-shadow:0 0 20px rgba(212,175,55,.4);
+}
+.auth-sub{font-size:12px;color:var(--tx2);margin-bottom:1.5rem;letter-spacing:.02em}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:.5rem 0 1.2rem;color:var(--tx3);font-size:11px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--br2)}
+.roles{display:flex;gap:6px;background:rgba(0,0,0,.3);border-radius:12px;padding:4px;margin-bottom:1.25rem;border:1px solid var(--br2)}
+.role{flex:1;padding:8px;border-radius:9px;border:none;background:transparent;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .25s}
+.role.on{background:linear-gradient(135deg,rgba(122,98,0,.8),rgba(90,68,0,.6));color:#D4AF37;box-shadow:0 2px 10px rgba(212,175,55,.2)}
+.inp{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,.05);
+  border:1px solid var(--br2);border-radius:10px;
+  color:var(--tx);font-family:'Tajawal',sans-serif;font-size:14px;
+  margin-bottom:12px;outline:none;text-align:right;
+  transition:all .2s;
+}
+.inp:focus{border-color:var(--g);background:rgba(212,175,55,.05);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
+.btn-login{
+  width:100%;padding:13px;
+  background:linear-gradient(135deg,#D4AF37,#7A6200);
+  border:none;border-radius:11px;
+  color:#0A0C10;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;
+  cursor:pointer;letter-spacing:.02em;
+  box-shadow:0 4px 20px rgba(212,175,55,.35);
+  transition:all .2s;position:relative;overflow:hidden;
+}
+.btn-login::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);opacity:0;transition:opacity .2s}
+.btn-login:hover::before{opacity:1}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(212,175,55,.45)}
+.btn-login:active{transform:translateY(0)}
+.err{color:#E07080;font-size:12px;margin-top:8px;min-height:18px}
+
+/* App layout */
+.app{display:none;height:100vh;overflow:hidden}
+.app.on{display:flex}
+
+/* Sidebar */
+.sidebar{width:230px;min-width:230px;background:var(--bg2);border-left:1px solid var(--br2);display:flex;flex-direction:column;overflow-y:auto}
+.logo-area{padding:1rem;border-bottom:1px solid var(--br2);display:flex;align-items:center;gap:10px}
+.logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--g),var(--gd));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:var(--gold-glow)}
+.logo-tx{font-size:13px;font-weight:700;color:var(--g);line-height:1.3;font-family:'Amiri',serif}
+.logo-tx small{display:block;font-size:10px;font-weight:400;color:var(--tx3);font-family:'Tajawal',sans-serif}
+.user-box{margin:10px;padding:10px 12px;background:var(--bg3);border-radius:10px;border:1px solid var(--br2)}
+.user-r{font-size:10px;color:var(--g);margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em}
+.user-n{font-size:13px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
+.nav-grp{padding:8px 14px 3px;font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--tx2);border-right:3px solid transparent;transition:all .2s}
+.nav-item:hover{background:var(--bg3);color:var(--tx);padding-right:18px}
+.nav-item.on{background:var(--gl);color:var(--g);border-right-color:var(--g);font-weight:700}
+.nb{margin-right:auto;background:var(--gd);color:var(--g);font-size:10px;padding:1px 7px;border-radius:10px;font-weight:700}
+.sb-foot{padding:10px;border-top:1px solid var(--br2);margin-top:auto}
+.btn-out{width:100%;padding:8px;background:transparent;border:1px solid var(--br2);border-radius:8px;color:var(--tx2);font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-out:hover{border-color:rgba(224,112,128,.4);color:#F09090;background:rgba(138,26,42,.1)}
+
+/* Topbar */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:56px;background:var(--bg2);border-bottom:1px solid var(--br2);display:flex;align-items:center;padding:0 1.25rem;gap:10px;flex-shrink:0;box-shadow:0 1px 20px rgba(0,0,0,.3)}
+.pg-title{font-size:15px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
+.tb-r{margin-right:auto;display:flex;gap:8px;align-items:center}
+.ib{width:34px;height:34px;background:var(--bg3);border:1px solid var(--br2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all .2s}
+.ib:hover{border-color:var(--g);box-shadow:var(--gold-glow)}
+.fb-s{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--br2);border-radius:8px;padding:5px 10px}
+.fb-d{width:8px;height:8px;border-radius:50%;background:#E07080;flex-shrink:0;transition:background .3s}
+.fb-t{font-size:11px;color:var(--tx2);white-space:nowrap}
+.tm-btn{width:52px;height:28px;background:var(--bg3);border:1px solid var(--br2);border-radius:14px;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s}
+.tm-btn::before{content:'';position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--gd));transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+body.light .tm-btn::before{transform:translateX(-24px)}
+
+/* Content */
+.content{flex:1;overflow-y:auto;padding:1.25rem;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
+.content::-webkit-scrollbar{width:5px}
+.content::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+.sec{display:none}
+.sec.on{display:block;animation:secFadeIn .3s ease}
+@keyframes secFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* Stats with counter animation */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.25rem}
+.stat{
+  background:var(--bg2);border:1px solid var(--br2);border-radius:14px;padding:1rem 1.2rem;
+  transition:all .3s;position:relative;overflow:hidden;
+}
+.stat::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;background:radial-gradient(circle,var(--gl),transparent);border-radius:0 14px 0 60px;opacity:.5}
+.stat:hover{border-color:var(--br);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.stat.hl{border-color:var(--br);background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(122,98,0,.04))}
+.stat-l{font-size:11px;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.stat-n{font-size:28px;font-weight:900;color:var(--tx);line-height:1;font-family:'Tajawal',sans-serif}
+.stat.hl .stat-n{color:var(--g);text-shadow:0 0 20px rgba(212,175,55,.3)}
+.stat-s{font-size:11px;color:var(--tx3);margin-top:4px}
+.stat-s.up{color:#3DAA70}
+
+/* Grid & Cards */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:1rem;margin-bottom:1rem}
+.card{
+  background:var(--bg2);border:1px solid var(--br2);border-radius:14px;padding:1.2rem;
+  transition:border-color .2s;
+}
+.card:hover{border-color:rgba(212,175,55,.2)}
+.card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.card-t{font-size:14px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
+.card-b{padding:5px 12px;background:var(--gl);border:1px solid var(--br);border-radius:7px;color:var(--g);font-family:'Tajawal',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
+.card-b:hover{background:rgba(212,175,55,.25)}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{font-size:11px;color:var(--tx3);font-weight:600;padding:6px 10px;border-bottom:1px solid var(--br2);text-align:right;letter-spacing:.03em}
+.tbl td{font-size:13px;color:var(--tx);padding:10px;border-bottom:1px solid rgba(255,255,255,.03)}
+.tbl tr:last-child td{border:none}
+.tbl tbody tr{transition:background .15s;cursor:pointer}
+.tbl tbody tr:hover td{background:rgba(212,175,55,.04)}
+.cno{color:var(--g);font-weight:700}
+
+/* Badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.ba{background:rgba(26,138,74,.15);color:#3DAA70}
+.bp{background:rgba(122,90,0,.2);color:#E0B040}
+.bc{background:rgba(60,60,80,.25);color:var(--tx2)}
+.bu{background:rgba(138,26,42,.2);color:#E07080}
+
+/* Progress */
+.pb{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:5px}
+.pf{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--gd),var(--g))}
+
+/* Timeline */
+.tl-l{display:flex;flex-direction:column;gap:12px}
+.tl-i{display:flex;gap:11px}
+.tl-d{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:5px;box-shadow:0 0 6px currentColor}
+.tl-tt{font-size:13px;color:var(--tx);line-height:1.4}
+.tl-ss{font-size:11px;color:var(--tx3);margin-top:2px}
+
+/* Page actions */
+.pact{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.2rem}
+.add-btn{
+  padding:8px 18px;
+  background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(122,98,0,.1));
+  border:1px solid var(--br);border-radius:10px;
+  color:var(--g);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+}
+.add-btn:hover{background:rgba(212,175,55,.25);transform:translateY(-1px);box-shadow:var(--gold-glow)}
+.tot{font-size:13px;color:var(--tx2)}
+.tot span{color:var(--g);font-weight:700}
+
+/* Modal */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.ov.open{display:flex;animation:ovFade .2s ease}
+@keyframes ovFade{from{opacity:0}to{opacity:1}}
+.modal{
+  background:var(--bg2);border:1px solid var(--br);border-radius:20px;
+  padding:1.8rem;width:480px;max-height:88vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+  animation:modalSlide .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalSlide{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.mh{font-size:16px;font-weight:800;color:var(--g);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;font-family:'Amiri',serif}
+.mx{cursor:pointer;color:var(--tx3);font-size:22px;transition:color .15s;line-height:1}
+.mx:hover{color:var(--tx)}
+.fl{font-size:12px;color:var(--tx2);margin-bottom:4px;display:block;letter-spacing:.02em}
+.fi{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--br2);border-radius:9px;color:var(--tx);font-family:'Tajawal',sans-serif;font-size:13px;margin-bottom:12px;outline:none;text-align:right;transition:all .2s}
+.fi:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
+textarea.fi{resize:vertical;min-height:70px}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ma{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
+.btn-c{padding:9px 18px;background:transparent;border:1px solid var(--br2);border-radius:9px;color:var(--tx2);font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-c:hover{border-color:var(--br);color:var(--tx)}
+.btn-s{padding:9px 20px;background:linear-gradient(135deg,var(--g),var(--gd));border:none;border-radius:9px;color:#0A0C10;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 2px 12px rgba(212,175,55,.3)}
+.btn-s:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(212,175,55,.4)}
+
+/* ⑤ إشعارات فاخرة */
+.toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center}
+.toast-item{
+  padding:12px 20px;border-radius:12px;font-size:13px;
+  font-family:'Tajawal',sans-serif;direction:rtl;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 32px rgba(0,0,0,.4);
+  animation:toastIn .4s cubic-bezier(.34,1.56,.64,1);
+  min-width:260px;
+}
+.toast-item.ok{background:linear-gradient(135deg,rgba(26,80,46,.95),rgba(20,60,36,.95));color:#4DDB80;border:1px solid rgba(61,170,112,.3)}
+.toast-item.err{background:linear-gradient(135deg,rgba(80,20,30,.95),rgba(60,15,24,.95));color:#F08090;border:1px solid rgba(224,112,128,.3)}
+.toast-item.info{background:linear-gradient(135deg,rgba(20,40,80,.95),rgba(15,30,60,.95));color:#4A9FD9;border:1px solid rgba(74,144,217,.3)}
+.toast-ic{font-size:16px;flex-shrink:0}
+@keyframes toastIn{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes toastOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(10px)}}
+
+/* ② خلفية الرئيسية - canvas */
+#dashboard-canvas{position:absolute;top:0;left:0;pointer-events:none;opacity:.4;z-index:0}
+#sec-dashboard{position:relative}
+#sec-dashboard>*{position:relative;z-index:1}
+
+/* Kanban */
+.kanban-col{background:var(--bg3);border-radius:14px;padding:10px;min-height:200px;border:1px solid var(--br2)}
+.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:9px;font-size:13px;font-weight:700;margin-bottom:10px;font-family:'Amiri',serif}
+.kanban-count{background:rgba(0,0,0,.2);color:inherit;padding:1px 8px;border-radius:10px;font-size:11px}
+.kanban-cards{display:flex;flex-direction:column;gap:8px}
+.kcard{background:var(--bg2);border:1px solid var(--br2);border-radius:10px;padding:10px;cursor:pointer;transition:all .2s}
+.kcard:hover{border-color:var(--g);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.3)}
+.kcard-num{font-size:10px;color:var(--g);font-weight:700;margin-bottom:3px}
+.kcard-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.kcard-client{font-size:11px;color:var(--tx2)}
+.kcard-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:'Tajawal',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.kcard-btn:hover{border-color:var(--g);color:var(--g)}
+.law-item{padding:9px 12px;background:var(--bg3);border-radius:9px;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.law-item:hover,.law-item.sel{border-color:var(--g);background:var(--gl)}
+.law-type{font-size:10px;color:var(--g);font-weight:700;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
+.law-title{font-size:13px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
+.law-sub{font-size:11px;color:var(--tx2);margin-top:2px}
+.cf-section{background:var(--bg2);border:1px solid var(--br2);border-radius:14px;padding:1rem;margin-bottom:1rem}
+.cf-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:.75rem;display:flex;align-items:center;gap:8px;font-family:'Amiri',serif}
+.contract-expiry{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--br2)}
+.contract-expiry:last-child{border:none}
+.exp-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.exp-urgent{background:rgba(224,112,128,.15);color:#E07080}
+.exp-warn{background:rgba(224,176,64,.15);color:#E0B040}
+.doc-card{background:var(--bg2);border:1px solid var(--br2);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .25s}
+.doc-card:hover{border-color:var(--g);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
+.doc-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--tx3)}
+.doc-body{padding:12px}
+.doc-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;font-family:'Amiri',serif}
+.doc-meta{font-size:11px;color:var(--tx2);margin-bottom:6px;line-height:1.5}
+.doc-exp{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.act-btns{display:flex;gap:4px}
+.act-btn{padding:4px 10px;border-radius:6px;border:none;font-family:'Tajawal',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.act-btn:hover{opacity:.8}
+.ab-view{background:rgba(74,144,217,.15);color:#4A90D9}
+.ab-edit{background:rgba(212,175,55,.15);color:var(--g)}
+.ab-del{background:rgba(224,112,128,.15);color:#E07080}
+.detail-row{display:flex;padding:9px 0;border-bottom:1px solid var(--br2);font-size:13px}
+.detail-row:last-child{border:none}
+.detail-lbl{width:140px;color:var(--tx2);flex-shrink:0;font-weight:600}
+.detail-val{color:var(--tx);flex:1}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+/* print */
+@media print{.sidebar,.topbar,.pact,.auth,.toast-container{display:none!important}.app{display:block!important;height:auto!important;overflow:visible!important}.main,.content{display:block!important;height:auto!important;overflow:visible!important}.sec{display:none!important}.sec.on{display:block!important}.card{border:1px solid #ccc!important;background:#fff!important}body{background:#fff!important;color:#000!important;overflow:visible!important}.ph{display:block!important}}
+.ph{display:none;text-align:center;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid #B8960C}
+.ph h2{font-size:16px;font-weight:800;color:#8A6A00;font-family:'Amiri',serif}
+.ph p{font-size:11px;color:#666;margin-top:3px}
+
+.kanban-col{background:var(--bg3);border-radius:12px;padding:10px;min-height:200px}
+.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:700;margin-bottom:10px}
+.kanban-count{background:rgba(0,0,0,.15);color:inherit;padding:1px 8px;border-radius:10px;font-size:11px}
+.kanban-cards{display:flex;flex-direction:column;gap:8px}
+.kcard{background:var(--bg2);border:0.5px solid var(--br2);border-radius:9px;padding:10px;cursor:pointer;transition:all .2s}
+.kcard:hover{border-color:var(--g);transform:translateY(-1px)}
+.kcard-num{font-size:10px;color:var(--g);font-weight:700;margin-bottom:3px}
+.kcard-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
+.kcard-client{font-size:11px;color:var(--tx2)}
+.kcard-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
+.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:'Cairo',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.kcard-btn:hover{border-color:var(--g);color:var(--g)}
+.law-item{padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;transition:all .15s;border:0.5px solid transparent}
+.law-item:hover,.law-item.sel{border-color:var(--g);background:var(--gl)}
+.law-type{font-size:10px;color:var(--g);font-weight:700;margin-bottom:2px;text-transform:uppercase}
+.law-title{font-size:13px;font-weight:700;color:var(--tx)}
+.law-sub{font-size:11px;color:var(--tx2);margin-top:2px}
+.cf-section{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;padding:1rem;margin-bottom:1rem}
+.cf-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.contract-expiry{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--br2)}
+.contract-expiry:last-child{border:none}
+.exp-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.exp-urgent{background:rgba(224,112,128,.15);color:#E07080}
+.exp-warn{background:rgba(224,176,64,.15);color:#E0B040}
+/* وكالات وعقود مكتب */
+.doc-card{background:var(--bg2);border:0.5px solid var(--br2);border-radius:12px;overflow:hidden;cursor:pointer;transition:all .2s}
+.doc-card:hover{border-color:var(--g);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.doc-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--tx3)}
+.doc-img img{width:100%;height:140px;object-fit:cover}
+.doc-body{padding:12px}
+.doc-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px}
+.doc-meta{font-size:11px;color:var(--tx2);margin-bottom:6px}
+.doc-exp{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+/* Claude loading animation */
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+
+body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
+    'h1{font-size:16px;color:#8A6A00;margin:0}.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
+    'table{width:100%;border-collapse:collapse}th{background:#8A6A00;color:#fff;padding:7px 6px;text-align:right;border:1px solid #ccc;font-size:11px}'+
+    'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
+    '.foot{margin-top:12px;text-align:center;font-size:10px;color:#999;border-top:1px solid #ddd;padding-top:8px}'+
+    '@page{size:A4 landscape;margin:1cm}@media print{body{padding:0}}body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
+      'h1{font-size:16px;color:#8A6A00}table{width:100%;border-collapse:collapse}'+
+      'th{background:#8A6A00;color:#fff;padding:7px;text-align:right;border:1px solid #ccc}'+
+      'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
+      '@page{size:A4 landscape;margin:1cm}body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:15px;padding-bottom:10px}'+
+      'h1{font-size:16px;color:#8A6A00}table{width:100%;border-collapse:collapse}'+
+      'th{background:#8A6A00;color:#fff;padding:7px;text-align:right;border:1px solid #ccc}'+
+      'td{border:1px solid #ddd;padding:6px;text-align:right}tr:nth-child(even){background:#f9f7f2}'+
+      '@page{size:A4 landscape;margin:1cm}'+
+      'body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000}'+
+      'h1{font-size:18px;color:#8A6A00;margin-bottom:4px}'+
+      '.sub{font-size:12px;color:#666;margin-bottom:20px}'+
+      '.header{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      '.logo{font-size:28px;margin-bottom:6px}'+
+      'table{width:100%;border-collapse:collapse;font-size:12px}'+
+      'th{background:#8A6A00;color:#fff;padding:9px 8px;text-align:right;border:1px solid #ddd}'+
+      'tr:nth-child(even){background:#f9f7f2}'+
+      '.footer{margin-top:20px;font-size:11px;color:#999;text-align:center;border-top:1px solid #ddd;padding-top:10px}'+
+      '@media print{body{padding:10px}}'+
+    'body{font-family:Arial,sans-serif;direction:rtl;padding:20px;background:#fff;color:#000}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
+      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
+      '@media print{@page{margin:1cm}}body{font-family:Arial,sans-serif;direction:rtl;padding:20px;color:#000}'+
+      '.hdr{text-align:center;border-bottom:2px solid #B8960C;margin-bottom:20px;padding-bottom:12px}'+
+      'h1{font-size:16px;color:#8A6A00}.row{display:flex;padding:8px 0;border-bottom:1px solid #eee;font-size:13px}'+
+      '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
+      '.detail-box{background:#f9f7f2;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;margin-top:8px}'+
+      '@page{size:A4;margin:1.5cm}@media print{button{display:none}}<\/style>
+</style>
 <body>
 
-<div class="container">
-<h1>⚖️ نظام إدارة القضايا</h1>
-
-<div class="card">
-<input id="title" placeholder="اسم القضية">
-<input id="client" placeholder="اسم العميل">
-<button onclick="addCase()">إضافة</button>
+<!-- ① شاشة التحميل المتحركة -->
+<div id="loadingScreen">
+  <div class="ls-logo">⚖️</div>
+  <div class="ls-title">مكتب محمد عبدالمحسن الشيخ</div>
+  <div class="ls-sub">للمحاماة والاستشارات القانونية</div>
+  <div class="ls-bar"><div class="ls-fill"></div></div>
+  <div class="ls-dots">
+    <div class="ls-dot"></div>
+    <div class="ls-dot"></div>
+    <div class="ls-dot"></div>
+  </div>
 </div>
 
-<div class="card">
-<input placeholder="بحث..." oninput="search(this.value)">
+<!-- ④ صفحة الدخول المذهلة -->
+<div class="auth" id="authScreen">
+  <canvas id="particles-canvas"></canvas>
+  <div class="auth-glow"></div>
+  <div class="auth-box">
+    <div class="auth-emblem">⚖️</div>
+    <div class="auth-title">مكتب محمد عبدالمحسن الشيخ</div>
+    <div class="auth-sub">للمحاماة والاستشارات القانونية • المملكة العربية السعودية</div>
+    <div class="auth-divider">تسجيل الدخول</div>
+    <div class="roles">
+      <button class="role on" onclick="setRole('manager',this)">👔 مدير</button>
+      <button class="role" onclick="setRole('lawyer',this)">⚖️ محامي</button>
+      <button class="role" onclick="setRole('client',this)">👤 عميل</button>
+    </div>
+    <input class="inp" id="authEmail" type="email" placeholder="البريد الإلكتروني"/>
+    <input class="inp" id="authPass" type="password" placeholder="كلمة المرور"/>
+    <button class="btn-login" onclick="doLogin()">دخول إلى النظام</button>
+    <div class="err" id="errMsg"></div>
+  </div>
 </div>
 
-<div id="list"></div>
+<div class="app" id="appShell">
+  <div class="sidebar">
+    <div class="logo-area">
+      <div class="logo-ic">⚖️</div>
+      <div class="logo-tx">م. عبدالمحسن الشيخ<small>للمحاماة والاستشارات</small></div>
+    </div>
+    <div class="user-box">
+      <div class="user-r" id="sRole">مدير النظام</div>
+      <div class="user-n" id="sName">محمد عبدالمحسن الشيخ</div>
+    </div>
+    <div class="nav-grp">الرئيسية</div>
+    <div class="nav-item on" onclick="go('dashboard',this)">🏠 الصفحة الرئيسية</div>
+    <div class="nav-grp">الإدارة</div>
+    <div class="nav-item" onclick="go('cases',this)">⚖️ القضايا <div class="nb" id="cBadge">0</div></div>
+    <div class="nav-item" onclick="go('clients',this)">👥 العملاء</div>
+    <div class="nav-item" onclick="go('hearings',this)">🏛️ الجلسات</div>
+    <div class="nav-item" onclick="go('appointments',this)">📅 المواعيد</div>
+    <div class="nav-item" onclick="go('memos',this)">📝 المذكرات</div>
+    <div class="nav-item" onclick="go('calendar',this)">🗓️ مذكرة التواريخ</div>
+    <div class="nav-grp">قانوني متقدم</div>
+    <div class="nav-item" onclick="go('contracts',this)">📋 إدارة العقود</div>
+    <div class="nav-item" onclick="go('poa',this)">📜 الوكالات <div class="nb" id="poaBadge">0</div></div>
+    <div class="nav-item" onclick="go('officecontracts',this)">🗂️ عقود المكتب</div>
+    <div class="nav-item" onclick="go('casefile',this)">📁 ملف القضية</div>
+    <div class="nav-item" onclick="go('kanban',this)">📌 مراحل القضايا</div>
+    <div class="nav-item" onclick="go('laws',this)">🏛️ بنك الأنظمة</div>
+    <div class="nav-item" onclick="go('verdicts',this)">⚖️ سجل الأحكام</div>
+    <div class="nav-grp mgmt-g">الإدارة</div>
+    <div class="nav-item mgmt-i" onclick="go('staff',this)">👔 الموظفون</div>
+    <div class="nav-item mgmt-i" onclick="go('reports',this)">📈 التقارير</div>
+    <div class="sb-foot">
+      <button class="btn-out" onclick="doLogout()">تسجيل الخروج ←</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="pg-title" id="pgTitle">الصفحة الرئيسية</div>
+      <div class="tb-r">
+        <button class="tm-btn" onclick="toggleTheme()" title="تبديل المظهر"></button>
+        <div class="fb-s"><div class="fb-d" id="fbDot"></div><span class="fb-t" id="fbTxt">Firebase: جاري...</span></div>
+        <div class="ib" onclick="alert('لا توجد إشعارات جديدة')">🔔</div>
+        <div class="ib" onclick="alert('الإصدار 2.0\nمكتب محمد عبدالمحسن الشيخ\nمدعوم بـ Firebase')">⚙️</div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- الصفحة الرئيسية -->
+      <div class="sec on" id="sec-dashboard">
+        <canvas id="dashboard-canvas" style="position:fixed;top:56px;right:230px;left:0;bottom:0;pointer-events:none;opacity:.12;z-index:0"></canvas>
+        <div style="position:relative;z-index:1">
+        <div class="stats">
+          <div class="stat hl"><div class="stat-l">القضايا</div><div class="stat-n" id="st1">0</div><div class="stat-s up">↑ إجمالي</div></div>
+          <div class="stat"><div class="stat-l">العملاء</div><div class="stat-n" id="st2">0</div><div class="stat-s up">↑ مسجل</div></div>
+          <div class="stat"><div class="stat-l">الجلسات</div><div class="stat-n" id="st3">0</div><div class="stat-s">مجدولة</div></div>
+          <div class="stat"><div class="stat-l">الموظفون</div><div class="stat-n" id="st4">0</div><div class="stat-s">نشط</div></div>
+        </div>
+        <div class="g2" style="margin-bottom:1rem">
+          <div class="card">
+            <div class="card-h"><div class="card-t">📊 حالة القضايا</div></div>
+            <div style="display:flex;align-items:center;gap:1.5rem">
+              <div style="position:relative;width:150px;height:150px;flex-shrink:0">
+                <canvas id="donutChart"></canvas>
+                <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none">
+                  <div style="font-size:26px;font-weight:900;color:var(--g)" id="donutTotal">0</div>
+                  <div style="font-size:10px;color:var(--tx2)">قضية</div>
+                </div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:9px">
+                <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:3px;background:#3DAA70;flex-shrink:0"></div><div style="flex:1;font-size:13px;color:var(--tx2)">نشطة</div><div style="font-weight:700;color:#3DAA70" id="dLegActive">0</div></div>
+                <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:3px;background:#E07080;flex-shrink:0"></div><div style="flex:1;font-size:13px;color:var(--tx2)">عاجلة</div><div style="font-weight:700;color:#E07080" id="dLegUrgent">0</div></div>
+                <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:3px;background:#E0B040;flex-shrink:0"></div><div style="flex:1;font-size:13px;color:var(--tx2)">قيد الانتظار</div><div style="font-weight:700;color:#E0B040" id="dLegPending">0</div></div>
+                <div style="display:flex;align-items:center;gap:8px"><div style="width:12px;height:12px;border-radius:3px;background:#555;flex-shrink:0"></div><div style="flex:1;font-size:13px;color:var(--tx2)">مغلقة</div><div style="font-weight:700;color:#888" id="dLegClosed">0</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">📈 توزيع القضايا حسب النوع</div></div>
+            <div style="height:150px;position:relative"><canvas id="barChart"></canvas></div>
+          </div>
+        </div>
+        <div class="g3">
+          <div class="card">
+            <div class="card-h"><div class="card-t">⚖️ آخر القضايا</div><button class="card-b" onclick="go('cases',null)">عرض الكل</button></div>
+            <table class="tbl"><thead><tr><th>رقم</th><th>العنوان</th><th>العميل</th><th>المحكمة</th><th>الحالة</th></tr></thead>
+            <tbody id="dCases"><tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:16px">جاري التحميل...</td></tr></tbody></table>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:1rem">
+              <div class="card-h"><div class="card-t">📅 الجلسات القادمة</div></div>
+              <div class="tl-l" id="dHearings"><div style="color:var(--tx3);font-size:13px;padding:8px">جاري التحميل...</div></div>
+            </div>
+            <div class="card">
+              <div class="card-h"><div class="card-t">🎯 مؤشرات الأداء</div></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>نسبة الإغلاق</span><span id="closeRate" style="color:var(--g);font-weight:700">0%</span></div><div class="pb"><div class="pf" id="closeRateBar" style="width:0%;transition:width 1.2s ease"></div></div></div>
+                <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>القضايا النشطة</span><span id="activeRate" style="color:#3DAA70;font-weight:700">0%</span></div><div class="pb"><div class="pf" id="activeRateBar" style="width:0%;background:linear-gradient(90deg,#1A5A30,#3DAA70);transition:width 1.2s ease"></div></div></div>
+                <div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:4px"><span>القضايا العاجلة</span><span id="urgentRate" style="color:#E07080;font-weight:700">0%</span></div><div class="pb"><div class="pf" id="urgentRateBar" style="width:0%;background:linear-gradient(90deg,#5A1020,#E07080);transition:width 1.2s ease"></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+
+      <!-- القضايا -->
+      <div class="sec" id="sec-cases">
+        <div class="pact">
+          <div style="display:flex;gap:8px">
+            <button class="add-btn" onclick="openM('mCase')">＋ إضافة قضية</button>
+            <button class="add-btn" style="background:rgba(26,74,138,0.15);border-color:rgba(74,144,217,0.4);color:#4A90D9" onclick="printAllCases()">🖨️ طباعة الكل</button>
+          </div>
+          <div class="tot">إجمالي: <span id="tot-cases">0</span></div>
+        </div>
+        <div class="card"><table class="tbl"><thead><tr><th>رقم</th><th>العنوان</th><th>العميل</th><th>المحكمة</th><th>النوع</th><th>المحامي</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+        <tbody id="tb-cases"><tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+      </div>
+
+      <!-- العملاء -->
+      <div class="sec" id="sec-clients">
+        <div class="pact"><button class="add-btn" onclick="openM('mClient')">＋ إضافة عميل</button><div class="tot">إجمالي: <span id="tot-clients">0</span></div></div>
+        <div class="card"><table class="tbl"><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th><th>إجراءات</th></tr></thead>
+        <tbody id="tb-clients"><tr><td colspan="8" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+      </div>
+
+      <!-- الجلسات -->
+      <div class="sec" id="sec-hearings">
+        <div class="pact"><button class="add-btn" onclick="openM('mHearing')">＋ إضافة جلسة</button><div class="tot">إجمالي: <span id="tot-hearings">0</span></div></div>
+        <div class="card"><table class="tbl"><thead><tr><th>رقم القضية</th><th>المحكمة</th><th>التاريخ</th><th>الوقت</th><th>القاضي</th><th>المحامي</th></tr></thead>
+        <tbody id="tb-hearings"><tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+      </div>
+
+      <!-- المواعيد -->
+      <div class="sec" id="sec-appointments">
+        <div class="pact"><button class="add-btn" onclick="openM('mAppt')">＋ موعد جديد</button><div class="tot">إجمالي: <span id="tot-appts">0</span></div></div>
+        <div class="card"><table class="tbl"><thead><tr><th>العميل</th><th>المحامي</th><th>التاريخ</th><th>الوقت</th><th>النوع</th></tr></thead>
+        <tbody id="tb-appts"><tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+      </div>
+
+      <!-- المذكرات -->
+      <div class="sec" id="sec-memos">
+        <div class="pact"><button class="add-btn" onclick="openM('mMemo')">＋ مذكرة جديدة</button><div class="tot">إجمالي: <span id="tot-memos">0</span></div></div>
+        <div class="card"><table class="tbl"><thead><tr><th>العنوان</th><th>النوع</th><th>رقم القضية</th><th>المحامي</th></tr></thead>
+        <tbody id="tb-memos"><tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+      </div>
+
+      <!-- مذكرة التواريخ -->
+      <div class="sec" id="sec-calendar">
+        <div class="pact"><button class="add-btn" onclick="openM('mCalEvent')">＋ إضافة حدث</button><div class="tot" id="calLbl"></div></div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-h">
+              <button class="card-b" onclick="calMv(-1)">→ السابق</button>
+              <div class="card-t" id="calTitle"></div>
+              <button class="card-b" onclick="calMv(1)">التالي ←</button>
+            </div>
+            <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;width:100%"></div>
+          </div>
+          <div class="card" style="display:flex;flex-direction:column">
+            <div class="card-h">
+              <div class="card-t" id="dayTitle">📅 تفاصيل اليوم</div>
+              <button class="card-b" id="addEventDay" style="display:none" onclick="addEventForDay()">＋ إضافة حدث</button>
+            </div>
+            <div id="dayEvs" style="flex:1;font-size:13px;color:var(--tx2)">
+              <div style="text-align:center;padding:2rem;color:var(--tx3)">
+                <div style="font-size:24px;margin-bottom:8px">📅</div>
+                اضغط على أي يوم لعرض تفاصيله
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- قائمة جميع الأحداث -->
+        <div class="card" style="margin-top:1rem">
+          <div class="card-h"><div class="card-t">📋 جميع أحداث الشهر</div><span id="monthEvCount" style="font-size:12px;color:var(--tx2)"></span></div>
+          <div id="monthEvList"><div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">لا توجد أحداث هذا الشهر</div></div>
+        </div>
+      </div>
+
+      <!-- الموظفون -->
+      <div class="sec" id="sec-staff">
+        <div class="pact"><button class="add-btn" onclick="openM('mStaff')">＋ إضافة موظف</button><div class="tot">إجمالي: <span id="tot-staff">0</span></div></div>
+        <div class="card"><table class="tbl"><thead><tr><th>الاسم</th><th>المنصب</th><th>التخصص</th><th>الجوال</th><th>البريد</th></tr></thead>
+        <tbody id="tb-staff"><tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:20px">جاري التحميل...</td></tr></tbody></table></div>
+      </div>
+
+      <!-- التقارير -->
+      <div class="sec" id="sec-reports">
+        <div class="pact">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="add-btn" onclick="printAllCases()">🖨️ طباعة القضايا</button>
+            <button class="add-btn" style="background:rgba(26,74,138,0.15);border-color:rgba(74,144,217,0.4);color:#4A90D9" onclick="printAllClients()">🖨️ طباعة العملاء</button>
+            <button class="add-btn" style="background:rgba(26,138,74,0.15);border-color:rgba(61,170,112,0.4);color:#3DAA70" onclick="printAllHearings()">🖨️ طباعة الجلسات</button>
+          </div>
+          <div class="tot">تقارير مفصّلة</div>
+        </div>
+        <div class="ph" id="ph"><h2>⚖️ مكتب محمد عبدالمحسن الشيخ للمحاماة</h2><p id="pDate"></p></div>
+
+        <!-- فلتر التقارير -->
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-h"><div class="card-t">🔍 فلترة وتصفية التقارير</div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;align-items:end">
+            <div>
+              <label class="fl">نوع القضية</label>
+              <select class="fi" id="filter_type" style="margin:0" onchange="filterCases()">
+                <option value="">الكل</option>
+                <option>تجاري</option><option>جنائي</option><option>أحوال شخصية</option>
+                <option>عمالي</option><option>عقاري</option><option>مدني</option>
+              </select>
+            </div>
+            <div>
+              <label class="fl">الحالة</label>
+              <select class="fi" id="filter_status" style="margin:0" onchange="filterCases()">
+                <option value="">الكل</option>
+                <option>نشطة</option><option>عاجلة</option><option>قيد الانتظار</option><option>مغلقة</option>
+              </select>
+            </div>
+            <div>
+              <label class="fl">المحامي</label>
+              <select class="fi" id="filter_lawyer" style="margin:0" onchange="filterCases()">
+                <option value="">الكل</option>
+              </select>
+            </div>
+            <div>
+              <button class="add-btn" style="width:100%;justify-content:center;margin-top:20px" onclick="resetFilters()">↺ إعادة تعيين</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- إحصاءات -->
+        <div class="stats" style="margin-bottom:1rem">
+          <div class="stat hl"><div class="stat-l">إجمالي القضايا</div><div class="stat-n" id="r1">—</div></div>
+          <div class="stat"><div class="stat-l">نشطة</div><div class="stat-n" id="r_active" style="color:#3DAA70">—</div></div>
+          <div class="stat"><div class="stat-l">عاجلة</div><div class="stat-n" id="r_urgent" style="color:#E07080">—</div></div>
+          <div class="stat"><div class="stat-l">مغلقة</div><div class="stat-n" id="r_closed" style="color:var(--tx3)">—</div></div>
+        </div>
+
+        <!-- جدول مفصل -->
+        <div class="card">
+          <div class="card-h">
+            <div class="card-t">📋 تقرير مفصّل بالقضايا</div>
+            <button class="card-b" onclick="printFilteredCases()">🖨️ طباعة النتائج</button>
+          </div>
+          <table class="tbl" id="reportTable">
+            <thead>
+              <tr>
+                <th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th>
+                <th>المحكمة</th><th>المحامي</th><th>الأولوية</th><th>الجلسة القادمة</th>
+                <th>الحالة</th><th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody id="r-cases-detail"></tbody>
+          </table>
+        </div>
+
+        <!-- توزيع بياني -->
+        <div class="g2" style="margin-top:1rem">
+          <div class="card">
+            <div class="card-h"><div class="card-t">📊 توزيع حسب النوع</div></div>
+            <div id="chartType" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">📊 توزيع حسب الحالة</div></div>
+            <div id="chartStatus" style="display:flex;flex-direction:column;gap:8px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ① إدارة العقود -->
+      <div class="sec" id="sec-contracts">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mContract')">＋ إضافة عقد</button>
+          <div class="tot">إجمالي: <span id="tot-contracts">0</span> عقد</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-h"><div class="card-t">⚠️ عقود تنتهي قريباً (خلال 30 يوم)</div></div>
+          <div id="expiring-contracts" style="font-size:13px;color:var(--tx2)">جاري الفحص...</div>
+        </div>
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>عنوان العقد</th><th>النوع</th><th>الطرف الأول</th><th>الطرف الثاني</th><th>تاريخ البداية</th><th>تاريخ الانتهاء</th><th>القضية</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody id="tb-contracts"><tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:20px">لا توجد عقود بعد</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- الوكالات -->
+      <div class="sec" id="sec-poa">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mPoa')">＋ إضافة وكالة</button>
+          <div class="tot">إجمالي: <span id="tot-poa">0</span> وكالة</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-h"><div class="card-t">⚠️ وكالات تنتهي خلال 30 يوماً</div></div>
+          <div id="poa-alerts" style="font-size:13px;color:var(--tx2)">جاري الفحص...</div>
+        </div>
+        <div id="poa-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div>
+        </div>
+      </div>
+
+      <!-- عقود المكتب -->
+      <div class="sec" id="sec-officecontracts">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mOfficeContract')">＋ إضافة عقد مكتب</button>
+          <div class="tot">إجمالي: <span id="tot-oc">0</span> عقد</div>
+        </div>
+        <div id="oc-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+          <div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div>
+        </div>
+        <div id="oc-detail" style="display:none;margin-top:1rem">
+          <div class="card">
+            <div class="card-h">
+              <div class="card-t" id="oc-detail-title">تفاصيل العقد</div>
+              <button class="card-b" onclick="g('oc-detail').style.display='none'">✕ إغلاق</button>
+            </div>
+            <div id="oc-detail-body"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② ملف القضية الكامل -->
+      <div class="sec" id="sec-casefile">
+        <div class="pact">
+          <div style="display:flex;gap:8px;align-items:center">
+            <label class="fl" style="margin:0;white-space:nowrap">اختر القضية:</label>
+            <select class="fi" id="casefileSelect" style="margin:0;width:220px" onchange="loadCaseFile(this.value)">
+              <option value="">-- اختر قضية --</option>
+            </select>
+          </div>
+          <div class="tot" id="casefileName">اختر قضية لعرض ملفها</div>
+        </div>
+        <div id="casefileContent">
+          <div style="text-align:center;padding:3rem;color:var(--tx3);font-size:14px">
+            🗂️<br>اختر قضية من القائمة أعلاه لعرض ملفها الكامل
+          </div>
+        </div>
+      </div>
+
+      <!-- ③ مراحل القضايا - Kanban -->
+      <div class="sec" id="sec-kanban">
+        <div class="pact">
+          <div class="tot">متابعة مراحل جميع القضايا</div>
+          <button class="add-btn" onclick="loadKanban()">🔄 تحديث</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start" id="kanbanBoard">
+          <div class="kanban-col" id="k-استلام">
+            <div class="kanban-head" style="background:rgba(74,144,217,.15);color:#4A90D9">📥 استلام<span class="kanban-count" id="kc-استلام">0</span></div>
+            <div class="kanban-cards" id="kl-استلام"></div>
+          </div>
+          <div class="kanban-col" id="k-تحضير">
+            <div class="kanban-head" style="background:rgba(224,176,64,.15);color:#E0B040">📋 تحضير<span class="kanban-count" id="kc-تحضير">0</span></div>
+            <div class="kanban-cards" id="kl-تحضير"></div>
+          </div>
+          <div class="kanban-col" id="k-مرافعة">
+            <div class="kanban-head" style="background:rgba(212,175,55,.15);color:#D4AF37">⚖️ مرافعة<span class="kanban-count" id="kc-مرافعة">0</span></div>
+            <div class="kanban-cards" id="kl-مرافعة"></div>
+          </div>
+          <div class="kanban-col" id="k-حكم">
+            <div class="kanban-head" style="background:rgba(61,170,112,.15);color:#3DAA70">🏛️ حكم<span class="kanban-count" id="kc-حكم">0</span></div>
+            <div class="kanban-cards" id="kl-حكم"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ④ بنك الأنظمة والأحكام -->
+      <div class="sec" id="sec-laws">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mLaw')">＋ إضافة نظام/حكم</button>
+          <div class="tot">إجمالي: <span id="tot-laws">0</span> مدخل</div>
+        </div>
+        <div class="card" style="margin-bottom:1rem">
+          <div class="card-h"><div class="card-t">🔍 البحث في البنك</div></div>
+          <input class="fi" id="lawSearch" placeholder="ابحث في الأنظمة والأحكام المحفوظة..." oninput="searchLaws(this.value)" style="margin:0"/>
+        </div>
+
+        <!-- بحث Claude AI -->
+        <div class="card" style="margin-bottom:1rem;border-color:rgba(184,150,12,0.4);background:rgba(184,150,12,0.03)">
+          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Groq AI)</div><span style="font-size:11px;color:var(--tx2)">مجاني وسريع — ابحث في الأنظمة السعودية مباشرة</span></div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <input class="fi" id="claudeLawQ" style="margin:0;flex:1" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
+            <button class="btn-s" style="flex-shrink:0;padding:10px 18px" onclick="searchWithClaude()">🔍 بحث</button>
+          </div>
+          <div id="claudeLawResult" style="display:none">
+            <div style="border-top:0.5px solid var(--br2);padding-top:12px;margin-top:4px">
+              <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+                <span style="width:8px;height:8px;border-radius:50%;background:#3DAA70;display:inline-block"></span>
+                إجابة Claude AI
+              </div>
+              <div id="claudeLawText" style="font-size:13px;color:var(--tx);line-height:1.9;white-space:pre-wrap;direction:rtl;text-align:right"></div>
+              <div style="margin-top:10px;display:flex;gap:8px">
+                <button class="card-b" onclick="saveLawFromClaude()">💾 حفظ في البنك</button>
+                <button class="card-b" onclick="clearClaudeResult()">✕ مسح</button>
+              </div>
+            </div>
+          </div>
+          <div id="claudeLawLoading" style="display:none;text-align:center;padding:16px;color:var(--tx2)">
+            <div style="font-size:18px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
+            <div style="font-size:13px;margin-top:6px">جاري البحث بـ Groq AI...</div>
+          </div>
+        </div>
+
+        <div class="g2">
+          <div>
+            <div class="card" style="margin-bottom:1rem">
+              <div class="card-h"><div class="card-t">📚 الأنظمة المحفوظة</div></div>
+              <div id="lawsList" style="display:flex;flex-direction:column;gap:6px">
+                <div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">جاري التحميل...</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">📖 تفاصيل المدخل</div></div>
+            <div id="lawDetail" style="font-size:13px;color:var(--tx2);min-height:200px;line-height:1.8">اختر مدخلاً من القائمة لعرض تفاصيله</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ سجل الأحكام والنتائج -->
+      <div class="sec" id="sec-verdicts">
+        <div class="pact">
+          <button class="add-btn" onclick="openM('mVerdict')">＋ إضافة حكم</button>
+          <div class="tot">إجمالي: <span id="tot-verdicts">0</span> حكم</div>
+        </div>
+        <!-- إحصاءات سريعة -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem">
+          <div class="stat"><div class="stat-l">فوز</div><div class="stat-n" id="vWin" style="color:#3DAA70">0</div></div>
+          <div class="stat"><div class="stat-l">خسارة</div><div class="stat-n" id="vLose" style="color:#E07080">0</div></div>
+          <div class="stat"><div class="stat-l">تسوية</div><div class="stat-n" id="vSettle" style="color:#E0B040">0</div></div>
+          <div class="stat hl"><div class="stat-l">نسبة النجاح</div><div class="stat-n" id="vRate">—</div></div>
+        </div>
+        <!-- جدول الأحكام -->
+        <div class="card">
+          <table class="tbl">
+            <thead><tr><th>رقم القضية</th><th>العنوان</th><th>العميل</th><th>المحكمة</th><th>المحامي</th><th>تاريخ الحكم</th><th>النتيجة</th><th>ملخص الحكم</th><th>إجراءات</th></tr></thead>
+            <tbody id="tb-verdicts"><tr><td colspan="9" style="text-align:center;color:var(--tx3);padding:20px">لا توجد أحكام بعد</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </div>
 
-<!-- Firebase compat (مهم) -->
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<!-- MODALS FOR NEW SECTIONS -->
+
+<!-- Modal: إضافة عقد -->
+<div class="ov" id="mContract">
+  <div class="modal">
+    <div class="mh">إضافة عقد جديد <span class="mx" onclick="closeM('mContract')">×</span></div>
+    <label class="fl">عنوان العقد</label><input class="fi" id="con_t" placeholder="عنوان العقد"/>
+    <div class="fr">
+      <div><label class="fl">نوع العقد</label><select class="fi" id="con_ty"><option>عقد عمل</option><option>عقد إيجار</option><option>عقد شراكة</option><option>عقد بيع</option><option>عقد خدمات</option><option>اتفاقية</option></select></div>
+      <div><label class="fl">القضية المرتبطة</label><select class="fi" id="con_c"><option value="">-- اختياري --</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الطرف الأول</label><select class="fi" id="con_p1"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">الطرف الثاني</label><input class="fi" id="con_p2" placeholder="اسم الطرف الثاني"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">تاريخ البداية</label><input class="fi" id="con_sd" type="date"/></div>
+      <div><label class="fl">تاريخ الانتهاء</label><input class="fi" id="con_ed" type="date"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">قيمة العقد (ر.س)</label><input class="fi" id="con_val" type="number" placeholder="0"/></div>
+      <div><label class="fl">الحالة</label><select class="fi" id="con_st"><option>ساري</option><option>قيد التفاوض</option><option>منتهي</option><option>ملغي</option></select></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="con_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mContract')">إلغاء</button><button class="btn-s" onclick="saveContract()">حفظ العقد 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: إضافة وكالة -->
+<div class="ov" id="mPoa">
+  <div class="modal">
+    <div class="mh">إضافة وكالة جديدة <span class="mx" onclick="closeM('mPoa')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">عنوان الوكالة</label><input class="fi" id="poa_t" placeholder="موضوع الوكالة"/></div>
+      <div><label class="fl">رقم الوكالة</label><input class="fi" id="poa_num" placeholder="رقم الوكالة"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الموكّل</label><select class="fi" id="poa_client"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">نوع الوكالة</label><select class="fi" id="poa_ty"><option>وكالة عامة</option><option>وكالة خاصة</option><option>وكالة قضائية</option><option>وكالة تجارية</option><option>وكالة عقارية</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">تاريخ البداية</label><input class="fi" id="poa_sd" type="date"/></div>
+      <div><label class="fl">تاريخ الانتهاء</label><input class="fi" id="poa_ed" type="date"/></div>
+    </div>
+    <label class="fl">صورة الوكالة (رابط أو Base64)</label>
+    <input type="file" accept="image/*" id="poa_img_file" class="fi" style="padding:6px" onchange="previewImg('poa_img_file','poa_img_preview','poa_img')"/>
+    <input type="hidden" id="poa_img"/>
+    <div id="poa_img_preview" style="display:none;margin-bottom:12px"><img style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:0.5px solid var(--br2)" src=""/></div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="poa_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mPoa')">إلغاء</button><button class="btn-s" onclick="savePoa()">حفظ الوكالة 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: إضافة عقد مكتب -->
+<div class="ov" id="mOfficeContract">
+  <div class="modal">
+    <div class="mh">إضافة عقد مكتب <span class="mx" onclick="closeM('mOfficeContract')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">عنوان العقد</label><input class="fi" id="oc_t" placeholder="عنوان العقد"/></div>
+      <div><label class="fl">نوع العقد</label><select class="fi" id="oc_ty"><option>عقد إيجار</option><option>عقد خدمات</option><option>عقد توريد</option><option>عقد صيانة</option><option>عقد عمل</option><option>اتفاقية تعاون</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الطرف الثاني</label><input class="fi" id="oc_p2" placeholder="اسم الطرف الثاني"/></div>
+      <div><label class="fl">قيمة العقد (ر.س)</label><input class="fi" id="oc_val" type="number" placeholder="0"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">تاريخ البداية</label><input class="fi" id="oc_sd" type="date"/></div>
+      <div><label class="fl">تاريخ الانتهاء</label><input class="fi" id="oc_ed" type="date"/></div>
+    </div>
+    <label class="fl">صورة/وثيقة العقد</label>
+    <input type="file" accept="image/*" id="oc_img_file" class="fi" style="padding:6px" onchange="previewImg('oc_img_file','oc_img_preview','oc_img')"/>
+    <input type="hidden" id="oc_img"/>
+    <div id="oc_img_preview" style="display:none;margin-bottom:12px"><img style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:0.5px solid var(--br2)" src=""/></div>
+    <label class="fl">تفاصيل العقد</label><textarea class="fi" id="oc_detail" rows="3" placeholder="بنود ومواد العقد الرئيسية..."></textarea>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="oc_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mOfficeContract')">إلغاء</button><button class="btn-s" onclick="saveOfficeContract()">حفظ العقد 🔥</button></div>
+  </div>
+</div>
+<div class="ov" id="mLaw">
+  <div class="modal">
+    <div class="mh">إضافة للبنك القانوني <span class="mx" onclick="closeM('mLaw')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">النوع</label><select class="fi" id="law_ty"><option>نظام</option><option>لائحة</option><option>حكم قضائي</option><option>مبدأ قانوني</option><option>تعميم</option></select></div>
+      <div><label class="fl">المجال</label><select class="fi" id="law_field"><option>تجاري</option><option>عمالي</option><option>أحوال شخصية</option><option>جنائي</option><option>عقاري</option><option>مدني</option></select></div>
+    </div>
+    <label class="fl">العنوان</label><input class="fi" id="law_t" placeholder="عنوان النظام أو الحكم"/>
+    <label class="fl">رقم النظام / المرجع</label><input class="fi" id="law_ref" placeholder="مثال: م.ع 1434/1"/>
+    <label class="fl">النص الكامل / الملخص</label><textarea class="fi" id="law_body" rows="5" placeholder="النص أو الملخص..."></textarea>
+    <label class="fl">الكلمات المفتاحية</label><input class="fi" id="law_tags" placeholder="عمل، فصل، تعويض..."/>
+    <div class="ma"><button class="btn-c" onclick="closeM('mLaw')">إلغاء</button><button class="btn-s" onclick="saveLaw()">حفظ 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: إضافة حكم -->
+<div class="ov" id="mVerdict">
+  <div class="modal">
+    <div class="mh">تسجيل حكم قضية <span class="mx" onclick="closeM('mVerdict')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">القضية</label><select class="fi" id="vrd_c"><option value="">-- اختر القضية --</option></select></div>
+      <div><label class="fl">تاريخ الحكم</label><input class="fi" id="vrd_d" type="date"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">النتيجة</label><select class="fi" id="vrd_r"><option>فوز كامل</option><option>فوز جزئي</option><option>خسارة</option><option>تسوية ودية</option><option>إسقاط الدعوى</option></select></div>
+      <div><label class="fl">المحكمة</label><input class="fi" id="vrd_co" placeholder="اسم المحكمة"/></div>
+    </div>
+    <label class="fl">المحامي المرافع</label><select class="fi" id="vrd_l"><option value="">-- اختر المحامي --</option></select>
+    <label class="fl">ملخص الحكم</label><textarea class="fi" id="vrd_sum" rows="3" placeholder="ملخص قرار المحكمة..."></textarea>
+    <label class="fl">ملاحظات إضافية</label><textarea class="fi" id="vrd_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mVerdict')">إلغاء</button><button class="btn-s" onclick="saveVerdict()">حفظ الحكم 🔥</button></div>
+  </div>
+</div>
+
+<!-- ⑤ إشعارات فاخرة -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Modal: قضية -->
+<div class="ov" id="mCase">
+  <div class="modal">
+    <div class="mh">إضافة قضية <span class="mx" onclick="closeM('mCase')">×</span></div>
+    <label class="fl">عنوان القضية</label><input class="fi" id="c_t" placeholder="عنوان القضية"/>
+    <div class="fr">
+      <div><label class="fl">النوع</label><select class="fi" id="c_ty"><option>تجاري</option><option>جنائي</option><option>أحوال شخصية</option><option>عمالي</option><option>عقاري</option><option>مدني</option></select></div>
+      <div><label class="fl">المحكمة</label><input class="fi" id="c_co" placeholder="اسم المحكمة"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">العميل</label><select class="fi" id="c_cl"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">المحامي المسؤول</label><select class="fi" id="c_la"><option value="">-- اختر المحامي --</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">التاريخ</label><input class="fi" id="c_d" type="date"/></div>
+      <div><label class="fl">الأولوية</label><select class="fi" id="c_p"><option>عادية</option><option>متوسطة</option><option>عاجلة</option></select></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="c_n" placeholder="تفاصيل القضية..."></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mCase')">إلغاء</button><button class="btn-s" onclick="saveCase()">حفظ القضية 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: عميل -->
+<div class="ov" id="mClient">
+  <div class="modal">
+    <div class="mh">إضافة عميل <span class="mx" onclick="closeM('mClient')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">الاسم</label><input class="fi" id="cl_n" placeholder="اسم العميل"/></div>
+      <div><label class="fl">النوع</label><select class="fi" id="cl_ty"><option>فرد</option><option>شركة</option><option>مؤسسة</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الجوال</label><input class="fi" id="cl_p" placeholder="05xxxxxxxx"/></div>
+      <div><label class="fl">البريد</label><input class="fi" id="cl_e" placeholder="email@mail.com"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">رقم الهوية</label><input class="fi" id="cl_i" placeholder="رقم الهوية"/></div>
+      <div><label class="fl">الرقم الموحد</label><input class="fi" id="cl_u" placeholder="الرقم الموحد"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">المدينة</label><input class="fi" id="cl_c" placeholder="المدينة"/></div>
+      <div></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="cl_no" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mClient')">إلغاء</button><button class="btn-s" onclick="saveClient()">حفظ العميل 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: جلسة -->
+<div class="ov" id="mHearing">
+  <div class="modal">
+    <div class="mh">إضافة جلسة <span class="mx" onclick="closeM('mHearing')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">رقم القضية</label><select class="fi" id="h_c"><option value="">-- اختر القضية --</option></select></div>
+      <div><label class="fl">المحكمة</label><input class="fi" id="h_co" placeholder="اسم المحكمة"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">التاريخ</label><input class="fi" id="h_d" type="date"/></div>
+      <div><label class="fl">الوقت</label><input class="fi" id="h_t" type="time"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">القاضي</label><input class="fi" id="h_j" placeholder="اسم القاضي"/></div>
+      <div><label class="fl">المحامي</label><select class="fi" id="h_l"><option value="">-- اختر المحامي --</option></select></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="h_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mHearing')">إلغاء</button><button class="btn-s" onclick="saveHearing()">حفظ الجلسة 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: موعد -->
+<div class="ov" id="mAppt">
+  <div class="modal">
+    <div class="mh">إضافة موعد <span class="mx" onclick="closeM('mAppt')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">العميل</label><select class="fi" id="a_c"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">المحامي</label><select class="fi" id="a_l"><option value="">-- اختر المحامي --</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">التاريخ</label><input class="fi" id="a_d" type="date"/></div>
+      <div><label class="fl">الوقت</label><input class="fi" id="a_t" type="time"/></div>
+    </div>
+    <label class="fl">النوع</label><select class="fi" id="a_ty"><option>استشارة</option><option>متابعة قضية</option><option>مراجعة عقد</option><option>اجتماع</option></select>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="a_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mAppt')">إلغاء</button><button class="btn-s" onclick="saveAppt()">تأكيد الموعد 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: مذكرة -->
+<div class="ov" id="mMemo">
+  <div class="modal">
+    <div class="mh">مذكرة قانونية <span class="mx" onclick="closeM('mMemo')">×</span></div>
+    <label class="fl">العنوان</label><input class="fi" id="m_t" placeholder="عنوان المذكرة"/>
+    <div class="fr">
+      <div><label class="fl">النوع</label><select class="fi" id="m_ty"><option>مذكرة دفاع</option><option>طلب تأجيل</option><option>رد على مستندات</option><option>مذكرة خبرة</option></select></div>
+      <div><label class="fl">رقم القضية</label><select class="fi" id="m_c"><option value="">-- اختر القضية --</option></select></div>
+    </div>
+    <label class="fl">المحامي</label><select class="fi" id="m_l"><option value="">-- اختر المحامي --</option></select>
+    <label class="fl">النص</label><textarea class="fi" id="m_b" rows="4" placeholder="نص المذكرة..."></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mMemo')">إلغاء</button><button class="btn-s" onclick="saveMemo()">رفع المذكرة 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: حدث تقويم -->
+<div class="ov" id="mCalEvent">
+  <div class="modal">
+    <div class="mh">إضافة حدث <span class="mx" onclick="closeM('mCalEvent')">×</span></div>
+    <label class="fl">عنوان الحدث</label><input class="fi" id="ce_t" placeholder="عنوان الحدث"/>
+    <div class="fr">
+      <div><label class="fl">التاريخ</label><input class="fi" id="ce_d" type="date"/></div>
+      <div><label class="fl">الوقت</label><input class="fi" id="ce_ti" type="time"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">النوع</label><select class="fi" id="ce_ty"><option>جلسة</option><option>موعد</option><option>مذكرة</option><option>تذكير</option><option>إداري</option></select></div>
+      <div><label class="fl">القضية (اختياري)</label><select class="fi" id="ce_c"><option value="">-- اختر القضية --</option></select></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="ce_n" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mCalEvent')">إلغاء</button><button class="btn-s" onclick="saveCalEvent()">حفظ الحدث 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: موظف -->
+<div class="ov" id="mStaff">
+  <div class="modal">
+    <div class="mh">إضافة موظف <span class="mx" onclick="closeM('mStaff')">×</span></div>
+    <div class="fr">
+      <div><label class="fl">الاسم</label><input class="fi" id="s_n" placeholder="الاسم الكامل"/></div>
+      <div><label class="fl">المنصب</label><select class="fi" id="s_p"><option>محامي أول</option><option>محامي</option><option>مساعد قانوني</option><option>سكرتير</option><option>محاسب</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الجوال</label><input class="fi" id="s_ph" placeholder="05xxxxxxxx"/></div>
+      <div><label class="fl">البريد</label><input class="fi" id="s_e" placeholder="email@office.sa"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">التخصص</label><input class="fi" id="s_sp" placeholder="مثال: تجاري"/></div>
+      <div><label class="fl">الصلاحية</label><select class="fi" id="s_r"><option>موظف</option><option>محامي</option><option>مدير قسم</option></select></div>
+    </div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mStaff')">إلغاء</button><button class="btn-s" onclick="saveStaff()">إضافة الموظف 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: تفاصيل وتعديل قضية -->
+<div class="ov" id="mCaseDetail">
+  <div class="modal" style="width:540px">
+    <div class="mh">تفاصيل القضية <span class="mx" onclick="closeM('mCaseDetail')">×</span></div>
+    <div id="caseDetailView"></div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br2);display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn-s" style="flex:1" onclick="switchToEdit()">✏️ تعديل</button>
+      <button class="btn-s" style="flex:1;background:linear-gradient(135deg,#1A4A8A,#0D2A5A)" onclick="printCase()">🖨️ طباعة</button>
+      <button class="btn-c" style="flex:1;color:#E07080;border-color:rgba(224,112,128,.4)" onclick="deleteCurrentCase()">🗑️ حذف</button>
+      <button class="btn-c" onclick="closeM('mCaseDetail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: تعديل قضية -->
+<div class="ov" id="mCaseEdit">
+  <div class="modal">
+    <div class="mh">تعديل القضية <span class="mx" onclick="closeM('mCaseEdit')">×</span></div>
+    <input type="hidden" id="edit_c_id"/>
+    <label class="fl">عنوان القضية</label><input class="fi" id="edit_c_t"/>
+    <div class="fr">
+      <div><label class="fl">النوع</label><select class="fi" id="edit_c_ty"><option>تجاري</option><option>جنائي</option><option>أحوال شخصية</option><option>عمالي</option><option>عقاري</option><option>مدني</option></select></div>
+      <div><label class="fl">المحكمة</label><input class="fi" id="edit_c_co"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">العميل</label><select class="fi" id="edit_c_cl"><option value="">-- اختر العميل --</option></select></div>
+      <div><label class="fl">المحامي</label><select class="fi" id="edit_c_la"><option value="">-- اختر المحامي --</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الحالة</label><select class="fi" id="edit_c_st"><option>نشطة</option><option>عاجلة</option><option>قيد الانتظار</option><option>مغلقة</option></select></div>
+      <div><label class="fl">الأولوية</label><select class="fi" id="edit_c_p"><option>عادية</option><option>متوسطة</option><option>عاجلة</option></select></div>
+    </div>
+    <label class="fl">الجلسة القادمة</label><input class="fi" id="edit_c_nh" placeholder="مثال: 15 مايو 2025"/>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="edit_c_n" rows="3"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mCaseEdit')">إلغاء</button><button class="btn-s" onclick="updateCase()">حفظ التعديلات 🔥</button></div>
+  </div>
+</div>
+
+<!-- Modal: تفاصيل وتعديل عميل -->
+<div class="ov" id="mClientDetail">
+  <div class="modal" style="width:540px">
+    <div class="mh">تفاصيل العميل <span class="mx" onclick="closeM('mClientDetail')">×</span></div>
+    <div id="clientDetailView"></div>
+    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br2);display:flex;gap:8px">
+      <button class="btn-s" style="flex:1" onclick="switchToClientEdit()">✏️ تعديل</button>
+      <button class="btn-c" style="flex:1;color:#E07080;border-color:rgba(224,112,128,.4)" onclick="deleteCurrentClient()">🗑️ حذف</button>
+      <button class="btn-c" onclick="closeM('mClientDetail')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: تعديل عميل -->
+<div class="ov" id="mClientEdit">
+  <div class="modal">
+    <div class="mh">تعديل العميل <span class="mx" onclick="closeM('mClientEdit')">×</span></div>
+    <input type="hidden" id="edit_cl_id"/>
+    <div class="fr">
+      <div><label class="fl">الاسم</label><input class="fi" id="edit_cl_n"/></div>
+      <div><label class="fl">النوع</label><select class="fi" id="edit_cl_ty"><option>فرد</option><option>شركة</option><option>مؤسسة</option></select></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">الجوال</label><input class="fi" id="edit_cl_p"/></div>
+      <div><label class="fl">البريد</label><input class="fi" id="edit_cl_e"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">رقم الهوية</label><input class="fi" id="edit_cl_i"/></div>
+      <div><label class="fl">الرقم الموحد</label><input class="fi" id="edit_cl_u"/></div>
+    </div>
+    <div class="fr">
+      <div><label class="fl">المدينة</label><input class="fi" id="edit_cl_c"/></div>
+      <div></div>
+    </div>
+    <label class="fl">ملاحظات</label><textarea class="fi" id="edit_cl_no" rows="2"></textarea>
+    <div class="ma"><button class="btn-c" onclick="closeM('mClientEdit')">إلغاء</button><button class="btn-s" onclick="updateClient()">حفظ التعديلات 🔥</button></div>
+  </div>
+</div>
 
 <script>
+firebase.initializeApp({
+  apiKey:"AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ",
+  authDomain:"alshikh-law.firebaseapp.com",
+  projectId:"alshikh-law",
+  storageBucket:"alshikh-law.firebasestorage.app",
+  messagingSenderId:"320725230314",
+  appId:"1:320725230314:web:2ba25d938fe28bc0c52d93"
+});
+var db=firebase.firestore(), auth=firebase.auth();
+auth.onAuthStateChanged(function(u){
+  var d=document.getElementById('fbDot'), t=document.getElementById('fbTxt');
+  if(!d)return;
+  if(u){d.style.background='#3DAA70';t.textContent='Firebase: متصل ✓';}
+  else{d.style.background='#E07080';t.textContent='Firebase: غير متصل';}
+});
 
-// 🔥 إعداداتك جاهزة
-const firebaseConfig = {
-  apiKey: "AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ",
-  authDomain: "alshikh-law.firebaseapp.com",
-  projectId: "alshikh-law",
-  storageBucket: "alshikh-law.firebasestorage.app",
-  messagingSenderId: "320725230314",
-  appId: "1:320725230314:web:2ba25d938fe28bc0c52d93"
-};
+// ================================================================
+// ① شاشة التحميل
+// ================================================================
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    var ls = document.getElementById('loadingScreen');
+    if(ls){ ls.classList.add('hide'); setTimeout(function(){ ls.style.display='none'; }, 800); }
+  }, 2200);
+});
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// ================================================================
+// ② جسيمات صفحة الدخول
+// ================================================================
+(function initParticles(){
+  var canvas = document.getElementById('particles-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var particles = [];
+  function resize(){ canvas.width=window.innerWidth; canvas.height=window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  for(var i=0;i<60;i++){
+    particles.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*2+0.5,
+      vx: (Math.random()-0.5)*0.4,
+      vy: (Math.random()-0.5)*0.4,
+      a: Math.random()
+    });
+  }
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(function(p){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0||p.x>canvas.width) p.vx*=-1;
+      if(p.y<0||p.y>canvas.height) p.vy*=-1;
+      p.a += 0.005;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(212,175,55,'+(0.3+0.3*Math.sin(p.a))+')';
+      ctx.fill();
+    });
+    // خطوط بين الجسيمات القريبة
+    for(var i=0;i<particles.length;i++){
+      for(var j=i+1;j<particles.length;j++){
+        var dx=particles[i].x-particles[j].x;
+        var dy=particles[i].y-particles[j].y;
+        var dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath();
+          ctx.strokeStyle='rgba(212,175,55,'+(0.12*(1-dist/120))+')';
+          ctx.lineWidth=0.5;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
 
-let allCases = [];
+// ================================================================
+// ② خلفية الصفحة الرئيسية
+// ================================================================
+function initDashCanvas(){
+  var canvas = document.getElementById('dashboard-canvas');
+  if(!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var w = canvas.parentElement.offsetWidth || 800;
+  var h = canvas.parentElement.offsetHeight || 500;
+  canvas.width = w; canvas.height = h;
+  var dots = [];
+  for(var i=0;i<30;i++){
+    dots.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*3+1,vy:-0.3-Math.random()*0.3,a:Math.random()*Math.PI*2,va:0.01+Math.random()*0.02});
+  }
+  function drawDash(){
+    ctx.clearRect(0,0,w,h);
+    dots.forEach(function(d){
+      d.y+=d.vy; d.a+=d.va;
+      if(d.y<-10) d.y=h+10;
+      var alpha=0.4+0.3*Math.sin(d.a);
+      ctx.beginPath();
+      ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(212,175,55,'+alpha+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(drawDash);
+  }
+  drawDash();
+}
 
-function addCase(){
-  const title = document.getElementById("title").value;
-  const client = document.getElementById("client").value;
+// ================================================================
+// ③ أرقام تعدّ تلقائياً
+// ================================================================
+function animateCount(el, target){
+  if(!el) return;
+  var start=0, dur=1200, startTime=null;
+  function step(ts){
+    if(!startTime) startTime=ts;
+    var progress=Math.min((ts-startTime)/dur,1);
+    var ease=1-Math.pow(1-progress,3);
+    el.textContent=Math.floor(ease*target);
+    if(progress<1) requestAnimationFrame(step);
+    else el.textContent=target;
+  }
+  requestAnimationFrame(step);
+}
 
-  if(!title || !client){
-    alert("املأ البيانات");
+// ================================================================
+// ⑤ إشعارات فاخرة
+// ================================================================
+function toast(msg, type){
+  // Try new container first, fallback to old element
+  var container = document.getElementById('toastContainer');
+  var oldEl = document.getElementById('toast');
+  if(container){
+    var icons = {ok:'✅', err:'❌', info:'ℹ️'};
+    var div = document.createElement('div');
+    div.className = 'toast-item ' + (type||'ok');
+    div.innerHTML = '<span class="toast-ic">'+(icons[type]||'✅')+'</span><span>'+msg+'</span>';
+    container.appendChild(div);
+    setTimeout(function(){
+      div.style.animation='toastOut .4s ease forwards';
+      setTimeout(function(){ if(div.parentNode) div.parentNode.removeChild(div); }, 400);
+    }, 3000);
+  } else if(oldEl){
+    oldEl.textContent = msg;
+    oldEl.style.display = 'block';
+    oldEl.className = 't-'+(type||'ok');
+    setTimeout(function(){ oldEl.style.display='none'; }, 3000);
+  } else {
+    console.log('Toast:', msg);
+  }
+}
+
+// ================================================================
+// ⑦ رسوم بيانية Chart.js
+// ================================================================
+var donutChartInstance = null;
+var barChartInstance = null;
+
+function renderDonut(active, urgent, pending, closed, total){
+  if(g('donutTotal')) g('donutTotal').textContent = total;
+  var canvas = document.getElementById('donutChart');
+  if(!canvas) return;
+  if(donutChartInstance) donutChartInstance.destroy();
+  var isDark = !document.body.classList.contains('light');
+  donutChartInstance = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      datasets:[{
+        data: [active||0.01, urgent||0.01, pending||0.01, closed||0.01],
+        backgroundColor: ['rgba(61,170,112,.85)','rgba(224,112,128,.85)','rgba(224,176,64,.85)','rgba(100,100,120,.85)'],
+        borderColor: [isDark?'#111418':'#fff'],
+        borderWidth: 2,
+        hoverOffset: 6
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      cutout:'72%',
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return ' '+ctx.raw+' قضية';}}}},
+      animation:{animateRotate:true,duration:1200,easing:'easeInOutQuart'}
+    }
+  });
+}
+
+function renderBarChart(types, total){
+  var canvas = document.getElementById('barChart');
+  if(!canvas) return;
+  if(barChartInstance) barChartInstance.destroy();
+  var keys = Object.keys(types).sort(function(a,b){return types[b]-types[a];}).slice(0,6);
+  var vals = keys.map(function(k){return types[k];});
+  var colors = ['rgba(212,175,55,.8)','rgba(61,170,112,.8)','rgba(74,144,217,.8)','rgba(224,112,128,.8)','rgba(224,176,64,.8)','rgba(160,112,208,.8)'];
+  barChartInstance = new Chart(canvas, {
+    type: 'bar',
+    data:{
+      labels: keys,
+      datasets:[{
+        data: vals,
+        backgroundColor: colors.slice(0, keys.length),
+        borderRadius: 6,
+        borderSkipped: false
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{rtl:true,callbacks:{label:function(ctx){return ' '+ctx.raw+' قضية';}}}},
+      scales:{
+        x:{ticks:{color:'rgba(160,152,128,.8)',font:{size:11,family:'Tajawal'}},grid:{display:false},border:{display:false}},
+        y:{ticks:{color:'rgba(160,152,128,.8)',font:{size:10},stepSize:1},grid:{color:'rgba(255,255,255,.05)'},border:{display:false}}
+      },
+      animation:{duration:1000,easing:'easeInOutQuart'}
+    }
+  });
+}
+var dark=true;
+(function(){if(localStorage.getItem('th')==='light'){dark=false;document.body.classList.add('light');}})();
+function toggleTheme(){dark=!dark;document.body.classList.toggle('light',!dark);localStorage.setItem('th',dark?'dark':'light');}
+
+// ===== AUTH =====
+var curRole='manager';
+function setRole(r,el){curRole=r;document.querySelectorAll('.role').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}
+function doLogin(){
+  var e=document.getElementById('authEmail').value.trim();
+  var p=document.getElementById('authPass').value;
+  var er=document.getElementById('errMsg');
+  er.textContent='';
+  if(!e||!p){er.textContent='أدخل البريد وكلمة المرور';return;}
+  auth.signInWithEmailAndPassword(e,p)
+    .then(function(){finishLogin();})
+    .catch(function(err){er.textContent=err.code==='auth/wrong-password'||err.code==='auth/user-not-found'||err.code==='auth/invalid-credential'?'بيانات غير صحيحة':err.message;});
+}
+function finishLogin(){
+  var roles={manager:{name:'محمد عبدالمحسن الشيخ',role:'مدير النظام',mgmt:true},lawyer:{name:'المحامي',role:'محامي',mgmt:false},client:{name:'العميل',role:'عميل',mgmt:false}};
+  var d=roles[curRole];
+  document.getElementById('sRole').textContent=d.role;
+  document.getElementById('sName').textContent=d.name;
+  document.querySelectorAll('.mgmt-i,.mgmt-g').forEach(function(el){el.style.display=d.mgmt?'':'none';});
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appShell').classList.add('on');
+  setTimeout(initDashCanvas, 300);
+  // اختبار الاتصال بـ Firebase
+  db.collection('_test').limit(1).get()
+    .then(function(){
+      console.log('Firebase متصل ✓');
+    })
+    .catch(function(e){
+      if(e.code==='permission-denied'||e.message.includes('permission')){
+        toast('⚠️ Firestore Rules تحتاج تحديث — اذهب لـ Firebase Console','err');
+      }
+    });
+  // تسجيل دخول مجهول كاحتياطي لضمان عمل Firebase
+  if(!auth.currentUser){
+    auth.signInAnonymously()
+      .then(function(){ console.log('Anonymous auth OK'); })
+      .catch(function(e){ console.log('Anon auth error:', e.message); });
+  }
+  loadAll(); renderCal();
+}
+function doLogout(){
+  auth.signOut();
+  document.getElementById('authScreen').style.display='flex';
+  document.getElementById('appShell').classList.remove('on');
+}
+
+// ===== NAV =====
+var titles={dashboard:'الصفحة الرئيسية',cases:'القضايا',clients:'العملاء',hearings:'الجلسات',appointments:'المواعيد',memos:'المذكرات',calendar:'مذكرة التواريخ',staff:'الموظفون',reports:'التقارير',contracts:'إدارة العقود',poa:'الوكالات',officecontracts:'عقود المكتب',casefile:'ملف القضية الكامل',kanban:'مراحل القضايا',laws:'بنك الأنظمة والأحكام',verdicts:'سجل الأحكام والنتائج'};
+function go(id,el){
+  document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('on');});
+  var s=document.getElementById('sec-'+id); if(s)s.classList.add('on');
+  if(el)el.classList.add('on');
+  var pt=document.getElementById('pgTitle'); if(pt)pt.textContent=titles[id]||id;
+  if(id==='calendar')renderCal();
+  if(id==='reports')loadReports();
+  if(id==='contracts')loadContracts();
+  if(id==='casefile')loadCaseFileSelect();
+  if(id==='kanban')loadKanban();
+  if(id==='laws')loadLaws();
+  if(id==='verdicts')loadVerdicts();
+}
+
+// ===== MODAL =====
+function closeM(id){var e=document.getElementById(id);if(e)e.classList.remove('open');}
+document.addEventListener('click',function(e){if(e.target&&e.target.classList&&e.target.classList.contains('ov'))closeM(e.target.id);});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')document.querySelectorAll('.ov.open').forEach(function(o){o.classList.remove('open');});});
+
+// toast function defined above
+
+// ===== SEARCH =====
+function doSearch(v){
+  if(!v)return;
+  var map={'قضي':'cases','قضاي':'cases','عمي':'clients','عملا':'clients','جلس':'hearings','موعد':'appointments','مواعي':'appointments','مذكر':'memos','تقرير':'reports','موظف':'staff','تقويم':'calendar','تواريخ':'calendar'};
+  for(var k in map){if(v.includes(k)){var ni=document.querySelector('.nav-item[onclick*="\''+map[k]+'\'"]');go(map[k],ni);document.getElementById('srch').value='';return;}}
+}
+
+// ===== LOAD ALL =====
+function loadAll(){loadCases();loadClients();loadHearings();loadAppts();loadMemos();loadStaff();loadStats();loadAllDropdownData();}
+
+function g(id){return document.getElementById(id);}
+function sc(s){return s==='نشطة'?'ba':s==='عاجلة'?'bu':s==='مغلقة'?'bc':'bp';}
+function empty(n){return '<tr><td colspan="'+n+'" style="text-align:center;color:var(--tx3);padding:20px">لا توجد بيانات بعد</td></tr>';}
+
+function loadStats(){
+  db.collection('cases').get().then(function(snap){
+    var total=snap.size;
+    animateCount(g('st1'), total);
+    if(g('cBadge')) g('cBadge').textContent=total;
+    var active=0,urgent=0,pending=0,closed=0,types={};
+    snap.docs.forEach(function(d){
+      var c=d.data();
+      if(c.status==='نشطة') active++;
+      else if(c.status==='عاجلة') urgent++;
+      else if(c.status==='مغلقة') closed++;
+      else pending++;
+      var t=c.type||'غير محدد';
+      types[t]=(types[t]||0)+1;
+    });
+    if(g('dLegActive')) g('dLegActive').textContent=active;
+    if(g('dLegUrgent')) g('dLegUrgent').textContent=urgent;
+    if(g('dLegPending')) g('dLegPending').textContent=pending;
+    if(g('dLegClosed')) g('dLegClosed').textContent=closed;
+    if(g('donutTotal')) g('donutTotal').textContent=total;
+    if(total>0){ renderDonut(active,urgent,pending,closed,total); renderBarChart(types,total); }
+    var cp=total>0?Math.round(closed/total*100):0;
+    var ap=total>0?Math.round(active/total*100):0;
+    var up=total>0?Math.round(urgent/total*100):0;
+    if(g('closeRate')){g('closeRate').textContent=cp+'%';setTimeout(function(){g('closeRateBar').style.width=cp+'%';},400);}
+    if(g('activeRate')){g('activeRate').textContent=ap+'%';setTimeout(function(){g('activeRateBar').style.width=ap+'%';},500);}
+    if(g('urgentRate')){g('urgentRate').textContent=up+'%';setTimeout(function(){g('urgentRateBar').style.width=up+'%';},600);}
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('clients').get().then(function(s){animateCount(g('st2'),s.size);}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('hearings').get().then(function(s){animateCount(g('st3'),s.size);}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('staff').get().then(function(s){animateCount(g('st4'),s.size);}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+// charts handled by Chart.js above
+
+function loadCases(){
+  db.collection('cases').get().then(function(snap){
+    g('tot-cases').textContent=snap.size;
+    g('cBadge').textContent=snap.size;
+    var rows=snap.docs.map(function(d){
+      var c=d.data(), id=d.id;
+      return '<tr><td class="cno">'+(c.number||'—')+'</td><td>'+(c.title||'—')+'</td><td>'+(c.client||'—')+'</td><td>'+(c.court||'—')+'</td><td>'+(c.type||'—')+'</td><td>'+(c.lawyer||'—')+'</td><td><span class="badge '+sc(c.status)+'">'+(c.status||'نشطة')+'</span></td><td><div class="act-btns"><button class="act-btn ab-view" onclick="viewCase(\''+id+'\')">عرض</button><button class="act-btn ab-edit" onclick="editCase(\''+id+'\')">تعديل</button><button class="act-btn ab-del" onclick="delCase(\''+id+'\')">حذف</button></div></td></tr>';
+    });
+    g('tb-cases').innerHTML=rows.length?rows.join(''):empty(8);
+    var dr=snap.docs.slice(0,5).map(function(d){var c=d.data();return '<tr><td class="cno">'+(c.number||'—')+'</td><td>'+(c.title||'—')+'</td><td>'+(c.client||'—')+'</td><td>'+(c.court||'—')+'</td><td><span class="badge '+sc(c.status)+'">'+(c.status||'نشطة')+'</span></td></tr>';});
+    g('dCases').innerHTML=dr.length?dr.join(''):'<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:16px">لا توجد قضايا</td></tr>';
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function loadClients(){
+  db.collection('clients').get().then(function(snap){
+    g('tot-clients').textContent=snap.size;
+    var rows=snap.docs.map(function(d){
+      var c=d.data(), id=d.id;
+      return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td><td>'+(c.city||'—')+'</td><td><div class="act-btns"><button class="act-btn ab-view" onclick="viewClient(\''+id+'\')">عرض</button><button class="act-btn ab-edit" onclick="editClient(\''+id+'\')">تعديل</button><button class="act-btn ab-del" onclick="delClient(\''+id+'\')">حذف</button></div></td></tr>';
+    });
+    g('tb-clients').innerHTML=rows.length?rows.join(''):empty(8);
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function loadHearings(){
+  db.collection('hearings').get().then(function(snap){
+    g('tot-hearings').textContent=snap.size;
+    var rows=snap.docs.map(function(d){var h=d.data();return '<tr><td class="cno">'+(h.caseNum||'—')+'</td><td>'+(h.court||'—')+'</td><td>'+(h.date||'—')+'</td><td>'+(h.time||'—')+'</td><td>'+(h.judge||'—')+'</td><td>'+(h.lawyer||'—')+'</td></tr>';});
+    g('tb-hearings').innerHTML=rows.length?rows.join(''):empty(6);
+    var dh=snap.docs.slice(0,4).map(function(d){var h=d.data();return '<div class="tl-i"><div class="tl-d" style="background:var(--g)"></div><div><div class="tl-tt">'+(h.caseNum||'—')+' • '+(h.court||'—')+'</div><div class="tl-ss">'+(h.date||'—')+' • '+(h.time||'—')+'</div></div></div>';});
+    g('dHearings').innerHTML=dh.length?dh.join(''):'<div style="color:var(--tx3);font-size:13px">لا توجد جلسات</div>';
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function loadAppts(){
+  db.collection('appointments').get().then(function(snap){
+    g('tot-appts').textContent=snap.size;
+    var rows=snap.docs.map(function(d){var a=d.data();return '<tr><td>'+(a.client||'—')+'</td><td>'+(a.lawyer||'—')+'</td><td>'+(a.date||'—')+'</td><td>'+(a.time||'—')+'</td><td>'+(a.type||'—')+'</td></tr>';});
+    g('tb-appts').innerHTML=rows.length?rows.join(''):empty(5);
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function loadMemos(){
+  db.collection('memos').get().then(function(snap){
+    g('tot-memos').textContent=snap.size;
+    var rows=snap.docs.map(function(d){var m=d.data();return '<tr><td><strong>'+(m.title||'—')+'</strong></td><td>'+(m.type||'—')+'</td><td class="cno">'+(m.caseNum||'—')+'</td><td>'+(m.lawyer||'—')+'</td></tr>';});
+    g('tb-memos').innerHTML=rows.length?rows.join(''):empty(4);
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function loadStaff(){
+  db.collection('staff').get().then(function(snap){
+    g('tot-staff').textContent=snap.size;
+    var rows=snap.docs.map(function(d){var s=d.data();return '<tr><td><strong>'+(s.name||'—')+'</strong></td><td>'+(s.position||'—')+'</td><td>'+(s.specialty||'—')+'</td><td>'+(s.phone||'—')+'</td><td>'+(s.email||'—')+'</td></tr>';});
+    g('tb-staff').innerHTML=rows.length?rows.join(''):empty(5);
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+// ===== REPORTS =====
+var allCasesData = [];
+
+function loadReports(){
+  db.collection('cases').get().then(function(snap){
+    allCasesData = snap.docs.map(function(d){ return Object.assign({id:d.id},d.data()); });
+    renderReportTable(allCasesData);
+    renderCharts(allCasesData);
+    // تحميل فلتر المحامي
+    var lawyers = {};
+    allCasesData.forEach(function(c){ if(c.lawyer) lawyers[c.lawyer]=1; });
+    var sel=g('filter_lawyer');
+    if(sel){
+      sel.innerHTML='<option value="">الكل</option>';
+      Object.keys(lawyers).forEach(function(l){
+        sel.innerHTML+='<option>'+l+'</option>';
+      });
+    }
+    g('r1').textContent=snap.size;
+    g('r_active').textContent=allCasesData.filter(function(c){return c.status==='نشطة';}).length;
+    g('r_urgent').textContent=allCasesData.filter(function(c){return c.status==='عاجلة';}).length;
+    g('r_closed').textContent=allCasesData.filter(function(c){return c.status==='مغلقة';}).length;
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('clients').get().then(function(s){var el=g('r2');if(el)el.textContent=s.size;}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('hearings').get().then(function(s){var el=g('r3');if(el)el.textContent=s.size;}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('staff').get().then(function(s){var el=g('r4');if(el)el.textContent=s.size;}).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function renderReportTable(cases){
+  var rows = cases.map(function(c){
+    var sc2=c.status==='نشطة'?'ba':c.status==='عاجلة'?'bu':c.status==='مغلقة'?'bc':'bp';
+    return '<tr>'+
+      '<td class="cno">'+(c.number||'—')+'</td>'+
+      '<td><strong>'+(c.title||'—')+'</strong></td>'+
+      '<td>'+(c.type||'—')+'</td>'+
+      '<td>'+(c.client||'—')+'</td>'+
+      '<td>'+(c.court||'—')+'</td>'+
+      '<td>'+(c.lawyer||'—')+'</td>'+
+      '<td>'+(c.priority||'—')+'</td>'+
+      '<td>'+(c.nextHearing||'—')+'</td>'+
+      '<td><span class="badge '+sc2+'">'+(c.status||'—')+'</span></td>'+
+      '<td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(c.notes||'—')+'</td>'+
+    '</tr>';
+  });
+  var tb=g('r-cases-detail');
+  if(tb) tb.innerHTML=rows.length?rows.join(''):empty(10);
+}
+
+function renderCharts(cases){
+  // نوع
+  var types={};
+  cases.forEach(function(c){ types[c.type||'غير محدد']=(types[c.type||'غير محدد']||0)+1; });
+  var typeEl=g('chartType');
+  if(typeEl){
+    typeEl.innerHTML='';
+    var total=cases.length||1;
+    Object.keys(types).forEach(function(t){
+      var pct=Math.round(types[t]/total*100);
+      typeEl.innerHTML+='<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--tx2)">'+t+'</span><span><strong>'+types[t]+'</strong> ('+pct+'%)</span></div><div class="pb"><div class="pf" style="width:'+pct+'%"></div></div></div>';
+    });
+  }
+  // حالة
+  var stats2={نشطة:0,عاجلة:0,'قيد الانتظار':0,مغلقة:0};
+  cases.forEach(function(c){ if(stats2[c.status]!==undefined) stats2[c.status]++; });
+  var colors={نشطة:'#3DAA70',عاجلة:'#E07080','قيد الانتظار':'#E0B040',مغلقة:'#888'};
+  var stEl=g('chartStatus');
+  if(stEl){
+    stEl.innerHTML='';
+    Object.keys(stats2).forEach(function(s){
+      var pct=Math.round(stats2[s]/total*100);
+      stEl.innerHTML+='<div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--tx2)">'+s+'</span><span style="color:'+colors[s]+';font-weight:700">'+stats2[s]+'</span></div><div class="pb"><div class="pf" style="width:'+pct+'%;background:linear-gradient(90deg,'+colors[s]+'99,'+colors[s]+')"></div></div></div>';
+    });
+  }
+}
+
+function filterCases(){
+  var fType=g('filter_type').value;
+  var fStatus=g('filter_status').value;
+  var fLawyer=g('filter_lawyer').value;
+  var filtered=allCasesData.filter(function(c){
+    return (!fType||c.type===fType) && (!fStatus||c.status===fStatus) && (!fLawyer||c.lawyer===fLawyer);
+  });
+  renderReportTable(filtered);
+  g('r1').textContent=filtered.length;
+  g('r_active').textContent=filtered.filter(function(c){return c.status==='نشطة';}).length;
+  g('r_urgent').textContent=filtered.filter(function(c){return c.status==='عاجلة';}).length;
+  g('r_closed').textContent=filtered.filter(function(c){return c.status==='مغلقة';}).length;
+}
+
+function resetFilters(){
+  ['filter_type','filter_status','filter_lawyer'].forEach(function(id){ var e=g(id); if(e)e.value=''; });
+  renderReportTable(allCasesData);
+  g('r1').textContent=allCasesData.length;
+  g('r_active').textContent=allCasesData.filter(function(c){return c.status==='نشطة';}).length;
+  g('r_urgent').textContent=allCasesData.filter(function(c){return c.status==='عاجلة';}).length;
+  g('r_closed').textContent=allCasesData.filter(function(c){return c.status==='مغلقة';}).length;
+}
+
+function printFilteredCases(){
+  var fType=g('filter_type')?g('filter_type').value:'';
+  var fStatus=g('filter_status')?g('filter_status').value:'';
+  var filtered=allCasesData.filter(function(c){
+    return (!fType||c.type===fType) && (!fStatus||c.status===fStatus);
+  });
+  var subtitle='تقرير القضايا المفصّل';
+  if(fType) subtitle+=' — نوع: '+fType;
+  if(fStatus) subtitle+=' — حالة: '+fStatus;
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write(printDetailedHTML(filtered,subtitle));
+  w.document.close(); w.focus();
+  setTimeout(function(){ w.print(); },500);
+}
+
+function printDetailedHTML(cases, title){
+  var rows=cases.map(function(c){
+    var sc2=c.status==='نشطة'?'#1A7040':c.status==='عاجلة'?'#A01E30':c.status==='مغلقة'?'#555':'#8A6500';
+    return '<tr>'+
+      '<td>'+(c.number||'—')+'</td><td><strong>'+(c.title||'—')+'</strong></td>'+
+      '<td>'+(c.type||'—')+'</td><td>'+(c.client||'—')+'</td>'+
+      '<td>'+(c.court||'—')+'</td><td>'+(c.lawyer||'—')+'</td>'+
+      '<td>'+(c.priority||'—')+'</td><td>'+(c.nextHearing||'—')+'</td>'+
+      '<td style="color:'+sc2+';font-weight:700">'+(c.status||'—')+'</td>'+
+      '<td>'+(c.notes||'—')+'</td></tr>';
+  }).join('');
+  return '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/>'+
+    '<title>'+title+'</title>'+
+    '</head><body>'+
+    '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</h1>'+
+    '<div style="font-size:11px;color:#666;margin-top:4px">'+title+' • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
+    '<table><thead><tr><th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th><th>المحكمة</th><th>المحامي</th><th>الأولوية</th><th>الجلسة القادمة</th><th>الحالة</th><th>ملاحظات</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '<div class="foot">إجمالي: '+cases.length+' قضية • مكتب م. عبدالمحسن الشيخ للمحاماة</div>'+
+    '</body></html>';
+}
+
+function printAllClients(){
+  db.collection('clients').get().then(function(snap){
+    var rows=snap.docs.map(function(d){
+      var c=d.data();
+      return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td>'+
+        '<td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td>'+
+        '<td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td>'+
+        '<td>'+(c.city||'—')+'</td></tr>';
+    }).join('');
+    var w=window.open('','_blank','width=900,height=700');
+    w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير العملاء</title>'+
+      '</head><body>'+
+      '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
+      '<div style="font-size:11px;color:#666">تقرير العملاء • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
+      '<table><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+      '<div style="margin-top:10px;text-align:center;font-size:10px;color:#999">إجمالي: '+snap.size+' عميل</div>'+
+      '</body></html>');
+    w.document.close(); w.focus();
+    setTimeout(function(){w.print();},500);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function printAllHearings(){
+  db.collection('hearings').get().then(function(snap){
+    var rows=snap.docs.map(function(d){
+      var h=d.data();
+      return '<tr><td class="cno">'+(h.caseNum||'—')+'</td><td>'+(h.court||'—')+'</td>'+
+        '<td>'+(h.date||'—')+'</td><td>'+(h.time||'—')+'</td>'+
+        '<td>'+(h.judge||'—')+'</td><td>'+(h.lawyer||'—')+'</td>'+
+        '<td>'+(h.notes||'—')+'</td></tr>';
+    }).join('');
+    var w=window.open('','_blank','width=900,height=700');
+    w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير الجلسات</title>'+
+      '</head><body>'+
+      '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
+      '<div style="font-size:11px;color:#666">تقرير الجلسات • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
+      '<table><thead><tr><th>رقم القضية</th><th>المحكمة</th><th>التاريخ</th><th>الوقت</th><th>القاضي</th><th>المحامي</th><th>ملاحظات</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+      '<div style="margin-top:10px;text-align:center;font-size:10px;color:#999">إجمالي: '+snap.size+' جلسة</div>'+
+      '</body></html>');
+    w.document.close(); w.focus();
+    setTimeout(function(){w.print();},500);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function doPrint(){
+  g('pDate').textContent='تاريخ الطباعة: '+new Date().toLocaleDateString('ar-SA');
+  g('ph').style.display='block';
+  loadReports();
+  setTimeout(function(){window.print();g('ph').style.display='none';},600);
+}
+
+// ===== SAVE =====
+function v(id){var e=document.getElementById(id);return e?e.value.trim():'';}
+function clr(ids){ids.forEach(function(id){var e=document.getElementById(id);if(e)e.value='';});}
+
+function saveCase(){
+  closeM('mCase');
+  var data={title:v('c_t'),type:v('c_ty'),court:v('c_co'),client:v('c_cl'),lawyer:v('c_la'),date:v('c_d'),priority:v('c_p'),notes:v('c_n'),status:'نشطة',number:'2025-'+Math.floor(Math.random()*900+100),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['c_t','c_co','c_cl','c_la','c_d','c_n']);
+  console.log('saveCase called, data:', JSON.stringify(data));
+  toast('جاري الحفظ...','ok');
+  db.collection('cases').add(data).then(function(){toast('✓ تم حفظ القضية','ok');loadCases();loadStats();}).catch(function(e){
+    var msg=e.message||'';
+    if(msg.includes('permission')||msg.includes('Missing')||msg.includes('PERMISSION')){
+      toast('خطأ: تحقق من Firestore Rules — اجعلها allow read,write:if true','err');
+    } else {
+      toast('خطأ: '+msg,'err');
+    }
+    console.error('Firebase error:',e);
+  });
+}
+
+function saveClient(){
+  closeM('mClient');
+  var data={name:v('cl_n'),type:v('cl_ty'),phone:v('cl_p'),email:v('cl_e'),idNum:v('cl_i'),unifiedNum:v('cl_u'),city:v('cl_c'),notes:v('cl_no'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['cl_n','cl_p','cl_e','cl_i','cl_u','cl_c','cl_no']);
+  toast('جاري الحفظ...','ok');
+  console.log('Saving to clients:', JSON.stringify(data));
+  db.collection('clients').add(data).then(function(){toast('✓ تم حفظ العميل','ok');loadClients();loadStats();loadClientDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ===== DROPDOWNS - مركزية =====
+var _clients=[], _staff=[], _cases=[];
+
+function loadAllDropdownData(){
+  db.collection('clients').get().then(function(snap){
+    _clients=snap.docs.map(function(d){return d.data().name||'';}).filter(Boolean);
+    refreshAllDropdowns();
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('staff').get().then(function(snap){
+    _staff=snap.docs.map(function(d){
+      var s=d.data();
+      return {name:s.name||'',pos:s.position||''};
+    }).filter(function(s){return s.name;});
+    refreshAllDropdowns();
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  db.collection('cases').get().then(function(snap){
+    _cases=snap.docs.map(function(d){
+      var c=d.data();
+      return {num:c.number||'',title:c.title||''};
+    }).filter(function(c){return c.num;});
+    refreshAllDropdowns();
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function fillSelect(id, opts, placeholder){
+  var el=document.getElementById(id);
+  if(!el) return;
+  var cur=el.value;
+  el.innerHTML='<option value="">'+placeholder+'</option>';
+  opts.forEach(function(o){
+    var val=typeof o==='string'?o:o.val;
+    var txt=typeof o==='string'?o:o.txt;
+    el.innerHTML+='<option value="'+val+'">'+txt+'</option>';
+  });
+  if(cur) el.value=cur;
+}
+
+function refreshAllDropdowns(){
+  var cOpts=_clients.map(function(n){return {val:n,txt:n};});
+  var lOpts=_staff.map(function(s){return {val:s.name,txt:s.name+(s.pos?' — '+s.pos:'')};});
+  var csOpts=_cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};});
+
+  // قضية جديدة
+  fillSelect('c_cl', cOpts, '-- اختر العميل --');
+  fillSelect('c_la', lOpts, '-- اختر المحامي --');
+  // جلسة
+  fillSelect('h_c', csOpts, '-- اختر القضية --');
+  fillSelect('h_l', lOpts, '-- اختر المحامي --');
+  // موعد
+  fillSelect('a_c', cOpts, '-- اختر العميل --');
+  fillSelect('a_l', lOpts, '-- اختر المحامي --');
+  // مذكرة
+  fillSelect('m_c', csOpts, '-- اختر القضية --');
+  fillSelect('m_l', lOpts, '-- اختر المحامي --');
+  // حدث تقويم
+  fillSelect('ce_c', csOpts, '-- اختر القضية --');
+  // تعديل قضية
+  fillSelect('edit_c_cl', cOpts, '-- اختر العميل --');
+  fillSelect('edit_c_la', lOpts, '-- اختر المحامي --');
+}
+
+function openM(id){
+  var e=document.getElementById(id);
+  if(e) e.classList.add('open');
+  loadAllDropdownData();
+  if(id==='mContract'||id==='mVerdict'){ refreshNewDropdowns(); }
+}
+
+// إعادة تسمية القديمة
+function loadClientDropdown(){ loadAllDropdownData(); }
+function loadStaffDropdown(){ loadAllDropdownData(); }
+
+function saveHearing(){
+  closeM('mHearing');
+  var data={caseNum:g('h_c').value||'',court:v('h_co'),date:v('h_d'),time:v('h_t'),judge:v('h_j'),lawyer:g('h_l').value||'',notes:v('h_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['h_co','h_d','h_t','h_j','h_n']);
+  g('h_c').value=''; g('h_l').value='';
+  toast('جاري الحفظ...','ok');
+  console.log('Saving to hearings:', JSON.stringify(data));
+  db.collection('hearings').add(data).then(function(){toast('✓ تم حفظ الجلسة','ok');loadHearings();loadStats();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function saveAppt(){
+  closeM('mAppt');
+  var data={client:g('a_c').value||'',lawyer:g('a_l').value||'',date:v('a_d'),time:v('a_t'),type:v('a_ty'),notes:v('a_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['a_d','a_t','a_n']);
+  g('a_c').value=''; g('a_l').value='';
+  toast('جاري الحفظ...','ok');
+  console.log('Saving to appointments:', JSON.stringify(data));
+  db.collection('appointments').add(data).then(function(){toast('✓ تم حفظ الموعد','ok');loadAppts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function saveMemo(){
+  closeM('mMemo');
+  var data={title:v('m_t'),type:v('m_ty'),caseNum:g('m_c').value||'',lawyer:g('m_l').value||'',body:v('m_b'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['m_t','m_b']);
+  g('m_c').value=''; g('m_l').value='';
+  toast('جاري الحفظ...','ok');
+  console.log('Saving to memos:', JSON.stringify(data));
+  db.collection('memos').add(data).then(function(){toast('✓ تم رفع المذكرة','ok');loadMemos();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function saveStaff(){
+  closeM('mStaff');
+  var data={name:v('s_n'),position:v('s_p'),phone:v('s_ph'),email:v('s_e'),specialty:v('s_sp'),role:v('s_r'),status:'نشط',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['s_n','s_ph','s_e','s_sp']);
+  toast('جاري الحفظ...','ok');
+  console.log('Saving to staff:', JSON.stringify(data));
+  db.collection('staff').add(data).then(function(){toast('✓ تم إضافة الموظف','ok');loadStaff();loadStats();loadStaffDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function saveCalEvent(){
+  closeM('mCalEvent');
+  var data={title:v('ce_t'),date:v('ce_d'),time:v('ce_ti'),type:v('ce_ty'),caseNum:g('ce_c').value||'',notes:v('ce_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['ce_t','ce_d','ce_ti','ce_n']);
+  g('ce_c').value='';
+  toast('جاري الحفظ...','ok');
+  db.collection('calEvents').add(data).then(function(){toast('✓ تم حفظ الحدث','ok');renderCal();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ===== CASES: VIEW / EDIT / DELETE =====
+var currentCaseId = null;
+
+function viewCase(id){
+  currentCaseId = id;
+  db.collection('cases').doc(id).get().then(function(d){
+    if(!d.exists){toast('القضية غير موجودة','err');return;}
+    var c=d.data();
+    var html='<div class="detail-row"><div class="detail-lbl">رقم القضية</div><div class="detail-val cno">'+(c.number||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">العنوان</div><div class="detail-val"><strong>'+(c.title||'—')+'</strong></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">النوع</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحكمة</div><div class="detail-val">'+(c.court||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">العميل</div><div class="detail-val">'+(c.client||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحامي</div><div class="detail-val">'+(c.lawyer||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الحالة</div><div class="detail-val"><span class="badge '+sc(c.status)+'">'+(c.status||'—')+'</span></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الأولوية</div><div class="detail-val">'+(c.priority||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ الاستلام</div><div class="detail-val">'+(c.date||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(c.notes||'—')+'</div></div>';
+    g('caseDetailView').innerHTML=html;
+    openM('mCaseDetail');
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function switchToEdit(){
+  closeM('mCaseDetail');
+  editCase(currentCaseId);
+}
+
+function editCase(id){
+  currentCaseId=id;
+  db.collection('cases').doc(id).get().then(function(d){
+    if(!d.exists)return;
+    var c=d.data();
+    g('edit_c_id').value=id;
+    g('edit_c_t').value=c.title||'';
+    g('edit_c_ty').value=c.type||'تجاري';
+    g('edit_c_co').value=c.court||'';
+    g('edit_c_st').value=c.status||'نشطة';
+    g('edit_c_p').value=c.priority||'عادية';
+    g('edit_c_nh').value=c.nextHearing||'';
+    g('edit_c_n').value=c.notes||'';
+    // تحميل قوائم العملاء والموظفين
+    var savedClient=c.client||'';
+    var savedLawyer=c.lawyer||'';
+    Promise.all([
+      db.collection('clients').get(),
+      db.collection('staff').get()
+    ]).then(function(results){
+      var clientSel=g('edit_c_cl');
+      clientSel.innerHTML='<option value="">-- اختر العميل --</option>';
+      results[0].docs.forEach(function(doc){
+        var name=doc.data().name||'';
+        if(name){
+          var opt=document.createElement('option');
+          opt.value=name;
+          opt.textContent=name+(doc.data().type?' ('+doc.data().type+')':'');
+          if(name===savedClient) opt.selected=true;
+          clientSel.appendChild(opt);
+        }
+      });
+      var lawyerSel=g('edit_c_la');
+      lawyerSel.innerHTML='<option value="">-- اختر المحامي --</option>';
+      results[1].docs.forEach(function(doc){
+        var name=doc.data().name||'';
+        if(name){
+          var opt=document.createElement('option');
+          opt.value=name;
+          opt.textContent=name+(doc.data().position?' — '+doc.data().position:'');
+          if(name===savedLawyer) opt.selected=true;
+          lawyerSel.appendChild(opt);
+        }
+      });
+      openM('mCaseEdit');
+    }).catch(function(){openM('mCaseEdit');});
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function updateCase(){
+  var id=g('edit_c_id').value;
+  if(!id)return;
+  closeM('mCaseEdit');
+  var data={
+    title:v('edit_c_t'),type:v('edit_c_ty'),court:v('edit_c_co'),
+    client:g('edit_c_cl').value,lawyer:g('edit_c_la').value,
+    status:v('edit_c_st'),priority:v('edit_c_p'),
+    nextHearing:v('edit_c_nh'),notes:v('edit_c_n'),
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  toast('جاري الحفظ...','ok');
+  db.collection('cases').doc(id).update(data)
+    .then(function(){toast('✓ تم تحديث القضية','ok');loadCases();})
+    .catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function delCase(id){
+  if(!confirm('هل أنت متأكد من حذف هذه القضية؟'))return;
+  closeM('mCaseDetail');
+  db.collection('cases').doc(id).delete().then(function(){toast('✓ تم حذف القضية','ok');loadCases();loadStats();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function deleteCurrentCase(){ if(currentCaseId) delCase(currentCaseId); }
+
+// ===== PRINT CASE =====
+function printCase(){
+  if(!currentCaseId) return;
+  db.collection('cases').doc(currentCaseId).get().then(function(d){
+    if(!d.exists) return;
+    var c = d.data();
+    var w = window.open('','_blank','width=800,height=600');
+    w.document.write(printCaseHTML([c],'تقرير قضية: '+(c.number||'')));
+    w.document.close();
+    w.focus();
+    setTimeout(function(){ w.print(); }, 500);
+  }).catch(function(e){ toast('خطأ في الطباعة: '+e.message,'err'); });
+}
+
+function printAllCases(){
+  db.collection('cases').get().then(function(snap){
+    var cases = snap.docs.map(function(d){ return d.data(); });
+    var w = window.open('','_blank','width=800,height=600');
+    w.document.write(printCaseHTML(cases,'تقرير جميع القضايا'));
+    w.document.close();
+    w.focus();
+    setTimeout(function(){ w.print(); }, 500);
+  }).catch(function(e){ toast('خطأ في الطباعة: '+e.message,'err'); });
+}
+
+function printCaseHTML(cases, title){
+  var rows = cases.map(function(c){
+    var statusColor = c.status==='نشطة'?'#1A7040':c.status==='عاجلة'?'#A01E30':c.status==='مغلقة'?'#555':'#8A6500';
+    return '<tr>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right;color:#8A6A00;font-weight:700">'+(c.number||'—')+'</td>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right"><strong>'+(c.title||'—')+'</strong></td>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.type||'—')+'</td>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.client||'—')+'</td>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.court||'—')+'</td>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.lawyer||'—')+'</td>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right;color:'+statusColor+';font-weight:700">'+(c.status||'—')+'</td>'+
+      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.notes||'—')+'</td>'+
+    '</tr>';
+  }).join('');
+
+  return '<!DOCTYPE html><html lang="ar" dir="rtl"><head>'+
+    '<meta charset="UTF-8"/>'+
+    '<title>'+title+'</title>'+
+    ''+
+    '</head><body>'+
+    '<div class="header">'+
+      '<div class="logo">⚖️</div>'+
+      '<h1>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</h1>'+
+      '<div class="sub">'+title+' • تاريخ الطباعة: '+new Date().toLocaleDateString('ar-SA')+'</div>'+
+    '</div>'+
+    '<table>'+
+      '<thead><tr>'+
+        '<th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th>'+
+        '<th>المحكمة</th><th>المحامي</th><th>الحالة</th><th>ملاحظات</th>'+
+      '</tr></thead>'+
+      '<tbody>'+rows+'</tbody>'+
+    '</table>'+
+    '<div class="footer">إجمالي القضايا: '+cases.length+' • نظام مكتب م. عبدالمحسن الشيخ</div>'+
+    '</body></html>';
+}
+
+// ===== CLIENTS: VIEW / EDIT / DELETE =====
+var currentClientId = null;
+
+function viewClient(id){
+  currentClientId=id;
+  db.collection('clients').doc(id).get().then(function(d){
+    if(!d.exists){toast('العميل غير موجود','err');return;}
+    var c=d.data();
+    var html='<div class="detail-row"><div class="detail-lbl">الاسم</div><div class="detail-val"><strong>'+(c.name||'—')+'</strong></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">النوع</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">رقم الجوال</div><div class="detail-val">'+(c.phone||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">البريد الإلكتروني</div><div class="detail-val">'+(c.email||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">رقم الهوية</div><div class="detail-val">'+(c.idNum||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الرقم الموحد</div><div class="detail-val">'+(c.unifiedNum||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المدينة</div><div class="detail-val">'+(c.city||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(c.notes||'—')+'</div></div>';
+    g('clientDetailView').innerHTML=html;
+    openM('mClientDetail');
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function switchToClientEdit(){
+  closeM('mClientDetail');
+  editClient(currentClientId);
+}
+
+function editClient(id){
+  currentClientId=id;
+  db.collection('clients').doc(id).get().then(function(d){
+    if(!d.exists)return;
+    var c=d.data();
+    g('edit_cl_id').value=id;
+    g('edit_cl_n').value=c.name||'';
+    g('edit_cl_ty').value=c.type||'فرد';
+    g('edit_cl_p').value=c.phone||'';
+    g('edit_cl_e').value=c.email||'';
+    g('edit_cl_i').value=c.idNum||'';
+    g('edit_cl_u').value=c.unifiedNum||'';
+    g('edit_cl_c').value=c.city||'';
+    g('edit_cl_no').value=c.notes||'';
+    openM('mClientEdit');
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function updateClient(){
+  var id=g('edit_cl_id').value;
+  if(!id)return;
+  closeM('mClientEdit');
+  var data={name:v('edit_cl_n'),type:v('edit_cl_ty'),phone:v('edit_cl_p'),email:v('edit_cl_e'),idNum:v('edit_cl_i'),unifiedNum:v('edit_cl_u'),city:v('edit_cl_c'),notes:v('edit_cl_no'),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  toast('جاري الحفظ...','ok');
+  db.collection('clients').doc(id).update(data).then(function(){toast('✓ تم تحديث العميل','ok');loadClients();loadClientDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function delClient(id){
+  if(!confirm('هل أنت متأكد من حذف هذا العميل؟'))return;
+  closeM('mClientDetail');
+  db.collection('clients').doc(id).delete().then(function(){toast('✓ تم حذف العميل','ok');loadClients();loadStats();loadClientDropdown();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function deleteCurrentClient(){ if(currentClientId) delClient(currentClientId); }
+var calD=new Date(), calEvs={}, calEvsFull={}, selectedDay='';
+var mns=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+var dys=['ح','ن','ث','ر','خ','ج','س'];
+var evColors={جلسة:'#E07080',موعد:'#4A90D9',مذكرة:'#E0B040',تذكير:'#A070D0',إداري:'#3DAA70'};
+
+function renderCal(){
+  db.collection('calEvents').get().then(function(snap){
+    calEvs={}; calEvsFull={};
+    snap.docs.forEach(function(d){
+      var ev=d.data(), id=d.id;
+      if(ev.date){
+        if(!calEvs[ev.date]) calEvs[ev.date]=[];
+        if(!calEvsFull[ev.date]) calEvsFull[ev.date]=[];
+        calEvs[ev.date].push(ev.title||'حدث');
+        calEvsFull[ev.date].push({id:id,title:ev.title||'حدث',time:ev.time||'',type:ev.type||'',caseNum:ev.caseNum||'',notes:ev.notes||''});
+      }
+    });
+    buildCal();
+    renderMonthEvents();
+    if(selectedDay) showDay(selectedDay);
+  }).catch(function(){buildCal();});
+}
+
+function buildCal(){
+  var y=calD.getFullYear(), m=calD.getMonth();
+  if(g('calTitle')) g('calTitle').textContent=mns[m]+' '+y;
+  if(g('calLbl')) g('calLbl').textContent=mns[m]+' '+y;
+  var grid=g('calGrid'); if(!grid) return;
+  grid.innerHTML='';
+  dys.forEach(function(d){grid.innerHTML+='<div style="font-size:11px;color:var(--tx3);padding:5px 2px;font-weight:600;text-align:center">'+d+'</div>';});
+  var first=new Date(y,m,1).getDay(), days=new Date(y,m+1,0).getDate();
+  var today=new Date();
+  for(var i=0;i<first;i++) grid.innerHTML+='<div style="opacity:.2;text-align:center;padding:5px 2px;font-size:12px">'+(new Date(y,m,0).getDate()-first+i+1)+'</div>';
+  for(var d=1;d<=days;d++){
+    var isT=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+    var ds=y+'-'+((m+1)<10?'0'+(m+1):(m+1))+'-'+(d<10?'0'+d:d);
+    var evs=calEvsFull[ds]||[];
+    var dots=evs.slice(0,3).map(function(e){
+      var col=evColors[e.type]||'var(--g)';
+      return '<div style="width:5px;height:5px;border-radius:50%;background:'+col+'"></div>';
+    }).join('');
+    var isSel=ds===selectedDay;
+    var bg=isT?'background:rgba(212,175,55,.2);border:1px solid rgba(212,175,55,.3);font-weight:800;color:#D4AF37;':
+            isSel?'background:rgba(122,98,0,.6);border:1px solid #D4AF37;color:#fff;':'';
+    grid.innerHTML+='<div onclick="showDay(\''+ds+'\')" data-d="'+ds+'" style="'+bg+'padding:4px 2px;border-radius:7px;cursor:pointer;min-height:38px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;transition:background .15s">'+
+      '<span style="font-size:12px;line-height:1.3;font-weight:600">'+d+'</span>'+
+      (evs.length?'<span style="font-size:9px;color:#D4AF37;font-weight:700">'+evs.length+'</span>':'')+
+      dots+
+    '</div>';
+  }
+  var rem=42-(first+days);
+  for(var i=1;i<=rem;i++) grid.innerHTML+='<div style="opacity:.2;text-align:center;padding:5px 2px;font-size:12px">'+i+'</div>';
+}
+
+function showDay(ds){
+  selectedDay=ds;
+  var evs=calEvsFull[ds]||[];
+  var box=g('dayEvs');
+  var titleEl=g('dayTitle');
+  var addBtn=g('addEventDay');
+  if(!box) return;
+
+  // تحديث العنصر المحدد في التقويم
+  document.querySelectorAll('.cal-c').forEach(function(c){c.classList.remove('sel');});
+  var sel=document.querySelector('[data-d="'+ds+'"]'); if(sel)sel.classList.add('sel');
+
+  // عنوان اليوم
+  var parts=ds.split('-');
+  var dayDate=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+  var dayNames=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+  var dayName=dayNames[dayDate.getDay()];
+  if(titleEl) titleEl.textContent='📅 '+dayName+' '+parseInt(parts[2])+' '+mns[parseInt(parts[1])-1]+' '+parts[0];
+  if(addBtn) addBtn.style.display='block';
+
+  if(!evs.length){
+    box.innerHTML='<div style="text-align:center;padding:1.5rem;color:var(--tx3)">'+
+      '<div style="font-size:20px;margin-bottom:6px">📭</div>'+
+      '<div>لا توجد أحداث في هذا اليوم</div>'+
+    '</div>';
     return;
   }
 
-  db.collection("cases").add({
-    title,
-    client,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  box.innerHTML=evs.map(function(e){
+    var col=evColors[e.type]||'var(--g)';
+    return '<div style="padding:10px 12px;margin-bottom:8px;background:var(--bg3);border-radius:10px;border-right:3px solid '+col+';position:relative">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'+
+        '<div style="font-size:13px;font-weight:700;color:var(--tx)">'+e.title+'</div>'+
+        '<button onclick="delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:Tajawal,sans-serif">حذف</button>'+
+      '</div>'+
+      (e.time?'<div style="font-size:11px;color:var(--tx2);margin-bottom:3px">🕐 '+e.time+'</div>':'')+
+      (e.type?'<div style="font-size:11px;margin-bottom:3px"><span style="background:'+col+'22;color:'+col+';padding:2px 7px;border-radius:10px;font-weight:600">'+e.type+'</span></div>':'')+
+      (e.caseNum?'<div style="font-size:11px;color:var(--tx2);margin-bottom:3px">⚖️ القضية: <span style="color:var(--g);font-weight:700">'+e.caseNum+'</span></div>':'')+
+      (e.notes?'<div style="font-size:11px;color:var(--tx3);line-height:1.5">📝 '+e.notes+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function addEventForDay(){
+  if(selectedDay){
+    var dateEl=g('ce_d');
+    if(dateEl) dateEl.value=selectedDay;
+  }
+  openM('mCalEvent');
+}
+
+function delCalEvent(id){
+  if(!confirm('حذف هذا الحدث؟')) return;
+  db.collection('calEvents').doc(id).delete()
+    .then(function(){toast('✓ تم حذف الحدث','ok');renderCal();})
+    .catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function renderMonthEvents(){
+  var y=calD.getFullYear(), m=calD.getMonth();
+  var monthEvs=[];
+  Object.keys(calEvsFull).forEach(function(ds){
+    var parts=ds.split('-');
+    if(parseInt(parts[0])===y && parseInt(parts[1])-1===m){
+      calEvsFull[ds].forEach(function(e){
+        var ev2=Object.assign({date:ds,day:parseInt(parts[2])},e); monthEvs.push(ev2);
+      });
+    }
+  });
+  monthEvs.sort(function(a,b){return a.day-b.day;});
+  var cnt=g('monthEvCount'); if(cnt) cnt.textContent=monthEvs.length+' حدث';
+  var list=g('monthEvList'); if(!list) return;
+  if(!monthEvs.length){
+    list.innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">لا توجد أحداث هذا الشهر</div>';
+    return;
+  }
+  var rows=monthEvs.map(function(e){
+    var col=evColors[e.type]||'var(--g)';
+    var parts=e.date.split('-');
+    var dayNames=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+    var dayDate=new Date(parseInt(parts[0]),parseInt(parts[1])-1,parseInt(parts[2]));
+    return '<tr onclick="showDay(\''+e.date+'\')" style="cursor:pointer">'+
+      '<td><strong style="color:var(--g)">'+e.day+'</strong> '+mns[parseInt(parts[1])-1]+'<div style="font-size:10px;color:var(--tx3)">'+dayNames[dayDate.getDay()]+'</div></td>'+
+      '<td>'+(e.time||'—')+'</td>'+
+      '<td><strong>'+e.title+'</strong></td>'+
+      '<td><span style="background:'+col+'22;color:'+col+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">'+(e.type||'—')+'</span></td>'+
+      '<td style="color:var(--g)">'+(e.caseNum||'—')+'</td>'+
+      '<td><button onclick="event.stopPropagation();delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:Tajawal,sans-serif">حذف</button></td>'+
+    '</tr>';
+  }).join('');
+  list.innerHTML='<table class="tbl"><thead><tr><th>التاريخ</th><th>الوقت</th><th>الحدث</th><th>النوع</th><th>القضية</th><th>إجراء</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+
+function calMv(dir){calD.setMonth(calD.getMonth()+dir);selectedDay='';renderCal();}
+
+// ================================================================
+// ① إدارة العقود
+// ================================================================
+function saveContract(){
+  closeM('mContract');
+  var data={title:v('con_t'),type:v('con_ty'),caseNum:g('con_c').value||'',party1:g('con_p1').value||'',party2:v('con_p2'),startDate:v('con_sd'),endDate:v('con_ed'),value:v('con_val'),status:v('con_st'),notes:v('con_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['con_t','con_p2','con_sd','con_ed','con_val','con_n']);
+  toast('جاري الحفظ...','ok');
+  db.collection('contracts').add(data).then(function(){toast('✓ تم حفظ العقد','ok');loadContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadContracts(){
+  db.collection('contracts').get().then(function(snap){
+    g('tot-contracts').textContent=snap.size;
+    var today=new Date(); var warn30=new Date(); warn30.setDate(warn30.getDate()+30);
+    var expiring=[];
+    var rows=snap.docs.map(function(d){
+      var c=d.data(), id=d.id;
+      var ed=c.endDate?new Date(c.endDate):null;
+      var expClass='ba'; var expLabel='ساري';
+      if(ed){
+        if(ed<today){expClass='bc';expLabel='منتهي';}
+        else if(ed<warn30){expClass='bu';expLabel='قريب الانتهاء';expiring.push({title:c.title,date:c.endDate,id:id});}
+      }
+      return '<tr><td><strong>'+(c.title||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.party1||'—')+'</td><td>'+(c.party2||'—')+'</td><td>'+(c.startDate||'—')+'</td><td>'+(c.endDate||'—')+'</td><td class="cno">'+(c.caseNum||'—')+'</td><td><span class="badge '+expClass+'">'+(c.status||expLabel)+'</span></td><td><div class="act-btns"><button class="act-btn ab-del" onclick="delContract(\''+id+'\')">حذف</button></div></td></tr>';
+    });
+    g('tb-contracts').innerHTML=rows.length?rows.join(''):empty(9);
+    // عقود تنتهي قريباً
+    var expEl=g('expiring-contracts');
+    if(expiring.length===0){expEl.innerHTML='<div style="color:#3DAA70;padding:8px">✅ لا توجد عقود تنتهي خلال 30 يوماً</div>';}
+    else{expEl.innerHTML=expiring.map(function(e){return '<div class="contract-expiry"><div class="exp-badge exp-urgent">⚠ '+e.date+'</div><div style="font-size:13px;color:var(--tx)">'+e.title+'</div></div>';}).join('');}
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function delContract(id){
+  if(!confirm('حذف هذا العقد؟'))return;
+  db.collection('contracts').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// ② ملف القضية الكامل
+// ================================================================
+function loadCaseFileSelect(){
+  db.collection('cases').get().then(function(snap){
+    var sel=g('casefileSelect');
+    if(!sel) return;
+    sel.innerHTML='<option value="">-- اختر قضية --</option>';
+    snap.docs.forEach(function(d){
+      var c=d.data();
+      sel.innerHTML+='<option value="'+d.id+'">'+(c.number||'')+(c.title?' | '+c.title:'')+'</option>';
+    });
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function loadCaseFile(id){
+  if(!id){g('casefileContent').innerHTML='<div style="text-align:center;padding:3rem;color:var(--tx3)">🗂️<br>اختر قضية</div>';return;}
+  g('casefileContent').innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div>';
+  db.collection('cases').doc(id).get().then(function(d){
+    if(!d.exists){toast('القضية غير موجودة','err');return;}
+    var c=d.data();
+    if(g('casefileName')) g('casefileName').textContent='ملف القضية: '+(c.number||'')+(c.title?' | '+c.title:'');
+    var sc2=c.status==='نشطة'?'ba':c.status==='عاجلة'?'bu':c.status==='مغلقة'?'bc':'bp';
+    var html='<div class="cf-section"><div class="cf-title">📋 بيانات القضية الأساسية</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+      '<div class="detail-row"><div class="detail-lbl">رقم القضية</div><div class="detail-val cno">'+(c.number||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الحالة</div><div class="detail-val"><span class="badge '+sc2+'">'+(c.status||'—')+'</span></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">النوع</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحكمة</div><div class="detail-val">'+(c.court||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">العميل</div><div class="detail-val">'+(c.client||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">المحامي</div><div class="detail-val">'+(c.lawyer||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الأولوية</div><div class="detail-val">'+(c.priority||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الجلسة القادمة</div><div class="detail-val">'+(c.nextHearing||'—')+'</div></div>'+
+      '</div>'+
+      '<div class="detail-row" style="margin-top:8px"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(c.notes||'—')+'</div></div>'+
+      '</div>';
+    // جلسات القضية
+    html+='<div class="cf-section"><div class="cf-title">🏛️ الجلسات المرتبطة</div><div id="cf-hearings">جاري التحميل...</div></div>';
+    // مذكرات القضية
+    html+='<div class="cf-section"><div class="cf-title">📝 المذكرات المرتبطة</div><div id="cf-memos">جاري التحميل...</div></div>';
+    // سجل الأحكام
+    html+='<div class="cf-section"><div class="cf-title">⚖️ الحكم النهائي</div><div id="cf-verdict">جاري التحميل...</div></div>';
+    g('casefileContent').innerHTML=html;
+    // تحميل الجلسات
+    db.collection('hearings').get().then(function(snap){
+      var h=snap.docs.filter(function(d){return d.data().caseNum===c.number;});
+      var el=g('cf-hearings');
+      if(!el) return;
+      if(!h.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px">لا توجد جلسات مرتبطة</div>';return;}
+      el.innerHTML='<table class="tbl"><thead><tr><th>التاريخ</th><th>الوقت</th><th>المحكمة</th><th>القاضي</th></tr></thead><tbody>'+
+        h.map(function(d){var hh=d.data();return '<tr><td>'+(hh.date||'—')+'</td><td>'+(hh.time||'—')+'</td><td>'+(hh.court||'—')+'</td><td>'+(hh.judge||'—')+'</td></tr>';}).join('')+
+      '</tbody></table>';
+    }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+    // تحميل المذكرات
+    db.collection('memos').get().then(function(snap){
+      var m=snap.docs.filter(function(d){return d.data().caseNum===c.number;});
+      var el=g('cf-memos');
+      if(!el) return;
+      if(!m.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px">لا توجد مذكرات مرتبطة</div>';return;}
+      el.innerHTML='<table class="tbl"><thead><tr><th>العنوان</th><th>النوع</th><th>المحامي</th></tr></thead><tbody>'+
+        m.map(function(d){var mm=d.data();return '<tr><td>'+(mm.title||'—')+'</td><td>'+(mm.type||'—')+'</td><td>'+(mm.lawyer||'—')+'</td></tr>';}).join('')+
+      '</tbody></table>';
+    }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+    // الحكم
+    db.collection('verdicts').get().then(function(snap){
+      var vv=snap.docs.find(function(d){return d.data().caseNum===c.number;});
+      var el=g('cf-verdict');
+      if(!el) return;
+      if(!vv){el.innerHTML='<div style="color:var(--tx3);font-size:13px">لم يُسجّل حكم بعد</div>';return;}
+      var vd=vv.data();
+      var rc=vd.result&&vd.result.includes('فوز')?'ba':vd.result==='خسارة'?'bu':'bp';
+      el.innerHTML='<div class="detail-row"><div class="detail-lbl">النتيجة</div><div class="detail-val"><span class="badge '+rc+'">'+(vd.result||'—')+'</span></div></div>'+
+        '<div class="detail-row"><div class="detail-lbl">تاريخ الحكم</div><div class="detail-val">'+(vd.date||'—')+'</div></div>'+
+        '<div class="detail-row"><div class="detail-lbl">ملخص الحكم</div><div class="detail-val">'+(vd.summary||'—')+'</div></div>';
+    }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// ③ مراحل القضايا - Kanban
+// ================================================================
+var stages=['استلام','تحضير','مرافعة','حكم'];
+
+function loadKanban(){
+  stages.forEach(function(s){
+    var el=g('kl-'+s); if(el) el.innerHTML='';
+    var cnt=g('kc-'+s); if(cnt) cnt.textContent='0';
+  });
+  db.collection('cases').get().then(function(snap){
+    var counts={};
+    snap.docs.forEach(function(d){
+      var c=d.data(), id=d.id;
+      var stage=c.stage||'استلام';
+      if(!counts[stage]) counts[stage]=0;
+      counts[stage]++;
+      var listEl=g('kl-'+stage);
+      if(!listEl) return;
+      var sc2=c.status==='عاجلة'?'bu':c.status==='مغلقة'?'bc':'ba';
+      var card=document.createElement('div');
+      card.className='kcard';
+      card.innerHTML='<div class="kcard-num">'+(c.number||'—')+'</div>'+
+        '<div class="kcard-title">'+(c.title||'—')+'</div>'+
+        '<div class="kcard-client">👤 '+(c.client||'—')+'</div>'+
+        '<div style="margin-top:4px"><span class="badge '+sc2+'">'+(c.status||'نشطة')+'</span></div>'+
+        '<div class="kcard-btns">'+
+          stages.filter(function(s){return s!==stage;}).map(function(s){
+            return '<button class="kcard-btn" onclick="moveStage(\''+id+'\',\''+s+'\')">← '+s+'</button>';
+          }).join('')+
+        '</div>';
+      listEl.appendChild(card);
+    });
+    Object.keys(counts).forEach(function(s){
+      var cnt=g('kc-'+s); if(cnt) cnt.textContent=counts[s];
+    });
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function moveStage(id, stage){
+  db.collection('cases').doc(id).update({stage:stage,updatedAt:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){toast('✓ تم نقل القضية إلى مرحلة: '+stage,'ok');loadKanban();})
+    .catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// ④ بنك الأنظمة والأحكام
+// ================================================================
+var allLaws=[];
+
+function saveLaw(){
+  closeM('mLaw');
+  var data={type:v('law_ty'),field:v('law_field'),title:v('law_t'),reference:v('law_ref'),body:v('law_body'),tags:v('law_tags'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['law_t','law_ref','law_body','law_tags']);
+  toast('جاري الحفظ...','ok');
+  db.collection('laws').add(data).then(function(){toast('✓ تم الحفظ في البنك','ok');loadLaws();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadLaws(){
+  db.collection('laws').get().then(function(snap){
+    g('tot-laws').textContent=snap.size;
+    allLaws=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
+    renderLawsList(allLaws);
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function renderLawsList(laws){
+  var el=g('lawsList'); if(!el) return;
+  if(!laws.length){el.innerHTML='<div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">لا توجد مدخلات بعد</div>';return;}
+  el.innerHTML=laws.map(function(l,i){
+    return '<div class="law-item" onclick="showLaw('+i+',this)">'+
+      '<div class="law-type">'+(l.type||'—')+' • '+(l.field||'—')+'</div>'+
+      '<div class="law-title">'+(l.title||'—')+'</div>'+
+      (l.reference?'<div class="law-sub">المرجع: '+l.reference+'</div>':'')+
+    '</div>';
+  }).join('');
+}
+
+function showLaw(idx, el){
+  document.querySelectorAll('.law-item').forEach(function(e){e.classList.remove('sel');});
+  el.classList.add('sel');
+  var l=allLaws[idx]; if(!l) return;
+  var detail=g('lawDetail'); if(!detail) return;
+  detail.innerHTML='<div style="margin-bottom:12px"><span class="badge bp" style="margin-left:8px">'+(l.type||'—')+'</span><span class="badge ba">'+(l.field||'—')+'</span></div>'+
+    '<div style="font-size:15px;font-weight:800;color:var(--tx);margin-bottom:8px">'+(l.title||'—')+'</div>'+
+    (l.reference?'<div style="font-size:12px;color:var(--tx2);margin-bottom:10px">📎 المرجع: <strong>'+l.reference+'</strong></div>':'')+
+    '<div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px;color:var(--tx);line-height:1.8;margin-bottom:10px">'+(l.body||'—')+'</div>'+
+    (l.tags?'<div style="font-size:11px;color:var(--tx3)">🏷️ '+l.tags+'</div>':'');
+}
+
+function searchLaws(q){
+  if(!q){renderLawsList(allLaws);return;}
+  var filtered=allLaws.filter(function(l){
+    return (l.title&&l.title.includes(q))||(l.body&&l.body.includes(q))||(l.tags&&l.tags.includes(q))||(l.field&&l.field.includes(q));
+  });
+  renderLawsList(filtered);
+}
+
+// ================================================================
+// ⑤ سجل الأحكام والنتائج
+// ================================================================
+function saveVerdict(){
+  closeM('mVerdict');
+  var caseNum=g('vrd_c').value||'';
+  var data={caseNum:caseNum,date:v('vrd_d'),result:v('vrd_r'),court:v('vrd_co'),lawyer:g('vrd_l').value||'',summary:v('vrd_sum'),notes:v('vrd_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['vrd_d','vrd_co','vrd_sum','vrd_n']);
+  g('vrd_c').value=''; g('vrd_l').value='';
+  toast('جاري الحفظ...','ok');
+  // حفظ الحكم
+  db.collection('verdicts').add(data).then(function(){
+    // تحديث حالة القضية إلى مغلقة إذا كان فوزاً
+    if(caseNum){
+      db.collection('cases').where('number','==',caseNum).get().then(function(snap){
+        snap.docs.forEach(function(d){
+          d.ref.update({status:'مغلقة',stage:'حكم'});
+        });
+      });
+    }
+    toast('✓ تم تسجيل الحكم','ok');
+    loadVerdicts();
+    loadCases();
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadVerdicts(){
+  db.collection('verdicts').get().then(function(snap){
+    g('tot-verdicts').textContent=snap.size;
+    var win=0,lose=0,settle=0;
+    var rows=snap.docs.map(function(d){
+      var vv=d.data(), id=d.id;
+      if(vv.result&&vv.result.includes('فوز')) win++;
+      else if(vv.result==='خسارة') lose++;
+      else settle++;
+      var rc=vv.result&&vv.result.includes('فوز')?'ba':vv.result==='خسارة'?'bu':'bp';
+      return '<tr><td class="cno">'+(vv.caseNum||'—')+'</td><td>—</td><td>—</td><td>'+(vv.court||'—')+'</td><td>'+(vv.lawyer||'—')+'</td><td>'+(vv.date||'—')+'</td><td><span class="badge '+rc+'">'+(vv.result||'—')+'</span></td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(vv.summary||'—')+'</td><td><button class="act-btn ab-del" onclick="delVerdict(\''+id+'\')">حذف</button></td></tr>';
+    });
+    g('tb-verdicts').innerHTML=rows.length?rows.join(''):empty(9);
+    if(g('vWin')) g('vWin').textContent=win;
+    if(g('vLose')) g('vLose').textContent=lose;
+    if(g('vSettle')) g('vSettle').textContent=settle;
+    var total=win+lose+settle;
+    if(g('vRate')) g('vRate').textContent=total>0?Math.round((win/total)*100)+'%':'—';
+  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
+}
+
+function delVerdict(id){
+  if(!confirm('حذف هذا الحكم؟'))return;
+  db.collection('verdicts').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadVerdicts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// تحديث go لتشمل الأقسام الجديدة - مدمج في الدالة الأصلية أدناه
+function goExtra(id){
+  if(id==='contracts') loadContracts();
+  else if(id==='poa') loadPoa();
+  else if(id==='officecontracts') loadOfficeContracts();
+  else if(id==='casefile') loadCaseFileSelect();
+  else if(id==='kanban') loadKanban();
+  else if(id==='laws') loadLaws();
+  else if(id==='verdicts') loadVerdicts();
+}
+
+// ================================================================
+// صور المستندات - تحويل لـ Base64
+// ================================================================
+function previewImg(fileInputId, previewId, hiddenId){
+  var file=document.getElementById(fileInputId).files[0];
+  if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var b64=e.target.result;
+    document.getElementById(hiddenId).value=b64;
+    var prev=document.getElementById(previewId);
+    prev.style.display='block';
+    prev.querySelector('img').src=b64;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ================================================================
+// الوكالات - POA
+// ================================================================
+function savePoa(){
+  closeM('mPoa');
+  var data={title:v('poa_t'),number:v('poa_num'),client:g('poa_client').value||'',type:v('poa_ty'),startDate:v('poa_sd'),endDate:v('poa_ed'),image:g('poa_img').value||'',notes:v('poa_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['poa_t','poa_num','poa_sd','poa_ed','poa_n']);
+  g('poa_img').value='';
+  var prev=g('poa_img_preview'); if(prev){prev.style.display='none';prev.querySelector('img').src='';}
+  toast('جاري الحفظ...','ok');
+  db.collection('poa').add(data).then(function(){toast('✓ تم حفظ الوكالة','ok');loadPoa();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadPoa(){
+  db.collection('poa').get().then(function(snap){
+    var tot=snap.size;
+    if(g('tot-poa')) g('tot-poa').textContent=tot;
+    if(g('poaBadge')) g('poaBadge').textContent=tot;
+    var today=new Date(); var warn30=new Date(); warn30.setDate(warn30.getDate()+30);
+    var expiring=[], grid=g('poa-grid'), alerts=g('poa-alerts');
+    if(!grid) return;
+    if(!snap.size){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">📜 لا توجد وكالات بعد — أضف أول وكالة!</div>';if(alerts)alerts.innerHTML='<div style="color:#3DAA70;padding:8px">✅ لا توجد وكالات تنتهي قريباً</div>';return;}
+    var cards='';
+    snap.docs.forEach(function(d){
+      var p=d.data(), id=d.id;
+      var ed=p.endDate?new Date(p.endDate):null;
+      var expCls='ba', expTxt='ساريه'; var daysLeft='';
+      if(ed){
+        var diff=Math.ceil((ed-today)/(1000*60*60*24));
+        if(ed<today){expCls='bc';expTxt='منتهية';}
+        else if(ed<warn30){expCls='bu';expTxt='تنتهي قريباً';daysLeft=' ('+diff+' يوم)';expiring.push({title:p.title||'وكالة',date:p.endDate,days:diff});}
+        else{expCls='ba';expTxt='سارية';}
+      }
+      var imgHtml=p.image?'<img src="'+p.image+'" style="width:100%;height:140px;object-fit:cover"/>':'<div class="doc-img">📜</div>';
+      cards+='<div class="doc-card" onclick="viewPoa(\''+id+'\')">'+imgHtml+'<div class="doc-body">'+
+        '<div class="doc-title">'+(p.title||'—')+'</div>'+
+        '<div class="doc-meta">'+
+          (p.number?'رقم: '+p.number+' • ':'')+
+          (p.client?'الموكّل: '+p.client:'')+'<br>'+
+          (p.startDate?'من: '+p.startDate+' ':'')+
+          (p.endDate?'حتى: '+p.endDate:'')+ daysLeft+
+        '</div>'+
+        '<span class="doc-exp badge '+expCls+'">'+expTxt+'</span>'+
+        '<div style="margin-top:8px;display:flex;gap:4px"><button class="act-btn ab-del" onclick="event.stopPropagation();delPoa(\''+id+'\')">حذف</button></div>'+
+      '</div></div>';
+    });
+    grid.innerHTML=cards;
+    if(alerts){
+      if(!expiring.length){alerts.innerHTML='<div style="color:#3DAA70;padding:8px">✅ لا توجد وكالات تنتهي خلال 30 يوماً</div>';}
+      else{alerts.innerHTML=expiring.map(function(e){return '<div class="contract-expiry"><div class="exp-badge exp-urgent">⚠ ينتهي خلال '+e.days+' يوم</div><div style="font-size:13px;color:var(--tx)">'+e.title+' • '+e.date+'</div></div>';}).join('');}
+    }
+    // إشعار المتصفح
+    if(expiring.length>0 && 'Notification' in window && Notification.permission==='granted'){
+      new Notification('⚠️ وكالات تنتهي قريباً', {body: expiring.length+' وكالة تنتهي خلال 30 يوماً في مكتب الشيخ للمحاماة'});
+    } else if(expiring.length>0 && 'Notification' in window && Notification.permission!=='denied'){
+      Notification.requestPermission();
+    }
+  }).catch(function(e){console.log(e);});
+}
+
+function viewPoa(id){
+  db.collection('poa').doc(id).get().then(function(d){
+    if(!d.exists) return;
+    var p=d.data();
+    var html='<div style="display:flex;flex-direction:column;gap:12px">'+
+      (p.image?'<img src="'+p.image+'" style="width:100%;max-height:300px;object-fit:contain;border-radius:10px;border:0.5px solid var(--br2)"/>':'')+
+      '<div class="detail-row"><div class="detail-lbl">عنوان الوكالة</div><div class="detail-val"><strong>'+(p.title||'—')+'</strong></div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">رقم الوكالة</div><div class="detail-val cno">'+(p.number||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">نوع الوكالة</div><div class="detail-val">'+(p.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الموكّل</div><div class="detail-val">'+(p.client||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ البداية</div><div class="detail-val">'+(p.startDate||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ الانتهاء</div><div class="detail-val">'+(p.endDate||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(p.notes||'—')+'</div></div>'+
+    '</div>';
+    var win=window.open('','_blank','width=700,height=600');
+    win.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>وكالة: '+(p.title||'')+'</title>'+
+      '</head><body>'+
+      '<div class="hdr"><div style="font-size:24px">📜</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1><div style="font-size:12px;color:#666">وكالة: '+(p.title||'')+'</div></div>'+
+      (p.image?'<img src="'+p.image+'"/>':'')+
+      '<div class="row"><div class="lbl">رقم الوكالة</div><div class="val">'+(p.number||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">النوع</div><div class="val">'+(p.type||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">الموكّل</div><div class="val">'+(p.client||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">تاريخ البداية</div><div class="val">'+(p.startDate||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">تاريخ الانتهاء</div><div class="val">'+(p.endDate||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+(p.notes||'—')+'</div></div>'+
+      '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨️ طباعة</button></div>'+
+      '</body></html>');
+    win.document.close();
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function delPoa(id){
+  if(!confirm('حذف هذه الوكالة؟'))return;
+  db.collection('poa').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadPoa();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+// ================================================================
+// عقود المكتب
+// ================================================================
+function saveOfficeContract(){
+  closeM('mOfficeContract');
+  var data={title:v('oc_t'),type:v('oc_ty'),party2:v('oc_p2'),value:v('oc_val'),startDate:v('oc_sd'),endDate:v('oc_ed'),image:g('oc_img').value||'',detail:v('oc_detail'),notes:v('oc_n'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  clr(['oc_t','oc_p2','oc_val','oc_sd','oc_ed','oc_detail','oc_n']);
+  g('oc_img').value='';
+  var prev=g('oc_img_preview'); if(prev){prev.style.display='none';prev.querySelector('img').src='';}
+  toast('جاري الحفظ...','ok');
+  db.collection('officeContracts').add(data).then(function(){toast('✓ تم حفظ العقد','ok');loadOfficeContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function loadOfficeContracts(){
+  db.collection('officeContracts').get().then(function(snap){
+    if(g('tot-oc')) g('tot-oc').textContent=snap.size;
+    var grid=g('oc-grid'); if(!grid) return;
+    if(!snap.size){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--tx3)">🗂️ لا توجد عقود مكتب بعد</div>';return;}
+    var today=new Date(); var warn30=new Date(); warn30.setDate(warn30.getDate()+30);
+    var cards='';
+    snap.docs.forEach(function(d){
+      var c=d.data(), id=d.id;
+      var ed=c.endDate?new Date(c.endDate):null;
+      var expCls='ba', expTxt='ساري';
+      if(ed){if(ed<today){expCls='bc';expTxt='منتهي';}else if(ed<warn30){expCls='bu';expTxt='ينتهي قريباً';}}
+      var imgHtml=c.image?'<img src="'+c.image+'" style="width:100%;height:140px;object-fit:cover"/>':'<div class="doc-img" style="display:flex;align-items:center;justify-content:center;height:140px;background:var(--bg3);font-size:40px">🗂️</div>';
+      cards+='<div class="doc-card" onclick="viewOfficeContract(\''+id+'\')">'+imgHtml+'<div class="doc-body">'+
+        '<div class="doc-title">'+(c.title||'—')+'</div>'+
+        '<div class="doc-meta">'+
+          (c.type||'—')+(c.party2?' • '+c.party2:'')+'<br>'+
+          (c.value?'القيمة: '+Number(c.value).toLocaleString()+' ر.س<br>':'')+
+          (c.startDate?'من: '+c.startDate+' ':'')+
+          (c.endDate?'حتى: '+c.endDate:'')
+        +'</div>'+
+        '<span class="doc-exp badge '+expCls+'">'+expTxt+'</span>'+
+        '<div style="margin-top:8px;display:flex;gap:4px">'+
+          '<button class="act-btn ab-view" onclick="event.stopPropagation();viewOfficeContract(\''+id+'\')">تفاصيل</button>'+
+          '<button class="act-btn ab-del" onclick="event.stopPropagation();delOfficeContract(\''+id+'\')">حذف</button>'+
+        '</div>'+
+      '</div></div>';
+    });
+    grid.innerHTML=cards;
+  }).catch(function(e){console.log(e);});
+}
+
+function viewOfficeContract(id){
+  db.collection('officeContracts').doc(id).get().then(function(d){
+    if(!d.exists) return;
+    var c=d.data();
+    var detEl=g('oc-detail'), titleEl=g('oc-detail-title'), bodyEl=g('oc-detail-body');
+    if(!detEl) return;
+    titleEl.textContent='تفاصيل عقد: '+(c.title||'');
+    bodyEl.innerHTML=
+      (c.image?'<img src="'+c.image+'" style="width:100%;max-height:250px;object-fit:contain;border-radius:10px;border:0.5px solid var(--br2);margin-bottom:1rem"/>':'')+
+      '<div class="detail-row"><div class="detail-lbl">نوع العقد</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">الطرف الثاني</div><div class="detail-val">'+(c.party2||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">قيمة العقد</div><div class="detail-val cno">'+(c.value?Number(c.value).toLocaleString()+' ر.س':'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ البداية</div><div class="detail-val">'+(c.startDate||'—')+'</div></div>'+
+      '<div class="detail-row"><div class="detail-lbl">تاريخ الانتهاء</div><div class="detail-val">'+(c.endDate||'—')+'</div></div>'+
+      (c.detail?'<div class="detail-row" style="flex-direction:column;gap:6px"><div class="detail-lbl">تفاصيل العقد</div><div style="background:var(--bg3);border-radius:8px;padding:10px;font-size:13px;line-height:1.8;color:var(--tx);margin-top:4px">'+c.detail+'</div></div>':'')+
+      (c.notes?'<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+c.notes+'</div></div>':'')+
+      '<div style="margin-top:12px"><button class="btn-s" onclick="printOfficeContract(\''+id+'\')">🖨️ طباعة العقد</button></div>';
+    detEl.style.display='block';
+    detEl.scrollIntoView({behavior:'smooth'});
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function printOfficeContract(id){
+  db.collection('officeContracts').doc(id).get().then(function(d){
+    var c=d.data();
+    var win=window.open('','_blank','width=800,height=700');
+    win.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>عقد: '+(c.title||'')+'</title>'+
+      '</head><body>'+
+      '<div class="hdr"><div style="font-size:24px">🗂️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
+      '<div style="font-size:12px;color:#666">عقد: '+(c.title||'')+'</div></div>'+
+      (c.image?'<img src="'+c.image+'"/>':'')+
+      '<div class="row"><div class="lbl">نوع العقد</div><div class="val">'+(c.type||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">الطرف الثاني</div><div class="val">'+(c.party2||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">القيمة</div><div class="val">'+(c.value?Number(c.value).toLocaleString()+' ر.س':'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">من</div><div class="val">'+(c.startDate||'—')+'</div></div>'+
+      '<div class="row"><div class="lbl">حتى</div><div class="val">'+(c.endDate||'—')+'</div></div>'+
+      (c.detail?'<div style="margin-top:12px"><div style="font-weight:700;margin-bottom:6px;color:#666">تفاصيل العقد:</div><div class="detail-box">'+c.detail+'</div></div>':'')+
+      (c.notes?'<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+c.notes+'</div></div>':'')+
+      '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨️ طباعة</button></div>'+
+      '</body></html>');
+    win.document.close();
   });
 }
 
-function render(data){
-  allCases = data;
-  const box = document.getElementById("list");
-  box.innerHTML = "";
+function delOfficeContract(id){
+  if(!confirm('حذف هذا العقد؟'))return;
+  db.collection('officeContracts').doc(id).delete().then(function(){toast('✓ تم الحذف','ok');loadOfficeContracts();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
 
-  data.forEach(c=>{
-    box.innerHTML += `
-      <div class="card">
-        <b>${c.title || ""}</b><br>
-        ${c.client || ""}
-      </div>
-    `;
+// ================================================================
+// بحث Claude AI في الأنظمة
+// ================================================================
+function searchWithClaude(){
+  var q=v('claudeLawQ');
+  if(!q){toast('أدخل سؤالاً للبحث','err');return;}
+  g('claudeLawLoading').style.display='block';
+  g('claudeLawResult').style.display='none';
+  g('claudeLawText').textContent='';
+
+  fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':'Bearer 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'
+    },
+    body:JSON.stringify({
+      model:'llama-3.3-70b-versatile',
+      messages:[
+        {role:'system',content:'أنت مستشار قانوني متخصص في الأنظمة واللوائح السعودية. أجب بشكل مفصل ومنظم مع الاستشهاد بالمواد القانونية عند الإمكان. اكتب بالعربية فقط من اليمين إلى اليسار.'},
+        {role:'user',content:'سؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q}
+      ],
+      max_tokens:1500,
+      temperature:0.3
+    })
+  })
+  .then(function(r){return r.json();})
+  .then(function(data){
+    g('claudeLawLoading').style.display='none';
+    var text='';
+    if(data.choices&&data.choices[0]){
+      text=data.choices[0].message.content||'';
+    } else if(data.error){
+      text='خطأ: '+data.error.message;
+    }
+    g('claudeLawText').textContent=text;
+    g('claudeLawResult').style.display='block';
+    window._claudeLawAnswer={q:q,a:text};
+  })
+  .catch(function(e){
+    g('claudeLawLoading').style.display='none';
+    g('claudeLawText').textContent='حدث خطأ: '+e.message;
+    g('claudeLawResult').style.display='block';
   });
 }
 
-function search(q){
-  q = q.toLowerCase();
-  const filtered = allCases.filter(c =>
-    (c.title || "").toLowerCase().includes(q) ||
-    (c.client || "").toLowerCase().includes(q)
-  );
-  render(filtered);
+function clearClaudeResult(){
+  g('claudeLawResult').style.display='none';
+  g('claudeLawQ').value='';
+  window._claudeLawAnswer=null;
 }
 
-// 🔥 تحميل مباشر
-db.collection("cases")
-.orderBy("createdAt","desc")
-.onSnapshot(snapshot=>{
-  const data = snapshot.docs.map(doc=>({
-    id: doc.id,
-    ...doc.data()
-  }));
-  render(data);
-});
+function saveLawFromClaude(){
+  if(!window._claudeLawAnswer) return;
+  var data={type:'مبدأ قانوني',field:'عام',title:window._claudeLawAnswer.q.slice(0,60),reference:'Claude AI - '+new Date().toLocaleDateString('ar-SA'),body:window._claudeLawAnswer.a,tags:'ذكاء اصطناعي، بحث، Claude',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+  db.collection('laws').add(data).then(function(){toast('✓ تم الحفظ في بنك الأنظمة','ok');loadLaws();}).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
 
-console.log("🔥 النظام شغال");
+// إضافة القوائم الجديدة للـ dropdowns
+function refreshNewDropdowns(){
+  fillSelect('con_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};}),'-- اختياري --');
+  fillSelect('con_p1', _clients.map(function(n){return {val:n,txt:n};}),'-- اختر العميل --');
+  fillSelect('vrd_c', _cases.map(function(c){return {val:c.num,txt:c.num+(c.title?' | '+c.title:'')};}),'-- اختر القضية --');
+  fillSelect('vrd_l', _staff.map(function(s){return {val:s.name,txt:s.name+(s.pos?' — '+s.pos:'')};}),'-- اختر المحامي --');
+  fillSelect('poa_client', _clients.map(function(n){return {val:n,txt:n};}),'-- اختر العميل --');
+}
 
+// ================================================================
+// اختبار Firebase - اضغط 🔬
+// ================================================================
+function testFirebase(){
+  toast('جاري اختبار Firebase...','info');
+  console.log('=== Firebase Test Start ===');
+  console.log('firebase object:', typeof firebase);
+  console.log('db object:', typeof db);
+  console.log('auth object:', typeof auth);
+  
+  // Test 1: Auth state
+  var user = auth.currentUser;
+  console.log('Current user:', user ? user.email : 'not logged in');
+  
+  // Test 2: Simple read
+  db.collection('cases').limit(1).get()
+    .then(function(snap){
+      console.log('READ test: OK, docs:', snap.size);
+      toast('قراءة Firebase: ✓ تعمل','ok');
+      
+      // Test 3: Write test
+      return db.collection('_connectionTest').add({
+        test: true,
+        time: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    })
+    .then(function(ref){
+      console.log('WRITE test: OK, id:', ref.id);
+      toast('كتابة Firebase: ✓ تعمل — المشكلة في مكان آخر','ok');
+      // Clean up
+      ref.delete();
+    })
+    .catch(function(e){
+      console.error('Firebase error:', e);
+      var msg = e.message || e.code || 'unknown';
+      if(msg.includes('permission') || e.code === 'permission-denied'){
+        toast('❌ Firebase Rules تمنع الكتابة — اضغط لرؤية الحل','err');
+        setTimeout(function(){
+          alert('المشكلة: Firestore Rules\n\nالحل:\n1. اذهب لـ console.firebase.google.com\n2. اختر مشروع alshikh-law\n3. Firestore Database ← Rules\n4. احذف كل النص وضع:\n\nrules_version = \'2\'\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}\n\n5. اضغط Publish');
+        }, 1000);
+      } else if(msg.includes('network') || msg.includes('offline')){
+        toast('❌ مشكلة في الإنترنت','err');
+      } else {
+        toast('❌ خطأ: ' + msg,'err');
+        alert('خطأ Firebase:\nCode: ' + e.code + '\nMessage: ' + e.message);
+      }
+    });
+}
 </script>
-
 </body>
 </html>
+/* ===== CALENDAR ===== */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center}
+.cal-h{font-size:11px;color:var(--tx3);padding:5px 2px;font-weight:600;text-align:center}
+.cal-c{padding:4px 2px;border-radius:7px;cursor:pointer;font-size:12px;min-height:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;transition:background .15s}
+.cal-c:hover{background:var(--bg3)}
+.cal-c.td{background:rgba(212,175,55,.2);color:var(--g);font-weight:800;border:1px solid rgba(212,175,55,.3)}
+.cal-c.sel{background:rgba(122,98,0,.5);color:#fff;border:1px solid var(--g)}
+.cal-c.dm{opacity:.2;cursor:default;pointer-events:none}
+.ev-d{width:5px;height:5px;border-radius:50%;background:var(--g)}
+.cal-c span{font-size:12px;line-height:1.2;font-weight:600}
+

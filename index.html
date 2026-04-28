@@ -4,8 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>مكتب محمد عبدالمحسن الشيخ للمحاماة</title>
-<!-- ① خط عربي فاخر -->
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+<!-- خط أبل - SF Arabic -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -47,8 +47,8 @@ body.light #particles-canvas{opacity:.3}
   animation:logoPulse 1.5s ease-in-out infinite;
   box-shadow:0 0 40px rgba(212,175,55,0.4);
 }
-.ls-title{font-family:'Amiri',serif;font-size:22px;color:#D4AF37;margin-bottom:.3rem;text-align:center}
-.ls-sub{font-size:13px;color:#7A6200;margin-bottom:2rem;font-family:'Tajawal',sans-serif}
+.ls-title{font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:22px;color:#D4AF37;margin-bottom:.3rem;text-align:center}
+.ls-sub{font-size:13px;color:#7A6200;margin-bottom:2rem;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .ls-bar{width:200px;height:3px;background:rgba(212,175,55,0.2);border-radius:2px;overflow:hidden}
 .ls-fill{height:100%;background:linear-gradient(90deg,#7A6200,#D4AF37,#7A6200);border-radius:2px;animation:loadFill 2s ease forwards}
 .ls-dots{display:flex;gap:6px;margin-top:1rem}
@@ -60,7 +60,7 @@ body.light #particles-canvas{opacity:.3}
 @keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-8px);opacity:1}}
 
 /* ④ صفحة دخول مذهلة */
-body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);direction:rtl;height:100vh;overflow:hidden}
+body{font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;background:var(--bg);color:var(--tx);direction:rtl;height:100vh;overflow:hidden}
 .auth{
   position:fixed;inset:0;
   background:linear-gradient(135deg,#0A0C10 0%,#0F1218 40%,#0A0E15 100%);
@@ -93,7 +93,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);direc
   animation:logoPulse 3s ease-in-out infinite;
 }
 .auth-title{
-  font-family:'Amiri',serif;font-size:22px;font-weight:700;
+  font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:22px;font-weight:700;
   color:#D4AF37;margin-bottom:.3rem;
   text-shadow:0 0 20px rgba(212,175,55,.4);
 }
@@ -101,13 +101,13 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);direc
 .auth-divider{display:flex;align-items:center;gap:10px;margin:.5rem 0 1.2rem;color:var(--tx3);font-size:11px}
 .auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--br2)}
 .roles{display:flex;gap:6px;background:rgba(0,0,0,.3);border-radius:12px;padding:4px;margin-bottom:1.25rem;border:1px solid var(--br2)}
-.role{flex:1;padding:8px;border-radius:9px;border:none;background:transparent;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .25s}
+.role{flex:1;padding:8px;border-radius:9px;border:none;background:transparent;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:13px;font-weight:600;cursor:pointer;color:var(--tx2);transition:all .25s}
 .role.on{background:linear-gradient(135deg,rgba(122,98,0,.8),rgba(90,68,0,.6));color:#D4AF37;box-shadow:0 2px 10px rgba(212,175,55,.2)}
 .inp{
   width:100%;padding:11px 14px;
   background:rgba(255,255,255,.05);
   border:1px solid var(--br2);border-radius:10px;
-  color:var(--tx);font-family:'Tajawal',sans-serif;font-size:14px;
+  color:var(--tx);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:14px;
   margin-bottom:12px;outline:none;text-align:right;
   transition:all .2s;
 }
@@ -116,7 +116,7 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);direc
   width:100%;padding:13px;
   background:linear-gradient(135deg,#D4AF37,#7A6200);
   border:none;border-radius:11px;
-  color:#0A0C10;font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;
+  color:#0A0C10;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:15px;font-weight:800;
   cursor:pointer;letter-spacing:.02em;
   box-shadow:0 4px 20px rgba(212,175,55,.35);
   transition:all .2s;position:relative;overflow:hidden;
@@ -135,24 +135,24 @@ body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx);direc
 .sidebar{width:230px;min-width:230px;background:var(--bg2);border-left:1px solid var(--br2);display:flex;flex-direction:column;overflow-y:auto}
 .logo-area{padding:1rem;border-bottom:1px solid var(--br2);display:flex;align-items:center;gap:10px}
 .logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--g),var(--gd));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:var(--gold-glow)}
-.logo-tx{font-size:13px;font-weight:700;color:var(--g);line-height:1.3;font-family:'Amiri',serif}
-.logo-tx small{display:block;font-size:10px;font-weight:400;color:var(--tx3);font-family:'Tajawal',sans-serif}
+.logo-tx{font-size:13px;font-weight:700;color:var(--g);line-height:1.3;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
+.logo-tx small{display:block;font-size:10px;font-weight:400;color:var(--tx3);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .user-box{margin:10px;padding:10px 12px;background:var(--bg3);border-radius:10px;border:1px solid var(--br2)}
 .user-r{font-size:10px;color:var(--g);margin-bottom:2px;text-transform:uppercase;letter-spacing:.08em}
-.user-n{font-size:13px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
+.user-n{font-size:13px;font-weight:700;color:var(--tx);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .nav-grp{padding:8px 14px 3px;font-size:10px;color:var(--tx3);text-transform:uppercase;letter-spacing:.1em}
 .nav-item{display:flex;align-items:center;gap:9px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--tx2);border-right:3px solid transparent;transition:all .2s}
 .nav-item:hover{background:var(--bg3);color:var(--tx);padding-right:18px}
 .nav-item.on{background:var(--gl);color:var(--g);border-right-color:var(--g);font-weight:700}
 .nb{margin-right:auto;background:var(--gd);color:var(--g);font-size:10px;padding:1px 7px;border-radius:10px;font-weight:700}
 .sb-foot{padding:10px;border-top:1px solid var(--br2);margin-top:auto}
-.btn-out{width:100%;padding:8px;background:transparent;border:1px solid var(--br2);border-radius:8px;color:var(--tx2);font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-out{width:100%;padding:8px;background:transparent;border:1px solid var(--br2);border-radius:8px;color:var(--tx2);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
 .btn-out:hover{border-color:rgba(224,112,128,.4);color:#F09090;background:rgba(138,26,42,.1)}
 
 /* Topbar */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{height:56px;background:var(--bg2);border-bottom:1px solid var(--br2);display:flex;align-items:center;padding:0 1.25rem;gap:10px;flex-shrink:0;box-shadow:0 1px 20px rgba(0,0,0,.3)}
-.pg-title{font-size:15px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
+.pg-title{font-size:15px;font-weight:700;color:var(--tx);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .tb-r{margin-right:auto;display:flex;gap:8px;align-items:center}
 .ib{width:34px;height:34px;background:var(--bg3);border:1px solid var(--br2);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;transition:all .2s}
 .ib:hover{border-color:var(--g);box-shadow:var(--gold-glow)}
@@ -181,7 +181,7 @@ body.light .tm-btn::before{transform:translateX(-24px)}
 .stat:hover{border-color:var(--br);transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .stat.hl{border-color:var(--br);background:linear-gradient(135deg,rgba(212,175,55,.08),rgba(122,98,0,.04))}
 .stat-l{font-size:11px;color:var(--tx2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-.stat-n{font-size:28px;font-weight:900;color:var(--tx);line-height:1;font-family:'Tajawal',sans-serif}
+.stat-n{font-size:28px;font-weight:900;color:var(--tx);line-height:1;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .stat.hl .stat-n{color:var(--g);text-shadow:0 0 20px rgba(212,175,55,.3)}
 .stat-s{font-size:11px;color:var(--tx3);margin-top:4px}
 .stat-s.up{color:#3DAA70}
@@ -195,8 +195,8 @@ body.light .tm-btn::before{transform:translateX(-24px)}
 }
 .card:hover{border-color:rgba(212,175,55,.2)}
 .card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.card-t{font-size:14px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
-.card-b{padding:5px 12px;background:var(--gl);border:1px solid var(--br);border-radius:7px;color:var(--g);font-family:'Tajawal',sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
+.card-t{font-size:14px;font-weight:700;color:var(--tx);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
+.card-b{padding:5px 12px;background:var(--gl);border:1px solid var(--br);border-radius:7px;color:var(--g);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:12px;cursor:pointer;transition:all .15s}
 .card-b:hover{background:rgba(212,175,55,.25)}
 
 /* Table */
@@ -232,7 +232,7 @@ body.light .tm-btn::before{transform:translateX(-24px)}
   padding:8px 18px;
   background:linear-gradient(135deg,rgba(212,175,55,.15),rgba(122,98,0,.1));
   border:1px solid var(--br);border-radius:10px;
-  color:var(--g);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;
+  color:var(--g);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:13px;font-weight:700;
   cursor:pointer;transition:all .2s;
 }
 .add-btn:hover{background:rgba(212,175,55,.25);transform:translateY(-1px);box-shadow:var(--gold-glow)}
@@ -250,25 +250,25 @@ body.light .tm-btn::before{transform:translateX(-24px)}
   animation:modalSlide .3s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes modalSlide{from{opacity:0;transform:translateY(30px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
-.mh{font-size:16px;font-weight:800;color:var(--g);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;font-family:'Amiri',serif}
+.mh{font-size:16px;font-weight:800;color:var(--g);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .mx{cursor:pointer;color:var(--tx3);font-size:22px;transition:color .15s;line-height:1}
 .mx:hover{color:var(--tx)}
 .fl{font-size:12px;color:var(--tx2);margin-bottom:4px;display:block;letter-spacing:.02em}
-.fi{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--br2);border-radius:9px;color:var(--tx);font-family:'Tajawal',sans-serif;font-size:13px;margin-bottom:12px;outline:none;text-align:right;transition:all .2s}
+.fi{width:100%;padding:10px 12px;background:var(--bg3);border:1px solid var(--br2);border-radius:9px;color:var(--tx);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:13px;margin-bottom:12px;outline:none;text-align:right;transition:all .2s}
 .fi:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
 textarea.fi{resize:vertical;min-height:70px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .ma{display:flex;gap:8px;justify-content:flex-end;margin-top:6px}
-.btn-c{padding:9px 18px;background:transparent;border:1px solid var(--br2);border-radius:9px;color:var(--tx2);font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-c{padding:9px 18px;background:transparent;border:1px solid var(--br2);border-radius:9px;color:var(--tx2);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
 .btn-c:hover{border-color:var(--br);color:var(--tx)}
-.btn-s{padding:9px 20px;background:linear-gradient(135deg,var(--g),var(--gd));border:none;border-radius:9px;color:#0A0C10;font-family:'Tajawal',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 2px 12px rgba(212,175,55,.3)}
+.btn-s{padding:9px 20px;background:linear-gradient(135deg,var(--g),var(--gd));border:none;border-radius:9px;color:#0A0C10;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;box-shadow:0 2px 12px rgba(212,175,55,.3)}
 .btn-s:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(212,175,55,.4)}
 
 /* ⑤ إشعارات فاخرة */
 .toast-container{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center}
 .toast-item{
   padding:12px 20px;border-radius:12px;font-size:13px;
-  font-family:'Tajawal',sans-serif;direction:rtl;
+  font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;direction:rtl;
   display:flex;align-items:center;gap:10px;
   box-shadow:0 8px 32px rgba(0,0,0,.4);
   animation:toastIn .4s cubic-bezier(.34,1.56,.64,1);
@@ -288,7 +288,7 @@ textarea.fi{resize:vertical;min-height:70px}
 
 /* Kanban */
 .kanban-col{background:var(--bg3);border-radius:14px;padding:10px;min-height:200px;border:1px solid var(--br2)}
-.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:9px;font-size:13px;font-weight:700;margin-bottom:10px;font-family:'Amiri',serif}
+.kanban-head{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border-radius:9px;font-size:13px;font-weight:700;margin-bottom:10px;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .kanban-count{background:rgba(0,0,0,.2);color:inherit;padding:1px 8px;border-radius:10px;font-size:11px}
 .kanban-cards{display:flex;flex-direction:column;gap:8px}
 .kcard{background:var(--bg2);border:1px solid var(--br2);border-radius:10px;padding:10px;cursor:pointer;transition:all .2s}
@@ -297,15 +297,15 @@ textarea.fi{resize:vertical;min-height:70px}
 .kcard-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
 .kcard-client{font-size:11px;color:var(--tx2)}
 .kcard-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
-.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:'Tajawal',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
 .kcard-btn:hover{border-color:var(--g);color:var(--g)}
 .law-item{padding:9px 12px;background:var(--bg3);border-radius:9px;cursor:pointer;transition:all .15s;border:1px solid transparent}
 .law-item:hover,.law-item.sel{border-color:var(--g);background:var(--gl)}
 .law-type{font-size:10px;color:var(--g);font-weight:700;margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em}
-.law-title{font-size:13px;font-weight:700;color:var(--tx);font-family:'Amiri',serif}
+.law-title{font-size:13px;font-weight:700;color:var(--tx);font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .law-sub{font-size:11px;color:var(--tx2);margin-top:2px}
 .cf-section{background:var(--bg2);border:1px solid var(--br2);border-radius:14px;padding:1rem;margin-bottom:1rem}
-.cf-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:.75rem;display:flex;align-items:center;gap:8px;font-family:'Amiri',serif}
+.cf-title{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:.75rem;display:flex;align-items:center;gap:8px;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .contract-expiry{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--br2)}
 .contract-expiry:last-child{border:none}
 .exp-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
@@ -315,11 +315,11 @@ textarea.fi{resize:vertical;min-height:70px}
 .doc-card:hover{border-color:var(--g);transform:translateY(-3px);box-shadow:0 8px 30px rgba(0,0,0,.3)}
 .doc-img{width:100%;height:140px;object-fit:cover;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:40px;color:var(--tx3)}
 .doc-body{padding:12px}
-.doc-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;font-family:'Amiri',serif}
+.doc-title{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:4px;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .doc-meta{font-size:11px;color:var(--tx2);margin-bottom:6px;line-height:1.5}
 .doc-exp{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
 .act-btns{display:flex;gap:4px}
-.act-btn{padding:4px 10px;border-radius:6px;border:none;font-family:'Tajawal',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
+.act-btn{padding:4px 10px;border-radius:6px;border:none;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s}
 .act-btn:hover{opacity:.8}
 .ab-view{background:rgba(74,144,217,.15);color:#4A90D9}
 .ab-edit{background:rgba(212,175,55,.15);color:var(--g)}
@@ -332,7 +332,7 @@ textarea.fi{resize:vertical;min-height:70px}
 /* print */
 @media print{.sidebar,.topbar,.pact,.auth,.toast-container{display:none!important}.app{display:block!important;height:auto!important;overflow:visible!important}.main,.content{display:block!important;height:auto!important;overflow:visible!important}.sec{display:none!important}.sec.on{display:block!important}.card{border:1px solid #ccc!important;background:#fff!important}body{background:#fff!important;color:#000!important;overflow:visible!important}.ph{display:block!important}}
 .ph{display:none;text-align:center;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid #B8960C}
-.ph h2{font-size:16px;font-weight:800;color:#8A6A00;font-family:'Amiri',serif}
+.ph h2{font-size:16px;font-weight:800;color:#8A6A00;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif}
 .ph p{font-size:11px;color:#666;margin-top:3px}
 
 .kanban-col{background:var(--bg3);border-radius:12px;padding:10px;min-height:200px}
@@ -345,7 +345,7 @@ textarea.fi{resize:vertical;min-height:70px}
 .kcard-title{font-size:12px;font-weight:700;color:var(--tx);margin-bottom:3px}
 .kcard-client{font-size:11px;color:var(--tx2)}
 .kcard-btns{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}
-.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:'Cairo',sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
+.kcard-btn{padding:3px 8px;border-radius:5px;border:0.5px solid var(--br2);background:transparent;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;font-size:10px;cursor:pointer;color:var(--tx2);transition:all .15s}
 .kcard-btn:hover{border-color:var(--g);color:var(--g)}
 .law-item{padding:9px 12px;background:var(--bg3);border-radius:8px;cursor:pointer;transition:all .15s;border:0.5px solid transparent}
 .law-item:hover,.law-item.sel{border-color:var(--g);background:var(--gl)}
@@ -1147,7 +1147,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
 
 <!-- Modal: تفاصيل وتعديل قضية -->
 <div class="ov" id="mCaseDetail">
-  <div class="modal" style="width:540px">
+  <div class="modal" style="width:600px;max-width:95vw">
     <div class="mh">تفاصيل القضية <span class="mx" onclick="closeM('mCaseDetail')">×</span></div>
     <div id="caseDetailView"></div>
     <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--br2);display:flex;gap:8px;flex-wrap:wrap">
@@ -1966,17 +1966,124 @@ function viewCase(id){
   db.collection('cases').doc(id).get().then(function(d){
     if(!d.exists){toast('القضية غير موجودة','err');return;}
     var c=d.data();
-    var html='<div class="detail-row"><div class="detail-lbl">رقم القضية</div><div class="detail-val cno">'+(c.number||'—')+'</div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">العنوان</div><div class="detail-val"><strong>'+(c.title||'—')+'</strong></div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">النوع</div><div class="detail-val">'+(c.type||'—')+'</div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">المحكمة</div><div class="detail-val">'+(c.court||'—')+'</div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">العميل</div><div class="detail-val">'+(c.client||'—')+'</div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">المحامي</div><div class="detail-val">'+(c.lawyer||'—')+'</div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">الحالة</div><div class="detail-val"><span class="badge '+sc(c.status)+'">'+(c.status||'—')+'</span></div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">الأولوية</div><div class="detail-val">'+(c.priority||'—')+'</div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">تاريخ الاستلام</div><div class="detail-val">'+(c.date||'—')+'</div></div>'+
-      '<div class="detail-row"><div class="detail-lbl">ملاحظات</div><div class="detail-val">'+(c.notes||'—')+'</div></div>';
-    g('caseDetailView').innerHTML=html;
+    var sc2=sc(c.status);
+
+    // مراحل القضية
+    var stages=['استلام','تحضير','مرافعة','حكم'];
+    var curStage=c.stage||'استلام';
+    var curIdx=stages.indexOf(curStage); if(curIdx<0) curIdx=0;
+    var stageColors=['#4A90D9','#E0B040','#D4AF37','#3DAA70'];
+    var stageIcons=['📥','📋','⚖️','🏛️'];
+
+    var stagesHtml='<div style="margin:16px 0 20px">';
+    stagesHtml+='<div style="font-size:12px;color:var(--tx3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em">مراحل القضية</div>';
+    stagesHtml+='<div style="display:flex;align-items:center;gap:0;position:relative">';
+
+    stages.forEach(function(st,i){
+      var isDone=i<=curIdx;
+      var isCur=i===curIdx;
+      var col=isDone?stageColors[i]:'rgba(100,100,120,.3)';
+      var txtCol=isDone?stageColors[i]:'var(--tx3)';
+
+      stagesHtml+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;position:relative">';
+      // خط الاتصال
+      if(i>0){
+        stagesHtml+='<div style="position:absolute;right:50%;top:16px;width:100%;height:2px;background:'+(i<=curIdx?stageColors[i-1]:'rgba(100,100,120,.2)')+';z-index:0"></div>';
+      }
+      // دائرة المرحلة
+      stagesHtml+='<div onclick="moveStage(\''+id+'\',\''+st+'\')" style="width:32px;height:32px;border-radius:50%;background:'+(isCur?col:'rgba(20,23,32,.8)')+';border:2px solid '+col+';display:flex;align-items:center;justify-content:center;font-size:14px;z-index:1;cursor:pointer;transition:all .2s;box-shadow:'+(isCur?'0 0 12px '+col+'66':'none')+'">'+stageIcons[i]+'</div>';
+      stagesHtml+='<div style="font-size:11px;color:'+txtCol+';margin-top:5px;font-weight:'+(isCur?'700':'400')+'">'+st+'</div>';
+      if(isCur){
+        stagesHtml+='<div style="font-size:9px;color:'+col+';font-weight:700;margin-top:1px">● الحالية</div>';
+      }
+      stagesHtml+='</div>';
+    });
+    stagesHtml+='</div></div>';
+
+    // بيانات القضية
+    var infoHtml='<div style="display:grid;grid-template-columns:1fr 1fr;gap:0">';
+    var rows=[
+      ['رقم القضية','<span style="color:var(--g);font-weight:700">'+(c.number||'—')+'</span>'],
+      ['الحالة','<span class="badge '+sc2+'">'+(c.status||'—')+'</span>'],
+      ['النوع',c.type||'—'],
+      ['الأولوية',c.priority||'—'],
+      ['المحكمة',c.court||'—'],
+      ['الجلسة القادمة',c.nextHearing||'—'],
+      ['العميل','<strong>'+(c.client||'—')+'</strong>'],
+      ['المحامي',c.lawyer||'—'],
+      ['تاريخ الاستلام',c.date||'—'],
+      ['المرحلة الحالية','<strong>'+(curStage)+'</strong>'],
+    ];
+    rows.forEach(function(r){
+      infoHtml+='<div style="padding:9px 10px;border-bottom:1px solid var(--br2);font-size:13px">'+
+        '<div style="font-size:11px;color:var(--tx3);margin-bottom:2px">'+r[0]+'</div>'+
+        '<div style="color:var(--tx)">'+r[1]+'</div>'+
+      '</div>';
+    });
+    infoHtml+='</div>';
+    if(c.notes){
+      infoHtml+='<div style="padding:10px;background:var(--bg3);border-radius:8px;margin-top:10px;font-size:13px;color:var(--tx);line-height:1.7">📝 '+c.notes+'</div>';
+    }
+
+    // جلسات القضية
+    var hearingsPromise=db.collection('hearings').get();
+    var memosPromise=db.collection('memos').get();
+    var verdictPromise=db.collection('verdicts').get();
+
+    Promise.all([hearingsPromise,memosPromise,verdictPromise]).then(function(results){
+      var hearings=results[0].docs.filter(function(hd){return hd.data().caseNum===c.number;});
+      var memos=results[1].docs.filter(function(md){return md.data().caseNum===c.number;});
+      var verdict=results[2].docs.find(function(vd){return vd.data().caseNum===c.number;});
+
+      var hHtml='<div style="font-size:12px;color:var(--tx3);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.05em">الجلسات المرتبطة ('+hearings.length+')</div>';
+      if(hearings.length){
+        hHtml+=hearings.map(function(hd){
+          var h=hd.data();
+          return '<div style="padding:8px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;font-size:13px">'+
+            '<span>'+(h.date||'—')+' • '+(h.time||'—')+'</span>'+
+            '<span style="color:var(--tx2)">'+(h.court||'—')+'</span>'+
+          '</div>';
+        }).join('');
+      } else {
+        hHtml+='<div style="color:var(--tx3);font-size:12px;padding:6px 0">لا توجد جلسات مرتبطة</div>';
+      }
+
+      var mHtml='<div style="font-size:12px;color:var(--tx3);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.05em">المذكرات المرتبطة ('+memos.length+')</div>';
+      if(memos.length){
+        mHtml+=memos.map(function(md){
+          var m=md.data();
+          return '<div style="padding:8px 12px;background:var(--bg3);border-radius:8px;margin-bottom:6px;display:flex;justify-content:space-between;font-size:13px">'+
+            '<span><strong>'+m.title+'</strong></span>'+
+            '<span style="color:var(--tx2)">'+m.type+'</span>'+
+          '</div>';
+        }).join('');
+      } else {
+        mHtml+='<div style="color:var(--tx3);font-size:12px;padding:6px 0">لا توجد مذكرات مرتبطة</div>';
+      }
+
+      var vHtml='';
+      if(verdict){
+        var vd=verdict.data();
+        var vc=vd.result&&vd.result.includes('فوز')?'ba':vd.result==='خسارة'?'bu':'bp';
+        vHtml='<div style="font-size:12px;color:var(--tx3);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.05em">الحكم النهائي</div>'+
+          '<div style="padding:12px;background:var(--bg3);border-radius:8px;border-right:3px solid var(--g)">'+
+            '<div style="display:flex;justify-content:space-between;margin-bottom:6px">'+
+              '<span class="badge '+vc+'">'+vd.result+'</span>'+
+              '<span style="font-size:12px;color:var(--tx2)">'+vd.date+'</span>'+
+            '</div>'+
+            '<div style="font-size:13px;color:var(--tx);line-height:1.6">'+(vd.summary||'')+'</div>'+
+          '</div>';
+      }
+
+      var html=stagesHtml+'<hr style="border:none;border-top:1px solid var(--br2);margin:4px 0 14px">'+infoHtml+hHtml+mHtml+vHtml;
+      g('caseDetailView').innerHTML=html;
+    }).catch(function(){
+      var html=stagesHtml+'<hr style="border:none;border-top:1px solid var(--br2);margin:4px 0 14px">'+infoHtml;
+      g('caseDetailView').innerHTML=html;
+    });
+
+    // افتح النافذة فوراً مع بيانات أساسية
+    g('caseDetailView').innerHTML=stagesHtml+'<hr style="border:none;border-top:1px solid var(--br2);margin:4px 0 14px">'+infoHtml+'<div style="text-align:center;padding:10px;color:var(--tx3);font-size:12px">جاري تحميل الجلسات والمذكرات...</div>';
     openM('mCaseDetail');
   }).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
@@ -2268,7 +2375,7 @@ function showDay(ds){
     return '<div style="padding:10px 12px;margin-bottom:8px;background:var(--bg3);border-radius:10px;border-right:3px solid '+col+';position:relative">'+
       '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'+
         '<div style="font-size:13px;font-weight:700;color:var(--tx)">'+e.title+'</div>'+
-        '<button onclick="delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:Tajawal,sans-serif">حذف</button>'+
+        '<button onclick="delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif">حذف</button>'+
       '</div>'+
       (e.time?'<div style="font-size:11px;color:var(--tx2);margin-bottom:3px">🕐 '+e.time+'</div>':'')+
       (e.type?'<div style="font-size:11px;margin-bottom:3px"><span style="background:'+col+'22;color:'+col+';padding:2px 7px;border-radius:10px;font-weight:600">'+e.type+'</span></div>':'')+
@@ -2322,7 +2429,7 @@ function renderMonthEvents(){
       '<td><strong>'+e.title+'</strong></td>'+
       '<td><span style="background:'+col+'22;color:'+col+';padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">'+(e.type||'—')+'</span></td>'+
       '<td style="color:var(--g)">'+(e.caseNum||'—')+'</td>'+
-      '<td><button onclick="event.stopPropagation();delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:Tajawal,sans-serif">حذف</button></td>'+
+      '<td><button onclick="event.stopPropagation();delCalEvent(\''+e.id+'\')" style="background:rgba(224,112,128,.15);border:none;border-radius:5px;color:#E07080;font-size:11px;padding:2px 7px;cursor:pointer;font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif">حذف</button></td>'+
     '</tr>';
   }).join('');
   list.innerHTML='<table class="tbl"><thead><tr><th>التاريخ</th><th>الوقت</th><th>الحدث</th><th>النوع</th><th>القضية</th><th>إجراء</th></tr></thead><tbody>'+rows+'</tbody></table>';

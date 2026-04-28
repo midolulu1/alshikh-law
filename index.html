@@ -28,17 +28,15 @@ body.light{
   --g:#7A5800;--gd:#4A3400;--gl:rgba(122,88,0,0.1);
   --gold-glow:0 0 20px rgba(122,88,0,0.2);
 }
-body.light .auth{background:linear-gradient(135deg,#F5F0E8 0%,#EDE0C8 50%,#F0E8D8 100%)}
+body.light /* light auth - handled by body.light */
 body.light .auth-box{background:rgba(255,253,248,0.95);backdrop-filter:blur(20px)}
 body.light #particles-canvas{opacity:.3}
 
 /* ① شاشة تحميل متحركة */
-#loadingScreen{
   position:fixed;inset:0;background:#0A0C10;z-index:9999;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   transition:opacity .8s ease, visibility .8s ease;
 }
-#loadingScreen.hide{opacity:0;visibility:hidden}
 .ls-logo{
   width:90px;height:90px;
   background:linear-gradient(135deg,#D4AF37,#7A6200);
@@ -62,9 +60,9 @@ body.light #particles-canvas{opacity:.3}
 /* ④ صفحة دخول مذهلة */
 body{font-family:-apple-system,'SF Arabic','Noto Kufi Arabic',system-ui,sans-serif;background:var(--bg);color:var(--tx);direction:rtl;height:100vh;overflow:hidden}
 .auth{
-  position:fixed;inset:0;
+  position:fixed!important;inset:0!important;
   background:linear-gradient(135deg,#0A0C10 0%,#0F1218 40%,#0A0E15 100%);
-  display:flex;align-items:center;justify-content:center;z-index:999;
+  display:flex!important;align-items:center;justify-content:center;z-index:9999!important;
   overflow:hidden;
 }
 #particles-canvas{position:absolute;inset:0;pointer-events:none}
@@ -410,10 +408,19 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       '@page{size:A4;margin:1.5cm}@media print{button{display:none}}<\/style>
 </style>
 <body>
+<script>
+// إظهار صفحة الدخول فوراً
+document.addEventListener('DOMContentLoaded', function(){
+  var auth = document.getElementById('authScreen');
+  if(auth){
+    auth.style.cssText = 'position:fixed!important;inset:0!important;display:flex!important;align-items:center;justify-content:center;z-index:9999!important;background:linear-gradient(135deg,#0A0C10,#0F1218)!important';
+  }
+  var ls = document.getElementById('loadingScreen');
+  if(ls) ls.style.display='none';
+});
+</script>
 
-<!-- ① شاشة التحميل المتحركة -->
-<div id="loadingScreen">
-  <div class="ls-logo">⚖️</div>
+
   <div class="ls-title">مكتب محمد عبدالمحسن الشيخ</div>
   <div class="ls-sub">للمحاماة والاستشارات القانونية</div>
   <div class="ls-bar"><div class="ls-fill"></div></div>
@@ -1239,15 +1246,7 @@ auth.onAuthStateChanged(function(u){
   else{d.style.background='#E07080';t.textContent='Firebase: غير متصل';}
 });
 
-// ================================================================
-// ① شاشة التحميل
-// ================================================================
-window.addEventListener('load', function(){
-  setTimeout(function(){
-    var ls = document.getElementById('loadingScreen');
-    if(ls){ ls.classList.add('hide'); setTimeout(function(){ ls.style.display='none'; }, 800); }
-  }, 2200);
-});
+
 
 // ================================================================
 // ② جسيمات صفحة الدخول

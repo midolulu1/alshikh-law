@@ -4,8 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>مكتب محمد عبدالمحسن الشيخ للمحاماة</title>
-<!-- خط أبل -->
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<!-- خط حديث -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
@@ -60,7 +60,7 @@ body.light #particles-canvas{opacity:.3}
 @keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-8px);opacity:1}}
 
 /* ④ صفحة دخول مذهلة */
-body{font-family:-apple-system,'IBM Plex Sans Arabic','Helvetica Neue',Arial,sans-serif;background:var(--bg);color:var(--tx);direction:rtl;height:100vh;overflow:hidden}
+body{font-family:'Cairo','Plus Jakarta Sans',-apple-system,sans-serif;background:var(--bg);color:var(--tx);direction:rtl;height:100vh;overflow:hidden}
 .auth{
   position:fixed;inset:0;
   background:linear-gradient(135deg,#0A0C10 0%,#0F1218 40%,#0A0E15 100%);
@@ -132,7 +132,11 @@ body{font-family:-apple-system,'IBM Plex Sans Arabic','Helvetica Neue',Arial,san
 .app.on{display:flex}
 
 /* Sidebar */
-.sidebar{width:230px;min-width:230px;background:var(--bg2);border-left:1px solid var(--br2);display:flex;flex-direction:column;overflow-y:auto}
+.sidebar{width:230px;min-width:230px;background:var(--bg2);border-left:1px solid var(--br2);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(212,175,55,0.3) transparent}
+.sidebar::-webkit-scrollbar{width:4px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(212,175,55,0.25);border-radius:4px}
+.sidebar::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,0.5)}
 .logo-area{padding:1rem;border-bottom:1px solid var(--br2);display:flex;align-items:center;gap:10px}
 .logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--g),var(--gd));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:var(--gold-glow)}
 .logo-tx{font-size:13px;font-weight:700;color:var(--g);line-height:1.3;font-family:'Amiri',serif}
@@ -167,9 +171,11 @@ body{font-family:-apple-system,'IBM Plex Sans Arabic','Helvetica Neue',Arial,san
 body.light .tm-btn::before{transform:translateX(-24px)}
 
 /* Content */
-.content{flex:1;overflow-y:auto;padding:1.25rem;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
-.content::-webkit-scrollbar{width:5px}
-.content::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:3px}
+.content{flex:1;overflow-y:auto;padding:1.25rem;scrollbar-width:thin;scrollbar-color:rgba(212,175,55,0.3) transparent}
+.content::-webkit-scrollbar{width:4px}
+.content::-webkit-scrollbar-track{background:transparent}
+.content::-webkit-scrollbar-thumb{background:rgba(212,175,55,0.25);border-radius:4px}
+.content::-webkit-scrollbar-thumb:hover{background:rgba(212,175,55,0.5)}
 .sec{display:none}
 .sec.on{display:block;animation:secFadeIn .3s ease}
 @keyframes secFadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -491,16 +497,13 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div class="user-r" id="sRole">مدير النظام</div>
       <div class="user-n" id="sName">محمد عبدالمحسن الشيخ</div>
     </div>
-    <div class="nav-grp">الرئيسية</div>
     <div class="nav-item on" onclick="go('dashboard',this)">🏠 الصفحة الرئيسية</div>
-    <div class="nav-grp">الإدارة</div>
     <div class="nav-item" onclick="go('cases',this)">⚖️ القضايا <div class="nb" id="cBadge">0</div></div>
     <div class="nav-item" onclick="go('clients',this)">👥 العملاء</div>
     <div class="nav-item" onclick="go('hearings',this)">🏛️ الجلسات</div>
     <div class="nav-item" onclick="go('appointments',this)">📅 المواعيد</div>
     <div class="nav-item" onclick="go('memos',this)">📝 المذكرات</div>
     <div class="nav-item" onclick="go('calendar',this)">🗓️ مذكرة التواريخ</div>
-    <div class="nav-grp">قانوني متقدم</div>
     <div class="nav-item" onclick="go('contracts',this)">📋 إدارة العقود</div>
     <div class="nav-item" onclick="go('poa',this)">📜 الوكالات <div class="nb" id="poaBadge">0</div></div>
     <div class="nav-item" onclick="go('officecontracts',this)">🗂️ عقود المكتب</div>
@@ -508,7 +511,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     <div class="nav-item" onclick="go('kanban',this)">📌 مراحل القضايا</div>
     <div class="nav-item" onclick="go('laws',this)">🏛️ بنك الأنظمة</div>
     <div class="nav-item" onclick="go('verdicts',this)">⚖️ سجل الأحكام</div>
-    <div class="nav-grp mgmt-g">الإدارة</div>
     <div class="nav-item mgmt-i" onclick="go('staff',this)">👔 الموظفون</div>
     <div class="nav-item mgmt-i" onclick="go('reports',this)">📈 التقارير</div>
     <div class="sb-foot">
@@ -521,9 +523,9 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div class="pg-title" id="pgTitle">الصفحة الرئيسية</div>
       <div class="tb-r">
         <button class="tm-btn" onclick="toggleTheme()" title="تبديل المظهر"></button>
-        <div class="fb-s"><div class="fb-d" id="fbDot"></div><span class="fb-t" id="fbTxt">Firebase: جاري...</span></div>
+        <div class="fb-s"><div class="fb-d" id="fbDot"></div><span class="fb-t" id="fbTxt">قاعدة البيانات: جاري...</span></div>
         <div class="ib" onclick="alert('لا توجد إشعارات جديدة')">🔔</div>
-        <div class="ib" onclick="alert('الإصدار 2.0\nمكتب محمد عبدالمحسن الشيخ\nمدعوم بـ Firebase')">⚙️</div>
+
       </div>
     </div>
 
@@ -1287,8 +1289,8 @@ var db=firebase.firestore(), auth=firebase.auth();
 auth.onAuthStateChanged(function(u){
   var d=document.getElementById('fbDot'), t=document.getElementById('fbTxt');
   if(!d)return;
-  if(u){d.style.background='#3DAA70';t.textContent='Firebase: متصل ✓';}
-  else{d.style.background='#E07080';t.textContent='Firebase: غير متصل';}
+  if(u){d.style.background='#3DAA70';t.textContent='قاعدة البيانات: متصل ✓';}
+  else{d.style.background='#E07080';t.textContent='قاعدة البيانات: غير متصل';}
 });
 
 // ================================================================
@@ -2176,20 +2178,48 @@ function row(lbl,val){
 
 function uploadCaseDoc(input){
   var file=input.files[0]; if(!file) return;
+  if(file.size > 5*1024*1024){toast('الملف كبير جداً — الحد الأقصى 5MB','err');return;}
   var caseNum=_caseData.number||currentCaseId;
+  toast('جاري ضغط الصورة...','ok');
+
+  // ضغط الصورة قبل الرفع
   var reader=new FileReader();
   reader.onload=function(e){
-    var b64=e.target.result;
-    db.collection('caseDocs').add({
-      caseNum:caseNum,
-      caseId:currentCaseId,
-      name:file.name,
-      data:b64,
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(){
-      toast('✓ تم رفع المستند','ok');
-      loadCaseDocs(caseNum);
-    }).catch(function(e){toast('خطأ: '+e.message,'err');});
+    var img=new Image();
+    img.onload=function(){
+      var canvas=document.createElement('canvas');
+      var MAX=800;
+      var w=img.width, h=img.height;
+      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+      canvas.width=w; canvas.height=h;
+      var ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      var compressed=canvas.toDataURL('image/jpeg',0.7);
+      if(compressed.length>900000){compressed=canvas.toDataURL('image/jpeg',0.4);}
+      db.collection('caseDocs').add({
+        caseNum:caseNum, caseId:currentCaseId,
+        name:file.name, data:compressed,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        toast('✓ تم رفع المستند','ok');
+        loadCaseDocs(caseNum);
+      }).catch(function(err){toast('خطأ: '+err.message,'err');});
+    };
+    img.onerror=function(){
+      // ليس صورة - ارفع كما هو
+      var b64=e.target.result;
+      if(b64.length>900000){toast('الملف كبير جداً بعد التحويل','err');return;}
+      db.collection('caseDocs').add({
+        caseNum:caseNum, caseId:currentCaseId,
+        name:file.name, data:b64,
+        createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      }).then(function(){
+        toast('✓ تم رفع المستند','ok');
+        loadCaseDocs(caseNum);
+      }).catch(function(err){toast('خطأ: '+err.message,'err');});
+    };
+    img.src=e.target.result;
   };
   reader.readAsDataURL(file);
 }
@@ -2300,61 +2330,241 @@ function deleteCurrentCase(){ if(currentCaseId) delCase(currentCaseId); }
 // ===== PRINT CASE =====
 function printCase(){
   if(!currentCaseId) return;
-  db.collection('cases').doc(currentCaseId).get().then(function(d){
-    if(!d.exists) return;
-    var c = d.data();
-    var w = window.open('','_blank','width=800,height=600');
-    w.document.write(printCaseHTML([c],'تقرير قضية: '+(c.number||'')));
-    w.document.close();
-    w.focus();
-    setTimeout(function(){ w.print(); }, 500);
-  }).catch(function(e){ toast('خطأ في الطباعة: '+e.message,'err'); });
+  toast('جاري تحضير التقرير...','ok');
+  var promises=[
+    db.collection('cases').doc(currentCaseId).get(),
+    db.collection('hearings').get(),
+    db.collection('memos').get(),
+    db.collection('verdicts').get(),
+  ];
+  Promise.all(promises).then(function(results){
+    if(!results[0].exists){toast('القضية غير موجودة','err');return;}
+    var c=results[0].data();
+    var hearings=results[1].docs.filter(function(d){return d.data().caseNum===c.number;}).map(function(d){return d.data();});
+    var memos=results[2].docs.filter(function(d){return d.data().caseNum===c.number;}).map(function(d){return d.data();});
+    var verdict=results[3].docs.find(function(d){return d.data().caseNum===c.number;});
+    hearings.sort(function(a,b){return (a.date||'').localeCompare(b.date||'');});
+    var w=window.open('','_blank','width=900,height=700');
+    w.document.write(buildCaseReport(c, hearings, memos, verdict?verdict.data():null));
+    w.document.close(); w.focus();
+    setTimeout(function(){w.print();},600);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
-function printAllCases(){
-  db.collection('cases').get().then(function(snap){
-    var cases = snap.docs.map(function(d){ return d.data(); });
-    var w = window.open('','_blank','width=800,height=600');
-    w.document.write(printCaseHTML(cases,'تقرير جميع القضايا'));
-    w.document.close();
-    w.focus();
-    setTimeout(function(){ w.print(); }, 500);
-  }).catch(function(e){ toast('خطأ في الطباعة: '+e.message,'err'); });
-}
-
-function printCaseHTML(cases, title){
-  var rows = cases.map(function(c){
-    var statusColor = c.status==='نشطة'?'#1A7040':c.status==='عاجلة'?'#A01E30':c.status==='مغلقة'?'#555':'#8A6500';
-    return '<tr>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right;color:#8A6A00;font-weight:700">'+(c.number||'—')+'</td>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right"><strong>'+(c.title||'—')+'</strong></td>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.type||'—')+'</td>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.client||'—')+'</td>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.court||'—')+'</td>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.lawyer||'—')+'</td>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right;color:'+statusColor+';font-weight:700">'+(c.status||'—')+'</td>'+
-      '<td style="border:1px solid #ddd;padding:8px;text-align:right">'+(c.notes||'—')+'</td>'+
+function buildCaseReport(c, hearings, memos, verdict){
+  var stageColors={استلام:'#3B82F6',تحضير:'#F59E0B',مرافعة:'#8B5CF6',حكم:'#10B981'};
+  var statusColors={نشطة:'#10B981',عاجلة:'#EF4444','قيد الانتظار':'#F59E0B',مغلقة:'#6B7280'};
+  var statusBg={نشطة:'#D1FAE5',عاجلة:'#FEE2E2','قيد الانتظار':'#FEF3C7',مغلقة:'#F3F4F6'};
+  var sc=c.status||'نشطة';
+  var hRows=hearings.map(function(h,i){
+    return '<tr style="'+(i%2?'background:#f9fafb':'')+'">'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-weight:700;color:#92400e">'+(i+1)+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-weight:600">'+(h.date||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(h.time||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(h.court||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(h.judge||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(h.lawyer||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;color:#6b7280;font-size:12px">'+(h.notes||'—')+'</td>'+
     '</tr>';
+  }).join('');
+
+  var mRows=memos.map(function(m){
+    return '<div style="border:1px solid #e5e7eb;border-radius:8px;padding:14px;margin-bottom:10px;border-right:4px solid #B8960C">'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:6px">'+
+        '<strong style="font-size:14px">'+m.title+'</strong>'+
+        '<span style="background:#FEF3C7;color:#92400e;padding:2px 10px;border-radius:20px;font-size:12px">'+m.type+'</span>'+
+      '</div>'+
+      '<div style="font-size:12px;color:#6b7280;margin-bottom:8px">المحامي: '+m.lawyer+'</div>'+
+      '<div style="font-size:13px;color:#374151;line-height:1.7;background:#f9fafb;padding:10px;border-radius:6px">'+m.body+'</div>'+
+    '</div>';
+  }).join('');
+
+  var vBlock='<div style="background:#f9fafb;border-radius:10px;padding:16px;text-align:center;color:#6b7280">لم يُسجّل حكم بعد</div>';
+  if(verdict){
+    var vColor=verdict.result&&verdict.result.includes('فوز')?'#10B981':verdict.result==='خسارة'?'#EF4444':'#F59E0B';
+    var vBg=verdict.result&&verdict.result.includes('فوز')?'#D1FAE5':verdict.result==='خسارة'?'#FEE2E2':'#FEF3C7';
+    vBlock='<div style="background:'+vBg+';border-radius:10px;padding:16px;border:1px solid '+vColor+'33">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'+
+        '<span style="color:'+vColor+';font-weight:700;font-size:16px">'+verdict.result+'</span>'+
+        '<span style="font-size:13px;color:#6b7280">'+verdict.date+'</span>'+
+      '</div>'+
+      (verdict.summary?'<div style="font-size:13px;color:#374151;line-height:1.7">'+verdict.summary+'</div>':'')+
+    '</div>';
+  }
+
+  var stages=['استلام','تحضير','مرافعة','حكم'];
+  var curStage=c.stage||'استلام';
+  var curIdx=stages.indexOf(curStage); if(curIdx<0)curIdx=0;
+  var stageBar=stages.map(function(s,i){
+    var done=i<=curIdx;
+    var col=done?(stageColors[s]||'#B8960C'):'#d1d5db';
+    return '<div style="flex:1;text-align:center;position:relative">'+
+      (i>0?'<div style="position:absolute;top:14px;right:50%;width:100%;height:2px;background:'+(i<=curIdx?(stageColors[stages[i-1]]||'#B8960C'):'#d1d5db')+';z-index:0"></div>':'')+
+      '<div style="width:28px;height:28px;border-radius:50%;background:'+col+';margin:0 auto 6px;z-index:1;position:relative;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700">'+(i+1)+'</div>'+
+      '<div style="font-size:11px;color:'+(done?col:'#9ca3af')+';font-weight:'+(i===curIdx?'700':'400')+'">'+s+'</div>'+
+    '</div>';
   }).join('');
 
   return '<!DOCTYPE html><html lang="ar" dir="rtl"><head>'+
     '<meta charset="UTF-8"/>'+
-    '<title>'+title+'</title>'+
-    ''+
+    '<title>ملف القضية: '+(c.number||'')+'</title>'+
+    '<style>'+
+      '*{box-sizing:border-box;margin:0;padding:0}'+
+      'body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;direction:rtl;color:#111827;background:#fff;padding:0}'+
+      '@page{size:A4;margin:1.5cm}'+
+      '@media print{.no-print{display:none!important}.page-break{page-break-before:always}}'+
+      'h2{font-size:15px;font-weight:700;color:#1f2937;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #B8960C}'+
+      'table{width:100%;border-collapse:collapse;font-size:13px}'+
+      'th{background:#1f2937;color:#fff;padding:10px 12px;text-align:right;font-weight:600;font-size:12px}'+
+    '</style>'+
     '</head><body>'+
-    '<div class="header">'+
-      '<div class="logo">⚖️</div>'+
-      '<h1>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</h1>'+
-      '<div class="sub">'+title+' • تاريخ الطباعة: '+new Date().toLocaleDateString('ar-SA')+'</div>'+
+
+    /* رأس التقرير */
+    '<div style="background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:28px 32px;margin-bottom:0">'+
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start">'+
+        '<div>'+
+          '<div style="font-size:11px;color:#9ca3af;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px">ملف القضية القانونية</div>'+
+          '<div style="font-size:24px;font-weight:800;color:#D4AF37;margin-bottom:4px">'+(c.title||'—')+'</div>'+
+          '<div style="font-size:13px;color:#9ca3af">رقم: '+(c.number||'—')+' • '+c.type+' • '+c.court+'</div>'+
+        '</div>'+
+        '<div style="text-align:left">'+
+          '<div style="font-size:28px;margin-bottom:4px">⚖️</div>'+
+          '<div style="font-size:11px;color:#9ca3af">مكتب محمد عبدالمحسن الشيخ</div>'+
+          '<div style="font-size:10px;color:#6b7280">للمحاماة والاستشارات</div>'+
+        '</div>'+
+      '</div>'+
     '</div>'+
-    '<table>'+
-      '<thead><tr>'+
-        '<th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th>'+
-        '<th>المحكمة</th><th>المحامي</th><th>الحالة</th><th>ملاحظات</th>'+
-      '</tr></thead>'+
-      '<tbody>'+rows+'</tbody>'+
-    '</table>'+
-    '<div class="footer">إجمالي القضايا: '+cases.length+' • نظام مكتب م. عبدالمحسن الشيخ</div>'+
+
+    /* شريط الحالة */
+    '<div style="background:'+(statusBg[sc]||'#f3f4f6')+';padding:10px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb">'+
+      '<div style="display:flex;gap:20px;font-size:13px">'+
+        '<span><strong>العميل:</strong> '+(c.client||'—')+'</span>'+
+        '<span><strong>المحامي:</strong> '+(c.lawyer||'—')+'</span>'+
+        '<span><strong>الأولوية:</strong> '+(c.priority||'—')+'</span>'+
+      '</div>'+
+      '<div style="display:flex;align-items:center;gap:8px">'+
+        '<span style="width:10px;height:10px;border-radius:50%;background:'+(statusColors[sc]||'#6b7280')+';display:inline-block"></span>'+
+        '<span style="font-weight:700;color:'+(statusColors[sc]||'#6b7280')+'">'+(c.status||'—')+'</span>'+
+      '</div>'+
+    '</div>'+
+
+    /* المحتوى */
+    '<div style="padding:24px 32px">'+
+
+      /* مراحل القضية */
+      '<div style="margin-bottom:24px">'+
+        '<h2>مراحل القضية</h2>'+
+        '<div style="display:flex;align-items:flex-start;gap:0;padding:12px 0">'+stageBar+'</div>'+
+      '</div>'+
+
+      /* معلومات القضية */
+      '<div style="margin-bottom:24px">'+
+        '<h2>بيانات القضية</h2>'+
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden">'+
+          iRow('رقم القضية',c.number||'—')+
+          iRow('تاريخ الاستلام',c.date||'—')+
+          iRow('نوع القضية',c.type||'—')+
+          iRow('الأولوية',c.priority||'—')+
+          iRow('المحكمة',c.court||'—')+
+          iRow('الجلسة القادمة',c.nextHearing||'—')+
+          iRow('العميل',c.client||'—')+
+          iRow('المحامي',c.lawyer||'—')+
+        '</div>'+
+        (c.notes?'<div style="margin-top:10px;padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;font-size:13px;color:#374151;border-right:4px solid #B8960C"><strong>ملاحظات:</strong> '+c.notes+'</div>':'')+
+      '</div>'+
+
+      /* الجلسات */
+      '<div style="margin-bottom:24px">'+
+        '<h2>سجل الجلسات ('+(hearings.length)+')</h2>'+
+        (hearings.length?
+          '<table><thead><tr><th style="width:40px">#</th><th>التاريخ</th><th>الوقت</th><th>المحكمة</th><th>القاضي</th><th>المحامي</th><th>ملاحظات</th></tr></thead><tbody>'+hRows+'</tbody></table>':
+          '<div style="background:#f9fafb;border-radius:8px;padding:14px;text-align:center;color:#9ca3af;font-size:13px">لا توجد جلسات مسجلة</div>'
+        )+
+      '</div>'+
+
+      /* المذكرات */
+      (memos.length?'<div style="margin-bottom:24px"><h2>المذكرات القانونية ('+(memos.length)+')</h2>'+mRows+'</div>':'')+
+
+      /* الحكم */
+      '<div style="margin-bottom:24px">'+
+        '<h2>الحكم النهائي</h2>'+vBlock+
+      '</div>'+
+
+    '</div>'+
+
+    /* ذيل التقرير */
+    '<div style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:14px 32px;display:flex;justify-content:space-between;font-size:11px;color:#9ca3af">'+
+      '<span>مكتب محمد عبدالمحسن الشيخ للمحاماة • السعودية</span>'+
+      '<span>تاريخ الطباعة: '+new Date().toLocaleDateString('ar-SA')+'</span>'+
+    '</div>'+
+    '<div class="no-print" style="text-align:center;padding:16px">'+
+      '<button onclick="window.print()" style="padding:10px 28px;background:#B8960C;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit">🖨️ طباعة التقرير</button>'+
+    '</div>'+
+    '</body></html>';
+}
+
+function iRow(lbl,val){
+  return '<div style="padding:10px 14px;border-bottom:1px solid #e5e7eb;background:#fff">'+
+    '<div style="font-size:11px;color:#9ca3af;margin-bottom:2px">'+lbl+'</div>'+
+    '<div style="font-size:13px;font-weight:600;color:#1f2937">'+val+'</div>'+
+  '</div>';
+}
+
+function printAllCases(){
+  db.collection('cases').get().then(function(snap){
+    var cases=snap.docs.map(function(d){return d.data();});
+    var w=window.open('','_blank','width=1000,height=700');
+    w.document.write(printCaseHTML(cases,'تقرير جميع القضايا'));
+    w.document.close(); w.focus();
+    setTimeout(function(){w.print();},600);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
+
+function printCaseHTML(cases, title){
+  var statusColors={نشطة:'#10B981',عاجلة:'#EF4444','قيد الانتظار':'#F59E0B',مغلقة:'#6B7280'};
+  var rows=cases.map(function(c,i){
+    var col=statusColors[c.status]||'#6B7280';
+    return '<tr style="'+(i%2?'background:#f9fafb':'')+'">'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;color:#B8960C;font-weight:700">'+(c.number||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-weight:600">'+(c.title||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.type||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.client||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.court||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.lawyer||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.nextHearing||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+
+        '<span style="background:'+col+'22;color:'+col+';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">'+(c.status||'—')+'</span>'+
+      '</td>'+
+    '</tr>';
+  }).join('');
+
+  return '<!DOCTYPE html><html lang="ar" dir="rtl"><head>'+
+    '<meta charset="UTF-8"/><title>'+title+'</title>'+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;direction:rtl;color:#111827;background:#fff}'+
+    '@page{size:A4 landscape;margin:1.5cm}table{width:100%;border-collapse:collapse;font-size:13px}'+
+    'th{background:#1f2937;color:#fff;padding:10px 12px;text-align:right;font-weight:600;font-size:12px}</style>'+
+    '</head><body>'+
+    '<div style="background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:20px 28px;margin-bottom:20px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<div>'+
+          '<div style="font-size:10px;color:#9ca3af;letter-spacing:.1em;margin-bottom:4px">تقرير القضايا</div>'+
+          '<div style="font-size:20px;font-weight:800;color:#D4AF37">'+title+'</div>'+
+          '<div style="font-size:12px;color:#9ca3af;margin-top:2px">إجمالي: '+cases.length+' قضية • '+new Date().toLocaleDateString('ar-SA')+'</div>'+
+        '</div>'+
+        '<div style="font-size:36px">⚖️</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="padding:0 28px 28px">'+
+    '<table><thead><tr>'+
+      '<th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th>'+
+      '<th>المحكمة</th><th>المحامي</th><th>الجلسة القادمة</th><th>الحالة</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table>'+
+    '</div>'+
+    '<div style="border-top:1px solid #e5e7eb;padding:12px 28px;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between">'+
+      '<span>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</span>'+
+      '<span>'+new Date().toLocaleDateString('ar-SA')+'</span>'+
+    '</div>'+
+    '<div style="text-align:center;padding:14px"><button onclick="window.print()" style="padding:9px 24px;background:#B8960C;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit">🖨️ طباعة</button></div>'+
     '</body></html>';
 }
 

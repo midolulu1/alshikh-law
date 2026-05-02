@@ -2,13 +2,18 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="theme-color" content="#0A0C10"/>
 <title>مكتب محمد عبدالمحسن الشيخ للمحاماة</title>
 <!-- خط حديث -->
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 <!-- Chart.js للرسوم البيانية -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -365,6 +370,61 @@ textarea.fi{resize:vertical;min-height:70px}
 .upload-zone:hover{border-color:var(--g);background:var(--gl)}
 .doc-thumb{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:8px;border:1px solid var(--br2)}
 
+/* ============================================================
+   RESPONSIVE - جوال وآيباد
+   ============================================================ */
+.menu-toggle{display:none;width:38px;height:38px;background:var(--bg3);border:1px solid var(--br2);border-radius:9px;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0;transition:all .2s}
+.menu-toggle:hover{border-color:var(--g)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99;backdrop-filter:blur(2px)}
+.sidebar-overlay.show{display:block}
+
+@media(max-width:1024px){
+  .sidebar{width:200px;min-width:200px}
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .modal{width:95vw!important;max-width:95vw!important}
+  .tbl th,.tbl td{padding:7px 8px;font-size:12px}
+}
+
+@media(max-width:768px){
+  .menu-toggle{display:flex}
+  .sidebar{position:fixed;right:-260px;top:0;bottom:0;width:260px!important;min-width:260px!important;z-index:100;transition:right .3s cubic-bezier(.4,0,.2,1);box-shadow:-4px 0 30px rgba(0,0,0,.5)}
+  .sidebar.open{right:0}
+  .topbar{padding:0 .75rem;gap:7px;height:52px}
+  .pg-title{font-size:14px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .fb-s{display:none}
+  .content{padding:.75rem}
+  .stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat{padding:.75rem}
+  .stat-n{font-size:22px}
+  .g2,.g3{grid-template-columns:1fr;gap:.75rem}
+  .card{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .tbl{min-width:500px}
+  .tbl th,.tbl td{padding:8px;font-size:12px;white-space:nowrap}
+  .ov{align-items:flex-end!important}
+  .modal{width:100vw!important;max-width:100vw!important;border-radius:20px 20px 0 0!important;position:fixed!important;bottom:0!important;max-height:92vh!important;animation:slideUp .3s cubic-bezier(.4,0,.2,1)!important;margin:0!important}
+  .ma{flex-wrap:wrap}
+  .ma .btn-s,.ma .btn-c{flex:1;min-width:100px}
+  .fr{grid-template-columns:1fr 1fr}
+  #kanbanBoard{grid-template-columns:repeat(2,1fr)!important}
+  #poa-grid,#oc-grid{grid-template-columns:repeat(2,1fr)!important}
+  #caseTabs{overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #caseTabs::-webkit-scrollbar{display:none}
+  .case-tab{padding:10px 12px;font-size:12px;white-space:nowrap}
+  #caseDetailHeader{flex-direction:column;align-items:flex-start;gap:8px;padding:1rem}
+  #caseDetailHeader>div:last-child{width:100%}
+}
+
+@media(max-width:420px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .fr{grid-template-columns:1fr!important}
+  #kanbanBoard{grid-template-columns:1fr!important}
+  #poa-grid,#oc-grid{grid-template-columns:1fr!important}
+  .act-btns{flex-direction:column;gap:3px}
+}
+
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+
 @media print{.sidebar,.topbar,.pact,.auth,.toast-container{display:none!important}.app{display:block!important;height:auto!important;overflow:visible!important}.main,.content{display:block!important;height:auto!important;overflow:visible!important}.sec{display:none!important}.sec.on{display:block!important}.card{border:1px solid #ccc!important;background:#fff!important}body{background:#fff!important;color:#000!important;overflow:visible!important}.ph{display:block!important}}
 .ph{display:none;text-align:center;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:2px solid #B8960C}
 .ph h2{font-size:16px;font-weight:800;color:#8A6A00;font-family:'Amiri',serif}
@@ -487,8 +547,10 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
   </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
 <div class="app" id="appShell">
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="logo-area">
       <div class="logo-ic">⚖️</div>
       <div class="logo-tx">م. عبدالمحسن الشيخ<small>للمحاماة والاستشارات</small></div>
@@ -520,6 +582,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
 
   <div class="main">
     <div class="topbar">
+      <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
       <div class="pg-title" id="pgTitle">الصفحة الرئيسية</div>
       <div class="tb-r">
         <button class="tm-btn" onclick="toggleTheme()" title="تبديل المظهر"></button>
@@ -1285,7 +1348,7 @@ firebase.initializeApp({
   messagingSenderId:"320725230314",
   appId:"1:320725230314:web:2ba25d938fe28bc0c52d93"
 });
-var db=firebase.firestore(), auth=firebase.auth();
+var db=firebase.firestore(), auth=firebase.auth(), storage=firebase.storage();
 auth.onAuthStateChanged(function(u){
   var d=document.getElementById('fbDot'), t=document.getElementById('fbTxt');
   if(!d)return;
@@ -1500,6 +1563,21 @@ setTimeout(function(){
   if(sp){sp.classList.add('hide');setTimeout(function(){sp.style.display='none';},500);}
 },2000);
 
+// ===== القائمة الجانبية - جوال =====
+function toggleSidebar(){
+  var sb=document.getElementById('sidebar');
+  var ov=document.getElementById('sidebarOverlay');
+  if(!sb) return;
+  var isOpen=sb.classList.contains('open');
+  if(isOpen){
+    sb.classList.remove('open');
+    if(ov) ov.classList.remove('show');
+  } else {
+    sb.classList.add('open');
+    if(ov) ov.classList.add('show');
+  }
+}
+
 function toggleTheme(){dark=!dark;document.body.classList.toggle('light',!dark);localStorage.setItem('th',dark?'dark':'light');}
 
 // ===== AUTH =====
@@ -1563,6 +1641,13 @@ function go(id,el){
   if(id==='kanban')loadKanban();
   if(id==='laws')loadLaws();
   if(id==='verdicts')loadVerdicts();
+  // إغلاق القائمة في الجوال
+  if(window.innerWidth<=768){
+    var sb=document.getElementById('sidebar');
+    var ov=document.getElementById('sidebarOverlay');
+    if(sb) sb.classList.remove('open');
+    if(ov) ov.classList.remove('show');
+  }
 }
 
 // ===== MODAL =====
@@ -2178,50 +2263,132 @@ function row(lbl,val){
 
 function uploadCaseDoc(input){
   var file=input.files[0]; if(!file) return;
-  if(file.size > 5*1024*1024){toast('الملف كبير جداً — الحد الأقصى 5MB','err');return;}
+  var maxMB=50;
+  if(file.size > maxMB*1024*1024){toast('الملف كبير جداً — الحد الأقصى '+maxMB+'MB','err');return;}
   var caseNum=_caseData.number||currentCaseId;
-  toast('جاري ضغط الصورة...','ok');
+  var caseId=currentCaseId;
+  var fileName=Date.now()+'_'+file.name;
+  var storageRef=storage.ref('caseDocs/'+caseId+'/'+fileName);
+  toast('جاري رفع الملف...','ok');
 
-  // ضغط الصورة قبل الرفع
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var img=new Image();
-    img.onload=function(){
-      var canvas=document.createElement('canvas');
-      var MAX=800;
-      var w=img.width, h=img.height;
-      if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
-      if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
-      canvas.width=w; canvas.height=h;
-      var ctx=canvas.getContext('2d');
-      ctx.drawImage(img,0,0,w,h);
-      var compressed=canvas.toDataURL('image/jpeg',0.7);
-      if(compressed.length>900000){compressed=canvas.toDataURL('image/jpeg',0.4);}
-      db.collection('caseDocs').add({
-        caseNum:caseNum, caseId:currentCaseId,
-        name:file.name, data:compressed,
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function(){
-        toast('✓ تم رفع المستند','ok');
-        loadCaseDocs(caseNum);
-      }).catch(function(err){toast('خطأ: '+err.message,'err');});
-    };
-    img.onerror=function(){
-      // ليس صورة - ارفع كما هو
-      var b64=e.target.result;
-      if(b64.length>900000){toast('الملف كبير جداً بعد التحويل','err');return;}
-      db.collection('caseDocs').add({
-        caseNum:caseNum, caseId:currentCaseId,
-        name:file.name, data:b64,
-        createdAt:firebase.firestore.FieldValue.serverTimestamp()
-      }).then(function(){
-        toast('✓ تم رفع المستند','ok');
-        loadCaseDocs(caseNum);
-      }).catch(function(err){toast('خطأ: '+err.message,'err');});
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
+  // شريط تقدم
+  var grid=g('caseDocGrid');
+  var progressDiv=document.createElement('div');
+  progressDiv.style.cssText='grid-column:1/-1;background:var(--bg3);border-radius:10px;padding:12px;margin-bottom:4px';
+  progressDiv.innerHTML='<div style="font-size:12px;color:var(--tx2);margin-bottom:6px">📤 جاري رفع: '+file.name+'</div>'+
+    '<div style="height:4px;background:var(--br2);border-radius:2px"><div id="uploadBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--gd),var(--g));border-radius:2px;transition:width .2s"></div></div>'+
+    '<div id="uploadPct" style="font-size:11px;color:var(--tx3);margin-top:4px">0%</div>';
+  if(grid) grid.prepend(progressDiv);
+
+  var uploadTask=storageRef.put(file);
+  uploadTask.on('state_changed',
+    function(snapshot){
+      var pct=Math.round(snapshot.bytesTransferred/snapshot.totalBytes*100);
+      var bar=g('uploadBar'), pctEl=g('uploadPct');
+      if(bar) bar.style.width=pct+'%';
+      if(pctEl) pctEl.textContent=pct+'%';
+    },
+    function(err){ toast('خطأ في الرفع: '+err.message,'err'); progressDiv.remove(); },
+    function(){
+      uploadTask.snapshot.ref.getDownloadURL().then(function(url){
+        db.collection('caseDocs').add({
+          caseNum:caseNum, caseId:caseId,
+          name:file.name, url:url,
+          size:file.size, type:file.type,
+          path:'caseDocs/'+caseId+'/'+fileName,
+          createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        }).then(function(){
+          toast('✓ تم رفع الملف بنجاح','ok');
+          progressDiv.remove();
+          loadCaseDocs(caseNum);
+        }).catch(function(e){toast('خطأ: '+e.message,'err');});
+      });
+    }
+  );
+}
+
+function loadCaseDocs(caseNum){
+  var grid=g('caseDocGrid'); if(!grid) return;
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);font-size:13px;padding:12px">جاري التحميل...</div>';
+  db.collection('caseDocs').get().then(function(snap){
+    var docs=snap.docs.filter(function(d){return d.data().caseNum===caseNum;});
+    if(!docs.length){
+      grid.innerHTML='<div style="text-align:center;color:var(--tx3);font-size:13px;grid-column:1/-1;padding:20px">لا توجد ملفات مرفوعة بعد</div>';
+      return;
+    }
+    window._caseDocs={};
+    docs.forEach(function(d){ window._caseDocs[d.id]=d.data(); });
+
+    grid.innerHTML=docs.map(function(d){
+      var doc=d.data();
+      var isImg=doc.type&&doc.type.startsWith('image/');
+      var thumb=isImg
+        ? '<img src="'+doc.url+'" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block"/>'
+        : '<div style="width:100%;aspect-ratio:4/3;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg3);gap:6px">'+
+            '<div style="font-size:32px">'+(doc.type&&doc.type.includes('pdf')?'📄':'📎')+'</div>'+
+            '<div style="font-size:10px;color:var(--tx3)">'+(doc.type||'ملف')+'</div>'+
+          '</div>';
+      var sizeMB=doc.size?(doc.size/1024/1024).toFixed(1)+'MB':'';
+      return '<div style="position:relative;background:var(--bg3);border-radius:10px;overflow:hidden;border:1px solid var(--br2);cursor:pointer" onclick="previewDoc(\''+d.id+'\')">'+
+        thumb+
+        '<div style="padding:6px 8px;background:var(--bg2)">'+
+          '<div style="font-size:11px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+doc.name+'</div>'+
+          (sizeMB?'<div style="font-size:10px;color:var(--tx3)">'+sizeMB+'</div>':'')+
+        '</div>'+
+        '<button onclick="event.stopPropagation();delCaseDoc(\''+d.id+'\',\''+doc.path+'\')" style="position:absolute;top:5px;right:5px;width:22px;height:22px;background:rgba(224,112,128,.85);border:none;border-radius:50%;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>'+
+      '</div>';
+    }).join('');
+  }).catch(function(e){ grid.innerHTML='<div style="color:var(--tx3);text-align:center;grid-column:1/-1;padding:12px">تعذّر تحميل الملفات</div>'; });
+}
+
+function previewDoc(id){
+  var doc=window._caseDocs&&window._caseDocs[id];
+  if(!doc) return;
+  var isImg=doc.type&&doc.type.startsWith('image/');
+  var overlay=document.createElement('div');
+  overlay.id='docPreviewOverlay';
+  overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:zoom-out';
+  overlay.onclick=function(e){if(e.target===overlay)closeDocPreview();};
+
+  var content=isImg
+    ? '<img src="'+doc.url+'" style="max-width:90vw;max-height:82vh;object-fit:contain;border-radius:8px;box-shadow:0 24px 80px rgba(0,0,0,.8);cursor:default" onclick="event.stopPropagation()"/>'
+    : '<div style="background:var(--bg2);border-radius:14px;padding:2rem;text-align:center;cursor:default" onclick="event.stopPropagation()">'+
+        '<div style="font-size:48px;margin-bottom:12px">'+(doc.type&&doc.type.includes('pdf')?'📄':'📎')+'</div>'+
+        '<div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:6px">'+doc.name+'</div>'+
+        '<div style="font-size:12px;color:var(--tx3)">'+doc.type+'</div>'+
+      '</div>';
+
+  overlay.innerHTML=
+    '<button onclick="closeDocPreview()" style="position:fixed;top:20px;right:24px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:40px;height:40px;color:#fff;font-size:18px;cursor:pointer;z-index:2">✕</button>'+
+    '<div style="position:fixed;top:24px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.7);font-size:13px;background:rgba(0,0,0,.5);padding:5px 16px;border-radius:20px;white-space:nowrap">'+doc.name+'</div>'+
+    '<div style="max-width:90vw;max-height:82vh">'+content+'</div>'+
+    '<div style="position:fixed;bottom:24px;display:flex;gap:10px">'+
+      '<a href="'+doc.url+'" target="_blank" download onclick="event.stopPropagation()" style="padding:9px 20px;background:linear-gradient(135deg,#D4AF37,#7A6200);border:none;border-radius:9px;color:#0A0C10;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none">⬇️ تحميل</a>'+
+      '<a href="'+doc.url+'" target="_blank" onclick="event.stopPropagation()" style="padding:9px 20px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:9px;color:#fff;font-size:13px;cursor:pointer;text-decoration:none">🔗 فتح في نافذة</a>'+
+    '</div>';
+
+  document.body.appendChild(overlay);
+  window._previewEsc=function(e){if(e.key==='Escape')closeDocPreview();};
+  document.addEventListener('keydown',window._previewEsc);
+}
+
+function closeDocPreview(){
+  var ov=g('docPreviewOverlay');
+  if(ov){ov.style.opacity='0';ov.style.transition='opacity .2s';setTimeout(function(){if(ov.parentNode)ov.parentNode.removeChild(ov);},200);}
+  if(window._previewEsc) document.removeEventListener('keydown',window._previewEsc);
+}
+
+function delCaseDoc(id, path){
+  if(!confirm('حذف هذا الملف؟')) return;
+  // احذف من Storage
+  if(path){
+    storage.ref(path).delete().catch(function(){});
+  }
+  // احذف من Firestore
+  db.collection('caseDocs').doc(id).delete().then(function(){
+    toast('✓ تم حذف الملف','ok');
+    loadCaseDocs(_caseData.number||currentCaseId);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
 
 function loadCaseDocs(caseNum){

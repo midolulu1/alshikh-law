@@ -52,13 +52,10 @@ body.light .auth-box{background:rgba(255,253,248,0.95);backdrop-filter:blur(20px
 body.light #particles-canvas{opacity:.3}
 
 /* ① شاشة تحميل متحركة */
-#loadingScreen{
   position:fixed;inset:0;background:#0A0C10;z-index:9999;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   transition:opacity .8s ease, visibility .8s ease;
 }
-#loadingScreen.hide{opacity:0;visibility:hidden}
-.ls-logo{
   width:90px;height:90px;
   background:linear-gradient(135deg,#D4AF37,#7A6200);
   border-radius:20px;display:flex;align-items:center;justify-content:center;
@@ -66,16 +63,8 @@ body.light #particles-canvas{opacity:.3}
   animation:logoPulse 1.5s ease-in-out infinite;
   box-shadow:0 0 40px rgba(212,175,55,0.4);
 }
-.ls-title{font-family:'Amiri',serif;font-size:22px;color:#D4AF37;margin-bottom:.3rem;text-align:center}
-.ls-sub{font-size:13px;color:#7A6200;margin-bottom:2rem;font-family:'Tajawal',sans-serif}
-.ls-bar{width:200px;height:3px;background:rgba(212,175,55,0.2);border-radius:2px;overflow:hidden}
-.ls-fill{height:100%;background:linear-gradient(90deg,#7A6200,#D4AF37,#7A6200);border-radius:2px;animation:loadFill 2s ease forwards}
-.ls-dots{display:flex;gap:6px;margin-top:1rem}
-.ls-dot{width:8px;height:8px;border-radius:50%;background:#D4AF37;animation:dotBounce .8s ease-in-out infinite}
-.ls-dot:nth-child(2){animation-delay:.15s}
-.ls-dot:nth-child(3){animation-delay:.3s}
 @keyframes logoPulse{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(212,175,55,.4)}50%{transform:scale(1.05);box-shadow:0 0 60px rgba(212,175,55,.6)}}
-@keyframes loadFill{0%{width:0}100%{width:100%}}
+100%{width:100%}}
 @keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-8px);opacity:1}}
 
 /* ④ صفحة دخول مذهلة */
@@ -356,7 +345,7 @@ textarea.fi{resize:vertical;min-height:70px}
 .detail-row:last-child{border:none}
 .detail-lbl{width:140px;color:var(--tx2);flex-shrink:0;font-weight:600}
 .detail-val{color:var(--tx);flex:1}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+to{transform:rotate(360deg)}}
 /* ===== تبويبات ملف القضية ===== */
 .case-tab{padding:10px 16px;font-size:13px;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;font-weight:500}
 .case-tab:hover{color:var(--tx)}
@@ -478,7 +467,7 @@ textarea.fi{resize:vertical;min-height:70px}
 .doc-meta{font-size:11px;color:var(--tx2);margin-bottom:6px}
 .doc-exp{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
 /* Claude loading animation */
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+to{transform:rotate(360deg)}}
 
 
 body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
@@ -517,30 +506,23 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       '.lbl{width:140px;color:#666;font-weight:700}.val{flex:1}img{max-width:100%;border-radius:8px;margin-bottom:16px}'+
       '.detail-box{background:#f9f7f2;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;margin-top:8px}'+
       '@page{size:A4;margin:1.5cm}@media print{button{display:none}}<\/style>
+
+@keyframes spPop{from{transform:scale(0) rotate(-15deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes spFade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spBar{from{width:0}to{width:100%}}
 </style>
 <body>
-<!-- شاشة التحميل -->
-<div id="splashScreen">
-  <div class="sp-logo">⚖️</div>
-  <div class="sp-title">مكتب محمد عبدالمحسن الشيخ</div>
-  <div class="sp-sub">للمحاماة والاستشارات القانونية</div>
-  <div class="sp-track"><div class="sp-fill"></div></div>
-</div>
 
-<!-- ① شاشة التحميل المتحركة -->
-<div id="loadingScreen">
-  <div class="ls-logo">⚖️</div>
-  <div class="ls-title">مكتب محمد عبدالمحسن الشيخ</div>
-  <div class="ls-sub">للمحاماة والاستشارات القانونية</div>
-  <div class="ls-bar"><div class="ls-fill"></div></div>
-  <div class="ls-dots">
-    <div class="ls-dot"></div>
-    <div class="ls-dot"></div>
-    <div class="ls-dot"></div>
+<!-- شاشة التحميل -->
+<div id="splashScreen" style="position:fixed;inset:0;background:#0A0C10;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:-apple-system,sans-serif;transition:opacity .6s ease">
+  <div style="width:96px;height:96px;background:linear-gradient(145deg,#D4AF37,#7A6200);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:46px;box-shadow:0 20px 60px rgba(212,175,55,.45);animation:spPop .7s cubic-bezier(.34,1.56,.64,1) both">⚖️</div>
+  <div style="font-size:21px;font-weight:700;color:#D4AF37;margin-top:20px;animation:spFade .6s ease .35s both">مكتب محمد عبدالمحسن الشيخ</div>
+  <div style="font-size:13px;color:#7A6200;margin-top:5px;animation:spFade .6s ease .5s both">للمحاماة والاستشارات القانونية</div>
+  <div style="width:180px;height:3px;background:rgba(212,175,55,.15);border-radius:2px;margin-top:36px;overflow:hidden">
+    <div style="height:100%;background:linear-gradient(90deg,#7A6200,#D4AF37);border-radius:2px;animation:spBar 1.6s ease .2s both"></div>
   </div>
 </div>
 
-<!-- ④ صفحة الدخول المذهلة -->
 <div class="auth" id="authScreen">
   <canvas id="particles-canvas"></canvas>
   <div class="auth-glow"></div>
@@ -966,10 +948,10 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
         <div class="card" style="margin-bottom:1rem;border-color:rgba(184,150,12,0.4);background:rgba(184,150,12,0.03)">
           <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Groq AI)</div><span style="font-size:11px;color:var(--tx2)">مجاني وسريع — ابحث في الأنظمة السعودية مباشرة</span></div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
-            <input class="fi" id="claudeLawQ" style="margin:0;flex:1" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
+            <input class="fi" id="claudeLawQ" style="margin:0;flex:1;direction:rtl;text-align:right" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
             <button class="btn-s" style="flex-shrink:0;padding:10px 18px" onclick="searchWithClaude()">🔍 بحث</button>
           </div>
-          <div id="claudeLawResult" style="display:none">
+          <div id="claudeLawResult" style="display:none;direction:rtl;text-align:right">
             <div style="border-top:0.5px solid var(--br2);padding-top:12px;margin-top:4px">
               <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px">
                 <span style="width:8px;height:8px;border-radius:50%;background:#3DAA70;display:inline-block"></span>
@@ -1380,6 +1362,13 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
 </div>
 
 <script>
+
+// إخفاء شاشة التحميل
+setTimeout(function(){
+  var s=document.getElementById('splashScreen');
+  if(s){s.style.opacity='0';setTimeout(function(){s.style.display='none';},600);}
+},2200);
+
 firebase.initializeApp({
   apiKey:"AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ",
   authDomain:"alshikh-law.firebaseapp.com",
@@ -1401,7 +1390,6 @@ auth.onAuthStateChanged(function(u){
 // ================================================================
 window.addEventListener('load', function(){
   setTimeout(function(){
-    var ls = document.getElementById('loadingScreen');
     if(ls){ ls.classList.add('hide'); setTimeout(function(){ ls.style.display='none'; }, 800); }
   }, 2200);
 });
@@ -1599,7 +1587,6 @@ var dark=true;
 (function(){if(localStorage.getItem('th')==='light'){dark=false;document.body.classList.add('light');}})();
 // ===== شاشة التحميل =====
 setTimeout(function(){
-  var sp=g('splashScreen');
   if(sp){sp.classList.add('hide');setTimeout(function(){sp.style.display='none';},500);}
 },2000);
 
@@ -2662,7 +2649,7 @@ function buildCaseReport(c, hearings, memos, verdict){
   return '<!DOCTYPE html><html lang="ar" dir="rtl"><head>'+
     '<meta charset="UTF-8"/>'+
     '<title>ملف القضية: '+(c.number||'')+'</title>'+
-    '<style>'+
+    '<'+'style>'+
       '*{box-sizing:border-box;margin:0;padding:0}'+
       'body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;direction:rtl;color:#111827;background:#fff;padding:0}'+
       '@page{size:A4;margin:1.5cm}'+
@@ -2670,7 +2657,7 @@ function buildCaseReport(c, hearings, memos, verdict){
       'h2{font-size:15px;font-weight:700;color:#1f2937;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #B8960C}'+
       'table{width:100%;border-collapse:collapse;font-size:13px}'+
       'th{background:#1f2937;color:#fff;padding:10px 12px;text-align:right;font-weight:600;font-size:12px}'+
-    '</style>'+
+    '</'+'style>'+
     '</head><body>'+
 
     /* رأس التقرير */
@@ -2794,9 +2781,9 @@ function printCaseHTML(cases, title){
 
   return '<!DOCTYPE html><html lang="ar" dir="rtl"><head>'+
     '<meta charset="UTF-8"/><title>'+title+'</title>'+
-    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;direction:rtl;color:#111827;background:#fff}'+
+    '<'+'style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;direction:rtl;color:#111827;background:#fff}'+
     '@page{size:A4 landscape;margin:1.5cm}table{width:100%;border-collapse:collapse;font-size:13px}'+
-    'th{background:#1f2937;color:#fff;padding:10px 12px;text-align:right;font-weight:600;font-size:12px}</style>'+
+    'th{background:#1f2937;color:#fff;padding:10px 12px;text-align:right;font-weight:600;font-size:12px}</'+'style>'+
     '</head><body>'+
     '<div style="background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:20px 28px;margin-bottom:20px">'+
       '<div style="display:flex;justify-content:space-between;align-items:center">'+
@@ -3526,42 +3513,46 @@ function searchWithClaude(){
   g('claudeLawResult').style.display='none';
   g('claudeLawText').textContent='';
 
-  fetch('https://api.groq.com/openai/v1/chat/completions',{
-    method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'Authorization':'Bearer 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'
-    },
-    body:JSON.stringify({
-      model:'llama-3.3-70b-versatile',
-      messages:[
-        {role:'system',content:'أنت مستشار قانوني متخصص في الأنظمة واللوائح السعودية. أجب بشكل مفصل ومنظم مع الاستشهاد بالمواد القانونية عند الإمكان. اكتب بالعربية فقط من اليمين إلى اليسار.'},
-        {role:'user',content:'سؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q}
-      ],
-      max_tokens:1500,
-      temperature:0.3
-    })
-  })
-  .then(function(r){return r.json();})
+  var isLocal=window.location.protocol==='file:';
+  var fetchUrl, fetchBody;
+
+  if(isLocal){
+    // محلياً - استخدم المفتاح مباشرة
+    var KEY='AIzaSyDr4vK2CvlZYRjHafyful7wY8tAMXKCxNw';
+    fetchUrl='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+KEY;
+    fetchBody=JSON.stringify({contents:[{parts:[{text:'أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.
+
+سؤال من مكتب محمد عبدالمحسن الشيخ:
+
+'+q}]}],generationConfig:{maxOutputTokens:1500,temperature:0.3}});
+  } else {
+    // على Vercel - استخدم proxy آمن
+    fetchUrl='/api/gemini';
+    fetchBody=JSON.stringify({question:q});
+  }
+
+  fetch(fetchUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:fetchBody})
+  .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
   .then(function(data){
     g('claudeLawLoading').style.display='none';
-    var text='';
-    if(data.choices&&data.choices[0]){
-      text=data.choices[0].message.content||'';
-    } else if(data.error){
-      text='خطأ: '+data.error.message;
+    var text=data.answer||'';
+    if(!text&&data.candidates&&data.candidates[0]&&data.candidates[0].content){
+      data.candidates[0].content.parts.forEach(function(p){text+=p.text||'';});
     }
-    g('claudeLawText').textContent=text;
+    g('claudeLawText').textContent=text||'لم تُوجد نتيجة';
     g('claudeLawResult').style.display='block';
     window._claudeLawAnswer={q:q,a:text};
   })
   .catch(function(e){
     g('claudeLawLoading').style.display='none';
-    g('claudeLawText').textContent='حدث خطأ: '+e.message;
+    var msg=e.message||'';
+    if(msg.includes('429')) msg='تجاوزت الحد — انتظر دقيقة';
+    else if(msg==='403'||msg==='400') msg='مفتاح API غير صالح';
+    else msg='تعذّر الاتصال — تحقق من الإنترنت';
+    g('claudeLawText').textContent='⚠️ '+msg;
     g('claudeLawResult').style.display='block';
   });
 }
-
 function clearClaudeResult(){
   g('claudeLawResult').style.display='none';
   g('claudeLawQ').value='';

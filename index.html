@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -946,7 +947,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
 
         <!-- بحث Claude AI -->
         <div class="card" style="margin-bottom:1rem;border-color:rgba(184,150,12,0.4);background:rgba(184,150,12,0.03)">
-          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Groq AI)</div><span style="font-size:11px;color:var(--tx2)">مجاني وسريع — ابحث في الأنظمة السعودية مباشرة</span></div>
+          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Gemini AI)</div><span style="font-size:11px;color:var(--tx2)">مجاني وسريع — ابحث في الأنظمة السعودية مباشرة</span></div>
           <div style="display:flex;gap:8px;margin-bottom:10px">
             <input class="fi" id="claudeLawQ" style="margin:0;flex:1;direction:rtl;text-align:right" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
             <button class="btn-s" style="flex-shrink:0;padding:10px 18px" onclick="searchWithClaude()">🔍 بحث</button>
@@ -966,7 +967,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
           </div>
           <div id="claudeLawLoading" style="display:none;text-align:center;padding:16px;color:var(--tx2)">
             <div style="font-size:18px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
-            <div style="font-size:13px;margin-top:6px">جاري البحث بـ Groq AI...</div>
+            <div style="font-size:13px;margin-top:6px">جاري البحث بـ Gemini AI...</div>
           </div>
         </div>
 
@@ -3513,27 +3514,30 @@ function searchWithClaude(){
   g('claudeLawResult').style.display='none';
   g('claudeLawText').textContent='';
 
-  var isLocal=window.location.protocol==='file:';
-  var fetchUrl, fetchBody;
+  var KEY='AIzaSyDr4vK2CvlZYRjHafyful7wY8tAMXKCxNw';
+  var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+KEY;
+  var prompt='أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.
 
-  if(isLocal){
-    // محلياً - استخدم المفتاح مباشرة
-    var KEY='AIzaSyDr4vK2CvlZYRjHafyful7wY8tAMXKCxNw';
-    fetchUrl='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+KEY;
-    fetchBody=JSON.stringify({contents:[{parts:[{text:'أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.\n\nسؤال من مكتب محمد عبدالمحسن الشيخ:\n\n'+q}]}],generationConfig:{maxOutputTokens:1500,temperature:0.3}});
-  } else {
-    // على Vercel - استخدم proxy آمن
-    fetchUrl='/api/gemini';
-    fetchBody=JSON.stringify({question:q});
-  }
+سؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:
 
-  fetch(fetchUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:fetchBody})
+'+q;
+
+  fetch(url,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      contents:[{parts:[{text:prompt}]}],
+      generationConfig:{maxOutputTokens:1500,temperature:0.3}
+    })
+  })
   .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
   .then(function(data){
     g('claudeLawLoading').style.display='none';
-    var text=data.answer||'';
-    if(!text&&data.candidates&&data.candidates[0]&&data.candidates[0].content){
+    var text='';
+    if(data.candidates&&data.candidates[0]&&data.candidates[0].content){
       data.candidates[0].content.parts.forEach(function(p){text+=p.text||'';});
+    } else if(data.error){
+      text='خطأ: '+data.error.message;
     }
     g('claudeLawText').textContent=text||'لم تُوجد نتيجة';
     g('claudeLawResult').style.display='block';
@@ -3542,7 +3546,7 @@ function searchWithClaude(){
   .catch(function(e){
     g('claudeLawLoading').style.display='none';
     var msg=e.message||'';
-    if(msg.includes('429')) msg='تجاوزت الحد — انتظر دقيقة';
+    if(msg==='429') msg='تجاوزت الحد — انتظر دقيقة وأعد المحاولة';
     else if(msg==='403'||msg==='400') msg='مفتاح API غير صالح';
     else msg='تعذّر الاتصال — تحقق من الإنترنت';
     g('claudeLawText').textContent='⚠️ '+msg;

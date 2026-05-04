@@ -3520,11 +3520,7 @@ function searchWithClaude(){
     // محلياً - استخدم المفتاح مباشرة
     var KEY='AIzaSyDr4vK2CvlZYRjHafyful7wY8tAMXKCxNw';
     fetchUrl='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+KEY;
-    fetchBody=JSON.stringify({contents:[{parts:[{text:'أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.
-
-سؤال من مكتب محمد عبدالمحسن الشيخ:
-
-'+q}]}],generationConfig:{maxOutputTokens:1500,temperature:0.3}});
+    fetchBody=JSON.stringify({contents:[{parts:[{text:'أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.\n\nسؤال من مكتب محمد عبدالمحسن الشيخ:\n\n'+q}]}],generationConfig:{maxOutputTokens:1500,temperature:0.3}});
   } else {
     // على Vercel - استخدم proxy آمن
     fetchUrl='/api/gemini';

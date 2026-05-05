@@ -594,7 +594,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     <div class="nav-item" onclick="go('officecontracts',this)">🗂️ عقود المكتب</div>
     <div class="nav-item" onclick="go('casefile',this)">📁 ملف القضية</div>
     <div class="nav-item" onclick="go('kanban',this)">📌 مراحل القضايا</div>
-    <div class="nav-item" onclick="go('laws',this)">🏛️ بنك الأنظمة</div>
     <div class="nav-item" onclick="go('verdicts',this)">⚖️ سجل الأحكام</div>
     <div class="nav-item mgmt-i" onclick="go('staff',this)">👔 الموظفون</div>
     <div class="nav-item mgmt-i" onclick="go('reports',this)">📈 التقارير</div>
@@ -935,57 +934,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       </div>
 
       <!-- ④ بنك الأنظمة والأحكام -->
-      <div class="sec" id="sec-laws">
-        <div class="pact">
-          <button class="add-btn" onclick="openM('mLaw')">＋ إضافة نظام/حكم</button>
-          <div class="tot">إجمالي: <span id="tot-laws">0</span> مدخل</div>
-        </div>
-        <div class="card" style="margin-bottom:1rem">
-          <div class="card-h"><div class="card-t">🔍 البحث في البنك</div></div>
-          <input class="fi" id="lawSearch" placeholder="ابحث في الأنظمة والأحكام المحفوظة..." oninput="searchLaws(this.value)" style="margin:0"/>
-        </div>
-
-        <!-- بحث Claude AI -->
-        <div class="card" style="margin-bottom:1rem;border-color:rgba(184,150,12,0.4);background:rgba(184,150,12,0.03)">
-          <div class="card-h"><div class="card-t">🤖 بحث بالذكاء الاصطناعي (Gemini AI)</div><span style="font-size:11px;color:var(--tx2)">مجاني وسريع — ابحث في الأنظمة السعودية مباشرة</span></div>
-          <div style="display:flex;gap:8px;margin-bottom:10px">
-            <input class="fi" id="claudeLawQ" style="margin:0;flex:1;direction:rtl;text-align:right" placeholder="مثال: ما هي حقوق العامل عند الفصل التعسفي في نظام العمل السعودي؟" onkeydown="if(event.key==='Enter')searchWithClaude()"/>
-            <button class="btn-s" style="flex-shrink:0;padding:10px 18px" onclick="searchWithClaude()">🔍 بحث</button>
-          </div>
-          <div id="claudeLawResult" style="display:none;direction:rtl;text-align:right">
-            <div style="border-top:0.5px solid var(--br2);padding-top:12px;margin-top:4px">
-              <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;display:flex;align-items:center;gap:6px">
-                <span style="width:8px;height:8px;border-radius:50%;background:#3DAA70;display:inline-block"></span>
-                إجابة Claude AI
-              </div>
-              <div id="claudeLawText" style="font-size:13px;color:var(--tx);line-height:1.9;white-space:pre-wrap;direction:rtl;text-align:right"></div>
-              <div style="margin-top:10px;display:flex;gap:8px">
-                <button class="card-b" onclick="saveLawFromClaude()">💾 حفظ في البنك</button>
-                <button class="card-b" onclick="clearClaudeResult()">✕ مسح</button>
-              </div>
-            </div>
-          </div>
-          <div id="claudeLawLoading" style="display:none;text-align:center;padding:16px;color:var(--tx2)">
-            <div style="font-size:18px;animation:spin 1s linear infinite;display:inline-block">⚙️</div>
-            <div style="font-size:13px;margin-top:6px">جاري البحث بـ Gemini AI...</div>
-          </div>
-        </div>
-
-        <div class="g2">
-          <div>
-            <div class="card" style="margin-bottom:1rem">
-              <div class="card-h"><div class="card-t">📚 الأنظمة المحفوظة</div></div>
-              <div id="lawsList" style="display:flex;flex-direction:column;gap:6px">
-                <div style="color:var(--tx3);font-size:13px;text-align:center;padding:12px">جاري التحميل...</div>
-              </div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-h"><div class="card-t">📖 تفاصيل المدخل</div></div>
-            <div id="lawDetail" style="font-size:13px;color:var(--tx2);min-height:200px;line-height:1.8">اختر مدخلاً من القائمة لعرض تفاصيله</div>
-          </div>
-        </div>
-      </div>
 
       <!-- ⑤ سجل الأحكام والنتائج -->
       <div class="sec" id="sec-verdicts">
@@ -1091,20 +1039,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     <label class="fl">تفاصيل العقد</label><textarea class="fi" id="oc_detail" rows="3" placeholder="بنود ومواد العقد الرئيسية..."></textarea>
     <label class="fl">ملاحظات</label><textarea class="fi" id="oc_n" rows="2"></textarea>
     <div class="ma"><button class="btn-c" onclick="closeM('mOfficeContract')">إلغاء</button><button class="btn-s" onclick="saveOfficeContract()">حفظ العقد 🔥</button></div>
-  </div>
-</div>
-<div class="ov" id="mLaw">
-  <div class="modal">
-    <div class="mh">إضافة للبنك القانوني <span class="mx" onclick="closeM('mLaw')">×</span></div>
-    <div class="fr">
-      <div><label class="fl">النوع</label><select class="fi" id="law_ty"><option>نظام</option><option>لائحة</option><option>حكم قضائي</option><option>مبدأ قانوني</option><option>تعميم</option></select></div>
-      <div><label class="fl">المجال</label><select class="fi" id="law_field"><option>تجاري</option><option>عمالي</option><option>أحوال شخصية</option><option>جنائي</option><option>عقاري</option><option>مدني</option></select></div>
-    </div>
-    <label class="fl">العنوان</label><input class="fi" id="law_t" placeholder="عنوان النظام أو الحكم"/>
-    <label class="fl">رقم النظام / المرجع</label><input class="fi" id="law_ref" placeholder="مثال: م.ع 1434/1"/>
-    <label class="fl">النص الكامل / الملخص</label><textarea class="fi" id="law_body" rows="5" placeholder="النص أو الملخص..."></textarea>
-    <label class="fl">الكلمات المفتاحية</label><input class="fi" id="law_tags" placeholder="عمل، فصل، تعويض..."/>
-    <div class="ma"><button class="btn-c" onclick="closeM('mLaw')">إلغاء</button><button class="btn-s" onclick="saveLaw()">حفظ 🔥</button></div>
   </div>
 </div>
 
@@ -1651,7 +1585,7 @@ function doLogout(){
 }
 
 // ===== NAV =====
-var titles={dashboard:'الصفحة الرئيسية',cases:'القضايا',clients:'العملاء',hearings:'الجلسات',appointments:'المواعيد',memos:'المذكرات',calendar:'مذكرة التواريخ',staff:'الموظفون',reports:'التقارير',contracts:'إدارة العقود',poa:'الوكالات',officecontracts:'عقود المكتب',casefile:'ملف القضية الكامل',kanban:'مراحل القضايا',laws:'بنك الأنظمة والأحكام',verdicts:'سجل الأحكام والنتائج'};
+var titles={dashboard:'الصفحة الرئيسية',cases:'القضايا',clients:'العملاء',hearings:'الجلسات',appointments:'المواعيد',memos:'المذكرات',calendar:'مذكرة التواريخ',staff:'الموظفون',reports:'التقارير',contracts:'إدارة العقود',poa:'الوكالات',officecontracts:'عقود المكتب',casefile:'ملف القضية الكامل',kanban:'مراحل القضايا',verdicts:'سجل الأحكام والنتائج'};
 function go(id,el){
   document.querySelectorAll('.sec').forEach(function(s){s.classList.remove('on');});
   document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('on');});
@@ -1663,7 +1597,7 @@ function go(id,el){
   if(id==='contracts')loadContracts();
   if(id==='casefile')loadCaseFileSelect();
   if(id==='kanban')loadKanban();
-  if(id==='laws')loadLaws();
+  
   if(id==='verdicts')loadVerdicts();
   // إغلاق القائمة في الجوال
   if(window.innerWidth<=768){
@@ -3180,23 +3114,11 @@ function moveStage(id, stage){
 // ================================================================
 // ④ بنك الأنظمة والأحكام
 // ================================================================
-var allLaws=[];
 
-function saveLaw(){
-  closeM('mLaw');
-  var data={type:v('law_ty'),field:v('law_field'),title:v('law_t'),reference:v('law_ref'),body:v('law_body'),tags:v('law_tags'),createdAt:firebase.firestore.FieldValue.serverTimestamp()};
-  clr(['law_t','law_ref','law_body','law_tags']);
-  toast('جاري الحفظ...','ok');
-  db.collection('laws').add(data).then(function(){toast('✓ تم الحفظ في البنك','ok');loadLaws();}).catch(function(e){toast('خطأ: '+e.message,'err');});
-}
 
-function loadLaws(){
-  db.collection('laws').get().then(function(snap){
-    g('tot-laws').textContent=snap.size;
-    allLaws=snap.docs.map(function(d){return Object.assign({id:d.id},d.data());});
-    renderLawsList(allLaws);
-  }).catch(function(e){console.error("Firebase load error:", e.message||e);});
-}
+
+
+
 
 function renderLawsList(laws){
   var el=g('lawsList'); if(!el) return;
@@ -3210,17 +3132,7 @@ function renderLawsList(laws){
   }).join('');
 }
 
-function showLaw(idx, el){
-  document.querySelectorAll('.law-item').forEach(function(e){e.classList.remove('sel');});
-  el.classList.add('sel');
-  var l=allLaws[idx]; if(!l) return;
-  var detail=g('lawDetail'); if(!detail) return;
-  detail.innerHTML='<div style="margin-bottom:12px"><span class="badge bp" style="margin-left:8px">'+(l.type||'—')+'</span><span class="badge ba">'+(l.field||'—')+'</span></div>'+
-    '<div style="font-size:15px;font-weight:800;color:var(--tx);margin-bottom:8px">'+(l.title||'—')+'</div>'+
-    (l.reference?'<div style="font-size:12px;color:var(--tx2);margin-bottom:10px">📎 المرجع: <strong>'+l.reference+'</strong></div>':'')+
-    '<div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px;color:var(--tx);line-height:1.8;margin-bottom:10px">'+(l.body||'—')+'</div>'+
-    (l.tags?'<div style="font-size:11px;color:var(--tx3)">🏷️ '+l.tags+'</div>':'');
-}
+
 
 function searchLaws(q){
   if(!q){renderLawsList(allLaws);return;}
@@ -3289,8 +3201,7 @@ function goExtra(id){
   else if(id==='officecontracts') loadOfficeContracts();
   else if(id==='casefile') loadCaseFileSelect();
   else if(id==='kanban') loadKanban();
-  else if(id==='laws') loadLaws();
-  else if(id==='verdicts') loadVerdicts();
+    else if(id==='verdicts') loadVerdicts();
 }
 
 // ================================================================
@@ -3503,72 +3414,10 @@ function delOfficeContract(id){
 // ================================================================
 // بحث Claude AI في الأنظمة
 // ================================================================
-function searchWithClaude(){
-  var q=v('claudeLawQ');
-  if(!q){toast('أدخل سؤالاً للبحث','err');return;}
-  g('claudeLawLoading').style.display='block';
-  g('claudeLawResult').style.display='none';
-  g('claudeLawText').textContent='';
 
-  // المفتاح محفوظ في Vercel فقط — لا يظهر في الكود أبداً
-  fetch('/api/gemini',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({question:q})
-  })
-  .then(function(r){
-    if(r.status===404){
-      // تشغيل محلي بدون proxy - اطلب المفتاح من localStorage
-      var k=localStorage.getItem('gk');
-      if(!k){
-        k=prompt('أدخل مفتاح Gemini API للتشغيل المحلي:');
-        if(k) localStorage.setItem('gk',k);
-        else{g('claudeLawLoading').style.display='none';return Promise.reject(new Error('no_key'));}
-      }
-      var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+k;
-      return fetch(url,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          contents:[{parts:[{text:'أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.\n\nسؤال:\n\n'+q}]}],
-          generationConfig:{maxOutputTokens:1500,temperature:0.3}
-        })
-      }).then(function(r2){return r2.json();}).then(function(d){
-        var t='';
-        if(d.candidates&&d.candidates[0]&&d.candidates[0].content)
-          d.candidates[0].content.parts.forEach(function(p){t+=p.text||'';});
-        return {answer:t};
-      });
-    }
-    if(!r.ok) throw new Error(r.status);
-    return r.json();
-  })
-  .then(function(data){
-    g('claudeLawLoading').style.display='none';
-    var text=data.answer||data.text||'';
-    if(!text) text='لم تُوجد نتيجة';
-    g('claudeLawText').textContent=text;
-    g('claudeLawResult').style.display='block';
-    window._claudeLawAnswer={q:q,a:text};
-  })
-  .catch(function(e){
-    g('claudeLawLoading').style.display='none';
-    if(e.message==='no_key'){g('claudeLawText').textContent='⚠️ لم يتم إدخال المفتاح';}
-    else{g('claudeLawText').textContent='⚠️ تعذّر الاتصال: '+e.message;}
-    g('claudeLawResult').style.display='block';
-  });
-}
-function clearClaudeResult(){
-  g('claudeLawResult').style.display='none';
-  g('claudeLawQ').value='';
-  window._claudeLawAnswer=null;
-}
 
-function saveLawFromClaude(){
-  if(!window._claudeLawAnswer) return;
-  var data={type:'مبدأ قانوني',field:'عام',title:window._claudeLawAnswer.q.slice(0,60),reference:'Claude AI - '+new Date().toLocaleDateString('ar-SA'),body:window._claudeLawAnswer.a,tags:'ذكاء اصطناعي، بحث، Claude',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
-  db.collection('laws').add(data).then(function(){toast('✓ تم الحفظ في بنك الأنظمة','ok');loadLaws();}).catch(function(e){toast('خطأ: '+e.message,'err');});
-}
+
+
 
 // إضافة القوائم الجديدة للـ dropdowns
 function refreshNewDropdowns(){

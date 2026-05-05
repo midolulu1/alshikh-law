@@ -3512,11 +3512,7 @@ function searchWithClaude(){
 
   var KEY='AIzaSyDr4vK2CvlZYRjHafyful7wY8tAMXKCxNw';
   var url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+KEY;
-  var prompt='أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.
-
-سؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:
-
-'+q;
+  var prompt='أنت مستشار قانوني متخصص في الأنظمة السعودية. أجب بالعربية فقط مع الاستشهاد بالمواد القانونية.\n\nسؤال من مكتب محمد عبدالمحسن الشيخ للمحاماة:\n\n'+q;
 
   fetch(url,{
     method:'POST',

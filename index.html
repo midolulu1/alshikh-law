@@ -1728,7 +1728,7 @@ function loadClients(){
     g('tot-clients').textContent=snap.size;
     var rows=snap.docs.map(function(d){
       var c=d.data(), id=d.id;
-      return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td><td>'+(c.city||'—')+'</td><td><div class="act-btns"><button class="act-btn ab-view" onclick="viewClient(\''+id+'\')">عرض</button><button class="act-btn ab-edit" onclick="editClient(\''+id+'\')">تعديل</button><button class="act-btn ab-del" onclick="waClient('"+id+"')" title="واتساب">💬</button><button class="act-btn ab-del" onclick="delClient('"+id+"')">حذف</button></div></td></tr>';
+      return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td><td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td><td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td><td>'+(c.city||'—')+'</td><td><div class="act-btns"><button class="act-btn ab-view" onclick="viewClient(\''+id+'\')">عرض</button><button class="act-btn ab-edit" onclick="editClient(\''+id+'\')">تعديل</button><button class="act-btn ab-wa" onclick="waClient(\''+id+'\')" title="واتساب">💬</button><button class="act-btn ab-del" onclick="delClient(\''+id+'\')">حذف</button></div></td></tr>';
     });
     g('tb-clients').innerHTML=rows.length?rows.join(''):empty(8);
   }).catch(function(e){console.error("Firebase load error:", e.message||e);});

@@ -506,20 +506,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
 
 .ab-wa{background:rgba(37,211,102,.15);color:#25D366}
 .ab-wa:hover{background:rgba(37,211,102,.3);color:#128C7E}
-
-/* ===== أدوار المستخدمين ===== */
-.role-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.role-manager{background:rgba(212,175,55,.15);color:#D4AF37;border:1px solid rgba(212,175,55,.3)}
-.role-lawyer{background:rgba(74,144,217,.15);color:#4A90D9;border:1px solid rgba(74,144,217,.3)}
-.role-client{background:rgba(16,185,129,.15);color:#10B981;border:1px solid rgba(16,185,129,.3)}
-.user-card{background:var(--bg3);border:1px solid var(--br2);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.user-card:hover{border-color:var(--br)}
-.user-info{flex:1}
-.user-name{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:3px}
-.user-email{font-size:12px;color:var(--tx2)}
-.client-view{background:var(--bg2);border-radius:14px;padding:1.5rem;text-align:center}
-.client-case-card{background:var(--bg3);border:1px solid var(--br2);border-radius:12px;padding:1rem;margin-bottom:10px;text-align:right;cursor:pointer;transition:all .2s}
-.client-case-card:hover{border-color:var(--g)}
 </style>
 <body>
 <!-- شاشة التحميل -->
@@ -750,23 +736,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       </div>
 
       <!-- التقارير -->
-      
-      <!-- إدارة الحسابات -->
-      <div class="sec" id="sec-accounts">
-        <div class="pact">
-          <button class="add-btn" onclick="openM('mAddUser')">＋ إضافة حساب جديد</button>
-          <div class="tot">إجمالي: <span id="tot-accounts">0</span> حساب</div>
-        </div>
-        <div class="card">
-          <div class="card-h">
-            <div class="card-t">🔑 حسابات المستخدمين</div>
-          </div>
-          <div id="accounts-list">
-            <div style="text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div>
-          </div>
-        </div>
-      </div>
-<div class="sec" id="sec-reports">
+      <div class="sec" id="sec-reports">
         <div class="pact">
           <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="add-btn" onclick="printAllCases()">🖨️ طباعة القضايا</button>
@@ -1616,8 +1586,43 @@ function toggleTheme(){dark=!dark;document.body.classList.toggle('light',!dark);
 // ===== AUTH =====
 var curRole='manager';
 function setRole(r,el){curRole=r;document.querySelectorAll('.role').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}
-
-
+function doLogin(){
+  var e=document.getElementById('authEmail').value.trim();
+  var p=document.getElementById('authPass').value;
+  var er=document.getElementById('errMsg');
+  er.textContent='';
+  if(!e||!p){er.textContent='أدخل البريد وكلمة المرور';return;}
+  auth.signInWithEmailAndPassword(e,p)
+    .then(function(){finishLogin();})
+    .catch(function(err){er.textContent=err.code==='auth/wrong-password'||err.code==='auth/user-not-found'||err.code==='auth/invalid-credential'?'بيانات غير صحيحة':err.message;});
+}
+function finishLogin(){
+  var roles={manager:{name:'محمد عبدالمحسن الشيخ',role:'مدير النظام',mgmt:true},lawyer:{name:'المحامي',role:'محامي',mgmt:false},client:{name:'العميل',role:'عميل',mgmt:false}};
+  var d=roles[curRole];
+  document.getElementById('sRole').textContent=d.role;
+  document.getElementById('sName').textContent=d.name;
+  document.querySelectorAll('.mgmt-i,.mgmt-g').forEach(function(el){el.style.display=d.mgmt?'':'none';});
+  document.getElementById('authScreen').style.display='none';
+  document.getElementById('appShell').classList.add('on');
+  setTimeout(initDashCanvas, 300);
+  // اختبار الاتصال بـ Firebase
+  db.collection('_test').limit(1).get()
+    .then(function(){
+      console.log('Firebase متصل ✓');
+    })
+    .catch(function(e){
+      if(e.code==='permission-denied'||e.message.includes('permission')){
+        toast('⚠️ Firestore Rules تحتاج تحديث — اذهب لـ Firebase Console','err');
+      }
+    });
+  // تسجيل دخول مجهول كاحتياطي لضمان عمل Firebase
+  if(!auth.currentUser){
+    auth.signInAnonymously()
+      .then(function(){ console.log('Anonymous auth OK'); })
+      .catch(function(e){ console.log('Anon auth error:', e.message); });
+  }
+  loadAll(); renderCal();
+}
 function doLogout(){
   auth.signOut();
   document.getElementById('authScreen').style.display='flex';
@@ -1639,7 +1644,6 @@ function go(id,el){
   if(id==='kanban')loadKanban();
   if(id==='laws')loadLaws();
   if(id==='verdicts')loadVerdicts();
-  if(id==='accounts')loadAccounts();
   // إغلاق القائمة في الجوال
   if(window.innerWidth<=768){
     var sb=document.getElementById('sidebar');
@@ -1894,39 +1898,9 @@ function printDetailedHTML(cases, title){
     '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</h1>'+
     '<div style="font-size:11px;color:#666;margin-top:4px">'+title+' • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
     '<table><thead><tr><th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th><th>المحكمة</th><th>المحامي</th><th>الأولوية</th><th>الجلسة القادمة</th><th>الحالة</th><th>ملاحظات</th></tr></thead>'+
-    '<tbody>'+rows+'</tbody></table><div class="foot">إجمالي: '+cases.length+' قضية • مكتب م. عبدالمحسن الشيخ للمحاماة</div>';
-}
-
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
-</body></html>';
+    '<tbody>'+rows+'</tbody></table>'+
+    '<div class="foot">إجمالي: '+cases.length+' قضية • مكتب م. عبدالمحسن الشيخ للمحاماة</div>'+
+    '</body></html>';
 }
 
 function printAllClients(){
@@ -1946,37 +1920,7 @@ function printAllClients(){
       '<table><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th></tr></thead>'+
       '<tbody>'+rows+'</tbody></table>'+
       '<div style="margin-top:10px;text-align:center;font-size:10px;color:#999">إجمالي: '+snap.size+' عميل</div>'+
-      '
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
-</body></html>');
+      '</body></html>');
     w.document.close(); w.focus();
     setTimeout(function(){w.print();},500);
   }).catch(function(e){toast('خطأ: '+e.message,'err');});
@@ -1999,37 +1943,7 @@ function printAllHearings(){
       '<table><thead><tr><th>رقم القضية</th><th>المحكمة</th><th>التاريخ</th><th>الوقت</th><th>القاضي</th><th>المحامي</th><th>ملاحظات</th></tr></thead>'+
       '<tbody>'+rows+'</tbody></table>'+
       '<div style="margin-top:10px;text-align:center;font-size:10px;color:#999">إجمالي: '+snap.size+' جلسة</div>'+
-      '
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
-</body></html>');
+      '</body></html>');
     w.document.close(); w.focus();
     setTimeout(function(){w.print();},500);
   }).catch(function(e){toast('خطأ: '+e.message,'err');});
@@ -2803,37 +2717,7 @@ function buildCaseReport(c, hearings, memos, verdict){
     '<div class="no-print" style="text-align:center;padding:16px">'+
       '<button onclick="window.print()" style="padding:10px 28px;background:#B8960C;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit">🖨️ طباعة التقرير</button>'+
     '</div>'+
-    '
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
-</body></html>';
+    '</body></html>';
 }
 
 function iRow(lbl,val){
@@ -2898,37 +2782,7 @@ function printCaseHTML(cases, title){
       '<span>'+new Date().toLocaleDateString('ar-SA')+'</span>'+
     '</div>'+
     '<div style="text-align:center;padding:14px"><button onclick="window.print()" style="padding:9px 24px;background:#B8960C;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit">🖨️ طباعة</button></div>'+
-    '
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
-</body></html>';
+    '</body></html>';
 }
 
 // ===== CLIENTS: VIEW / EDIT / DELETE =====
@@ -3521,37 +3375,7 @@ function viewPoa(id){
       '<div class="row"><div class="lbl">تاريخ الانتهاء</div><div class="val">'+(p.endDate||'—')+'</div></div>'+
       '<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+(p.notes||'—')+'</div></div>'+
       '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨️ طباعة</button></div>'+
-      '
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
-</body></html>');
+      '</body></html>');
     win.document.close();
   }).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
@@ -3645,37 +3469,7 @@ function printOfficeContract(id){
       (c.detail?'<div style="margin-top:12px"><div style="font-weight:700;margin-bottom:6px;color:#666">تفاصيل العقد:</div><div class="detail-box">'+c.detail+'</div></div>':'')+
       (c.notes?'<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+c.notes+'</div></div>':'')+
       '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨️ طباعة</button></div>'+
-      '
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
-</body></html>');
+      '</body></html>');
     win.document.close();
   });
 }
@@ -3847,258 +3641,6 @@ function waHearing(id, caseNum, date, time, court){
   msg+='يرجى الحضور في الموعد المحدد.\n\nمكتب محمد عبدالمحسن الشيخ للمحاماة ⚖️';
   openWA('', msg);
 }
-
-// ================================================================
-// نظام الأدوار والصلاحيات
-// ================================================================
-var currentUser=null, currentRole='manager', currentEmail='';
-
-// تعديل doLogin لحفظ الدور
-function doLogin(){
-  var email=g('authEmail').value.trim();
-  var pass=g('authPass').value;
-  var errEl=g('errMsg');
-  if(!email||!pass){if(errEl)errEl.textContent='أدخل البريد وكلمة المرور';return;}
-  if(errEl)errEl.textContent='';
-  
-  auth.signInWithEmailAndPassword(email, pass)
-    .then(function(uc){
-      currentUser=uc.user;
-      currentEmail=email;
-      // جلب الدور من Firestore
-      return db.collection('users').doc(uc.user.uid).get();
-    })
-    .then(function(doc){
-      if(doc.exists){
-        currentRole=doc.data().role||'manager';
-        var uname=doc.data().name||currentEmail;
-        finishLogin(uname, currentRole, doc.data());
-      } else {
-        // مدير افتراضي
-        currentRole='manager';
-        finishLogin(currentEmail, 'manager', {});
-      }
-    })
-    .catch(function(e){
-      if(errEl){
-        var msg=e.code==='auth/wrong-password'?'كلمة المرور خاطئة':
-                e.code==='auth/user-not-found'?'البريد غير مسجل':
-                e.code==='auth/invalid-email'?'البريد غير صحيح':'خطأ في تسجيل الدخول';
-        errEl.textContent=msg;
-      }
-    });
-}
-
-function finishLogin(name, role, userData){
-  // إخفاء authScreen
-  var auth_screen=document.getElementById('authScreen');
-  if(auth_screen) auth_screen.style.display='none';
-  
-  // تحديث اسم المستخدم والدور
-  var userN=g('userN'), userR=g('userR');
-  if(userN) userN.textContent=name;
-  if(userR){
-    var roleLabels={manager:'مدير النظام',lawyer:'محامي',client:'عميل'};
-    userR.textContent=roleLabels[role]||'مستخدم';
-  }
-
-  // تطبيق الصلاحيات
-  applyRolePermissions(role, userData);
-  
-  document.getElementById('appShell').classList.add('on');
-  setTimeout(initDashCanvas, 300);
-  
-  if(role==='client'){
-    loadClientView(userData);
-  } else {
-    loadAll();
-    renderCal();
-  }
-}
-
-function applyRolePermissions(role, userData){
-  // إخفاء عناصر حسب الدور
-  var managerOnly=['nav-accounts'];
-  var staffOnly=['nav-accounts'];
-  
-  if(role==='client'){
-    // العميل - أخفِ كل القائمة ما عدا قضاياه
-    document.querySelectorAll('.nav-item').forEach(function(el){
-      el.style.display='none';
-    });
-    // أظهر فقط الرئيسية
-    var dashboard=document.querySelector('.nav-item[onclick*="dashboard"]');
-    if(dashboard) dashboard.style.display='flex';
-  } else if(role==='lawyer'){
-    // المحامي - أخفِ إدارة الحسابات والموظفين والتقارير المالية
-    var hidden=['nav-accounts'];
-    hidden.forEach(function(id){
-      var el=g(id);
-      if(el) el.style.display='none';
-    });
-  }
-  // المدير - يرى كل شيء
-}
-
-function loadClientView(userData){
-  // اذهب للصفحة الرئيسية
-  go('dashboard', document.querySelector('.nav-item'));
-  
-  // جلب قضايا العميل فقط
-  var caseNum=userData.caseNum||'';
-  var email=currentEmail;
-  
-  db.collection('cases').get().then(function(snap){
-    var myCases=snap.docs.filter(function(d){
-      var cs=d.data();
-      return cs.clientEmail===email || cs.caseNum===caseNum || cs.client===userData.name;
-    });
-    
-    // عرض إحصاءات مبسطة
-    if(g('st1')) g('st1').textContent=myCases.length;
-    if(g('st2')) g('st2').textContent='—';
-    if(g('st3')) g('st3').textContent='—';
-    if(g('st4')) g('st4').textContent='—';
-    
-    // عرض قضاياه في الجدول
-    if(g('dCases')){
-      if(!myCases.length){
-        g('dCases').innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:16px">لا توجد قضايا مسجلة</td></tr>';
-        return;
-      }
-      g('dCases').innerHTML=myCases.map(function(d){
-        var cs=d.data();
-        return '<tr onclick="viewCase(''+d.id+'')"><td class="cno">'+(cs.number||'—')+'</td><td>'+(cs.title||'—')+'</td><td>'+(cs.type||'—')+'</td><td>'+(cs.court||'—')+'</td><td><span class="badge '+sc(cs.status)+'">'+(cs.status||'—')+'</span></td></tr>';
-      }).join('');
-    }
-  });
-}
-
-// ================================================================
-// إدارة الحسابات
-// ================================================================
-function loadAccounts(){
-  db.collection('users').get().then(function(snap){
-    if(g('tot-accounts')) g('tot-accounts').textContent=snap.size;
-    var list=g('accounts-list');
-    if(!list) return;
-    if(!snap.size){
-      list.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">لا توجد حسابات مضافة بعد</div>';
-      return;
-    }
-    var roleLabels={manager:'👔 مدير',lawyer:'⚖️ محامي',client:'👤 عميل'};
-    var roleClass={manager:'role-manager',lawyer:'role-lawyer',client:'role-client'};
-    list.innerHTML=snap.docs.map(function(d){
-      var u=d.data();
-      return '<div class="user-card">'+
-        '<div class="user-info">'+
-          '<div class="user-name">'+( u.name||'—')+'</div>'+
-          '<div class="user-email">'+( u.email||'—')+'</div>'+
-          (u.caseNum?'<div style="font-size:11px;color:var(--g);margin-top:2px">📋 '+u.caseNum+'</div>':'')+
-        '</div>'+
-        '<div style="display:flex;gap:8px;align-items:center">'+
-          '<span class="role-badge '+( roleClass[u.role]||'role-client')+'">'+(roleLabels[u.role]||u.role)+'</span>'+
-          '<button class="act-btn ab-del" onclick="delUserAccount(''+d.id+'')">حذف</button>'+
-        '</div>'+
-      '</div>';
-    }).join('');
-  }).catch(function(e){console.error(e);});
-}
-
-function toggleClientFields(){
-  var role=v('u_role');
-  var fields=g('u_client_fields');
-  if(fields) fields.style.display=role==='client'?'block':'none';
-}
-
-function togglePass(){
-  var p=g('u_pass');
-  if(p) p.type=p.type==='password'?'text':'password';
-}
-
-function addUserAccount(){
-  var role=v('u_role');
-  var name=v('u_name');
-  var email=v('u_email');
-  var pass=v('u_pass');
-  var caseNum=v('u_caseNum');
-  
-  if(!name||!email||!pass){toast('أكمل جميع الحقول','err');return;}
-  if(pass.length<6){toast('كلمة المرور 6 أحرف على الأقل','err');return;}
-  
-  toast('جاري إنشاء الحساب...','ok');
-  
-  // إنشاء حساب في Firebase Auth
-  // نستخدم REST API لإنشاء المستخدم بدون تسجيل دخول تلقائي
-  var FIREBASE_API_KEY='AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ';
-  fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key='+FIREBASE_API_KEY,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({email:email,password:pass,returnSecureToken:true})
-  })
-  .then(function(r){return r.json();})
-  .then(function(data){
-    if(data.error){
-      var msg=data.error.message==='EMAIL_EXISTS'?'البريد مسجل مسبقاً':
-              data.error.message==='WEAK_PASSWORD'?'كلمة المرور ضعيفة جداً':
-              'خطأ: '+data.error.message;
-      toast(msg,'err');
-      return;
-    }
-    // حفظ بيانات المستخدم في Firestore
-    return db.collection('users').doc(data.localId).set({
-      name:name, email:email, role:role,
-      caseNum:caseNum||'',
-      createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  })
-  .then(function(){
-    if(!arguments[0] && arguments[0]!==undefined) return;
-    toast('✅ تم إنشاء الحساب بنجاح','ok');
-    closeM('mAddUser');
-    loadAccounts();
-    // مسح الحقول
-    ['u_name','u_email','u_pass','u_caseNum'].forEach(function(id){var e=g(id);if(e)e.value='';});
-  })
-  .catch(function(e){toast('خطأ: '+e.message,'err');});
-}
-
-function delUserAccount(uid){
-  if(!confirm('حذف هذا الحساب؟')) return;
-  db.collection('users').doc(uid).delete()
-    .then(function(){toast('✅ تم حذف الحساب','ok');loadAccounts();})
-    .catch(function(e){toast('خطأ: '+e.message,'err');});
-}
 </script>
-
-<!-- Modal: إضافة حساب -->
-<div class="ov" id="mAddUser">
-  <div class="modal" style="width:440px">
-    <div class="mh">إضافة حساب جديد <span class="mx" onclick="closeM('mAddUser')">×</span></div>
-    <label class="fl">الدور</label>
-    <select class="fi" id="u_role" onchange="toggleClientFields()">
-      <option value="lawyer">⚖️ محامي</option>
-      <option value="client">👤 عميل</option>
-    </select>
-    <label class="fl">الاسم الكامل</label>
-    <input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/>
-    <label class="fl">البريد الإلكتروني</label>
-    <input class="fi" id="u_email" type="email" placeholder="example@email.com"/>
-    <label class="fl">كلمة المرور</label>
-    <div style="position:relative">
-      <input class="fi" id="u_pass" type="password" placeholder="8 أحرف على الأقل" style="padding-left:40px"/>
-      <button onclick="togglePass()" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--tx2);cursor:pointer;font-size:16px">👁</button>
-    </div>
-    <div id="u_client_fields">
-      <label class="fl">رقم القضية المرتبطة (للعميل)</label>
-      <input class="fi" id="u_caseNum" type="text" placeholder="مثال: 2025-337"/>
-    </div>
-    <div class="ma">
-      <button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button>
-      <button class="btn-s" onclick="addUserAccount()">＋ إنشاء الحساب</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>

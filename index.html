@@ -135,6 +135,8 @@ body{font-family:'Cairo','Plus Jakarta Sans',-apple-system,sans-serif;background
 /* App layout */
 .app{display:none;height:100vh;overflow:hidden}
 .app.on{display:flex}
+body.auth-locked .app{display:none!important}
+body.auth-locked .auth{display:flex!important}
 
 /* Sidebar */
 .sidebar{width:230px;min-width:230px;background:var(--bg2);border-left:1px solid var(--br2);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(212,175,55,0.3) transparent}
@@ -507,7 +509,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
 .ab-wa{background:rgba(37,211,102,.15);color:#25D366}
 .ab-wa:hover{background:rgba(37,211,102,.3);color:#128C7E}
 </style>
-<body>
+<body class="auth-locked">
 <!-- شاشة التحميل -->
 <div id="splashScreen">
   <div class="sp-logo">⚖️</div>
@@ -589,7 +591,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div class="pg-title" id="pgTitle">الصفحة الرئيسية</div>
       <div class="tb-r">
         <button class="tm-btn" onclick="toggleTheme()" title="تبديل المظهر"></button>
-        <div class="fb-s"><div class="fb-d" id="fbDot"></div><span class="fb-t" id="fbTxt">قاعدة البيانات: جاري...</span></div>
+        <div class="fb-s"><div class="fb-d" id="fbDot"></div><span class="fb-t" id="fbTxt">قاعدة البيانات: بانتظار تسجيل الدخول</span></div>
         <div class="ib" onclick="alert('لا توجد إشعارات جديدة')">🔔</div>
 
       </div>
@@ -1019,7 +1021,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div><label class="fl">الحالة</label><select class="fi" id="con_st"><option>ساري</option><option>قيد التفاوض</option><option>منتهي</option><option>ملغي</option></select></div>
     </div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="con_n" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mContract')">إلغاء</button><button class="btn-s" onclick="saveContract()">حفظ العقد 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mContract')">إلغاء</button><button class="btn-s" onclick="saveContract()">حفظ العقد</button></div>
   </div>
 </div>
 
@@ -1044,7 +1046,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     <input type="hidden" id="poa_img"/>
     <div id="poa_img_preview" style="display:none;margin-bottom:12px"><img style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:0.5px solid var(--br2)" src=""/></div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="poa_n" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mPoa')">إلغاء</button><button class="btn-s" onclick="savePoa()">حفظ الوكالة 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mPoa')">إلغاء</button><button class="btn-s" onclick="savePoa()">حفظ الوكالة</button></div>
   </div>
 </div>
 
@@ -1070,7 +1072,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     <div id="oc_img_preview" style="display:none;margin-bottom:12px"><img style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;border:0.5px solid var(--br2)" src=""/></div>
     <label class="fl">تفاصيل العقد</label><textarea class="fi" id="oc_detail" rows="3" placeholder="بنود ومواد العقد الرئيسية..."></textarea>
     <label class="fl">ملاحظات</label><textarea class="fi" id="oc_n" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mOfficeContract')">إلغاء</button><button class="btn-s" onclick="saveOfficeContract()">حفظ العقد 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mOfficeContract')">إلغاء</button><button class="btn-s" onclick="saveOfficeContract()">حفظ العقد</button></div>
   </div>
 </div>
 <div class="ov" id="mLaw">
@@ -1084,7 +1086,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     <label class="fl">رقم النظام / المرجع</label><input class="fi" id="law_ref" placeholder="مثال: م.ع 1434/1"/>
     <label class="fl">النص الكامل / الملخص</label><textarea class="fi" id="law_body" rows="5" placeholder="النص أو الملخص..."></textarea>
     <label class="fl">الكلمات المفتاحية</label><input class="fi" id="law_tags" placeholder="عمل، فصل، تعويض..."/>
-    <div class="ma"><button class="btn-c" onclick="closeM('mLaw')">إلغاء</button><button class="btn-s" onclick="saveLaw()">حفظ 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mLaw')">إلغاء</button><button class="btn-s" onclick="saveLaw()">حفظ</button></div>
   </div>
 </div>
 
@@ -1103,7 +1105,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     <label class="fl">المحامي المرافع</label><select class="fi" id="vrd_l"><option value="">-- اختر المحامي --</option></select>
     <label class="fl">ملخص الحكم</label><textarea class="fi" id="vrd_sum" rows="3" placeholder="ملخص قرار المحكمة..."></textarea>
     <label class="fl">ملاحظات إضافية</label><textarea class="fi" id="vrd_n" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mVerdict')">إلغاء</button><button class="btn-s" onclick="saveVerdict()">حفظ الحكم 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mVerdict')">إلغاء</button><button class="btn-s" onclick="saveVerdict()">حفظ الحكم</button></div>
   </div>
 </div>
 
@@ -1128,7 +1130,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div><label class="fl">الأولوية</label><select class="fi" id="c_p"><option>عادية</option><option>متوسطة</option><option>عاجلة</option></select></div>
     </div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="c_n" placeholder="تفاصيل القضية..."></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mCase')">إلغاء</button><button class="btn-s" onclick="saveCase()">حفظ القضية 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mCase')">إلغاء</button><button class="btn-s" onclick="saveCase()">حفظ القضية</button></div>
   </div>
 </div>
 
@@ -1153,7 +1155,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div></div>
     </div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="cl_no" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mClient')">إلغاء</button><button class="btn-s" onclick="saveClient()">حفظ العميل 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mClient')">إلغاء</button><button class="btn-s" onclick="saveClient()">حفظ العميل</button></div>
   </div>
 </div>
 
@@ -1174,7 +1176,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div><label class="fl">المحامي</label><select class="fi" id="h_l"><option value="">-- اختر المحامي --</option></select></div>
     </div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="h_n" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mHearing')">إلغاء</button><button class="btn-s" onclick="saveHearing()">حفظ الجلسة 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mHearing')">إلغاء</button><button class="btn-s" onclick="saveHearing()">حفظ الجلسة</button></div>
   </div>
 </div>
 
@@ -1192,7 +1194,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     </div>
     <label class="fl">النوع</label><select class="fi" id="a_ty"><option>استشارة</option><option>متابعة قضية</option><option>مراجعة عقد</option><option>اجتماع</option></select>
     <label class="fl">ملاحظات</label><textarea class="fi" id="a_n" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mAppt')">إلغاء</button><button class="btn-s" onclick="saveAppt()">تأكيد الموعد 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mAppt')">إلغاء</button><button class="btn-s" onclick="saveAppt()">تأكيد الموعد</button></div>
   </div>
 </div>
 
@@ -1207,7 +1209,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     </div>
     <label class="fl">المحامي</label><select class="fi" id="m_l"><option value="">-- اختر المحامي --</option></select>
     <label class="fl">النص</label><textarea class="fi" id="m_b" rows="4" placeholder="نص المذكرة..."></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mMemo')">إلغاء</button><button class="btn-s" onclick="saveMemo()">رفع المذكرة 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mMemo')">إلغاء</button><button class="btn-s" onclick="saveMemo()">رفع المذكرة</button></div>
   </div>
 </div>
 
@@ -1225,7 +1227,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div><label class="fl">القضية (اختياري)</label><select class="fi" id="ce_c"><option value="">-- اختر القضية --</option></select></div>
     </div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="ce_n" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mCalEvent')">إلغاء</button><button class="btn-s" onclick="saveCalEvent()">حفظ الحدث 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mCalEvent')">إلغاء</button><button class="btn-s" onclick="saveCalEvent()">حفظ الحدث</button></div>
   </div>
 </div>
 
@@ -1245,7 +1247,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div><label class="fl">التخصص</label><input class="fi" id="s_sp" placeholder="مثال: تجاري"/></div>
       <div><label class="fl">الصلاحية</label><select class="fi" id="s_r"><option>موظف</option><option>محامي</option><option>مدير قسم</option></select></div>
     </div>
-    <div class="ma"><button class="btn-c" onclick="closeM('mStaff')">إلغاء</button><button class="btn-s" onclick="saveStaff()">إضافة الموظف 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mStaff')">إلغاء</button><button class="btn-s" onclick="saveStaff()">إضافة الموظف</button></div>
   </div>
 </div>
 
@@ -1299,7 +1301,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
     </div>
     <label class="fl">الجلسة القادمة</label><input class="fi" id="edit_c_nh" placeholder="مثال: 15 مايو 2025"/>
     <label class="fl">ملاحظات</label><textarea class="fi" id="edit_c_n" rows="3"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mCaseEdit')">إلغاء</button><button class="btn-s" onclick="updateCase()">حفظ التعديلات 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mCaseEdit')">إلغاء</button><button class="btn-s" onclick="updateCase()">حفظ التعديلات</button></div>
   </div>
 </div>
 
@@ -1338,7 +1340,7 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       <div></div>
     </div>
     <label class="fl">ملاحظات</label><textarea class="fi" id="edit_cl_no" rows="2"></textarea>
-    <div class="ma"><button class="btn-c" onclick="closeM('mClientEdit')">إلغاء</button><button class="btn-s" onclick="updateClient()">حفظ التعديلات 🔥</button></div>
+    <div class="ma"><button class="btn-c" onclick="closeM('mClientEdit')">إلغاء</button><button class="btn-s" onclick="updateClient()">حفظ التعديلات</button></div>
   </div>
 </div>
 
@@ -1352,11 +1354,50 @@ firebase.initializeApp({
   appId:"1:320725230314:web:2ba25d938fe28bc0c52d93"
 });
 var db=firebase.firestore(), auth=firebase.auth(), storage=firebase.storage();
-auth.onAuthStateChanged(function(u){
+var appStarted = false;
+
+function setDbStatus(connected, message){
   var d=document.getElementById('fbDot'), t=document.getElementById('fbTxt');
-  if(!d)return;
-  if(u){d.style.background='#3DAA70';t.textContent='قاعدة البيانات: متصل ✓';}
-  else{d.style.background='#E07080';t.textContent='قاعدة البيانات: غير متصل';}
+  if(!d || !t) return;
+  d.style.background = connected ? '#3DAA70' : '#E07080';
+  t.textContent = message || (connected ? 'قاعدة البيانات: متصل' : 'قاعدة البيانات: غير متصل');
+}
+
+function toArabicError(err){
+  var code = err && err.code ? err.code : '';
+  var msg = err && err.message ? err.message : '';
+  if(code.indexOf('auth/')===0){
+    if(code==='auth/wrong-password' || code==='auth/user-not-found' || code==='auth/invalid-credential') return 'بيانات الدخول غير صحيحة';
+    if(code==='auth/too-many-requests') return 'تم إيقاف المحاولة مؤقتاً بسبب كثرة المحاولات. حاول لاحقاً';
+    if(code==='auth/network-request-failed') return 'تعذر الاتصال بالخدمة. تحقق من الإنترنت ثم حاول مرة أخرى';
+    if(code==='auth/invalid-email') return 'صيغة البريد الإلكتروني غير صحيحة';
+    return 'تعذر تسجيل الدخول. راجع البريد وكلمة المرور';
+  }
+  if(code==='permission-denied' || msg.toLowerCase().includes('permission')) return 'لا تملك صلاحية الوصول إلى هذه البيانات. راجع إعدادات Firebase Rules';
+  if(code==='unavailable' || msg.toLowerCase().includes('network')) return 'تعذر الاتصال بقاعدة البيانات حالياً';
+  return 'حدث خطأ غير متوقع. حاول مرة أخرى';
+}
+
+function lockApp(){
+  appStarted = false;
+  sessionStorage.removeItem('alshikhActiveSession');
+  document.body.classList.add('auth-locked');
+  var authScreen=document.getElementById('authScreen');
+  var app=document.getElementById('appShell');
+  if(authScreen) authScreen.style.display='flex';
+  if(app) app.classList.remove('on');
+  setDbStatus(false, 'قاعدة البيانات: بانتظار تسجيل الدخول');
+}
+
+auth.onAuthStateChanged(function(u){
+  if(u){
+    setDbStatus(true, 'قاعدة البيانات: متصل');
+    if(!appStarted && sessionStorage.getItem('alshikhActiveSession')==='1'){
+      finishLogin(true);
+    }
+  } else {
+    lockApp();
+  }
 });
 
 // ================================================================
@@ -1592,41 +1633,42 @@ function doLogin(){
   var er=document.getElementById('errMsg');
   er.textContent='';
   if(!e||!p){er.textContent='أدخل البريد وكلمة المرور';return;}
+  setDbStatus(false, 'قاعدة البيانات: جارٍ التحقق من تسجيل الدخول');
   auth.signInWithEmailAndPassword(e,p)
-    .then(function(){finishLogin();})
-    .catch(function(err){er.textContent=err.code==='auth/wrong-password'||err.code==='auth/user-not-found'||err.code==='auth/invalid-credential'?'بيانات غير صحيحة':err.message;});
+    .then(function(){
+      sessionStorage.setItem('alshikhActiveSession','1');
+      finishLogin();
+    })
+    .catch(function(err){
+      setDbStatus(false, 'قاعدة البيانات: بانتظار تسجيل الدخول');
+      er.textContent=toArabicError(err);
+    });
 }
-function finishLogin(){
+function finishLogin(auto){
+  if(appStarted) return;
+  if(!auth.currentUser){ lockApp(); return; }
+  appStarted = true;
+  sessionStorage.setItem('alshikhActiveSession','1');
+  document.body.classList.remove('auth-locked');
   var roles={manager:{name:'محمد عبدالمحسن الشيخ',role:'مدير النظام',mgmt:true},lawyer:{name:'المحامي',role:'محامي',mgmt:false},client:{name:'العميل',role:'عميل',mgmt:false}};
-  var d=roles[curRole];
+  var d=roles[curRole] || roles.manager;
   document.getElementById('sRole').textContent=d.role;
   document.getElementById('sName').textContent=d.name;
   document.querySelectorAll('.mgmt-i,.mgmt-g').forEach(function(el){el.style.display=d.mgmt?'':'none';});
   document.getElementById('authScreen').style.display='none';
   document.getElementById('appShell').classList.add('on');
+  setDbStatus(true, 'قاعدة البيانات: متصل');
   setTimeout(initDashCanvas, 300);
-  // اختبار الاتصال بـ Firebase
   db.collection('_test').limit(1).get()
-    .then(function(){
-      console.log('Firebase متصل ✓');
-    })
+    .then(function(){ setDbStatus(true, 'قاعدة البيانات: متصل'); })
     .catch(function(e){
-      if(e.code==='permission-denied'||e.message.includes('permission')){
-        toast('⚠️ Firestore Rules تحتاج تحديث — اذهب لـ Firebase Console','err');
-      }
+      setDbStatus(false, 'قاعدة البيانات: لا توجد صلاحية');
+      toast(toArabicError(e),'err');
     });
-  // تسجيل دخول مجهول كاحتياطي لضمان عمل Firebase
-  if(!auth.currentUser){
-    auth.signInAnonymously()
-      .then(function(){ console.log('Anonymous auth OK'); })
-      .catch(function(e){ console.log('Anon auth error:', e.message); });
-  }
   loadAll(); renderCal();
 }
 function doLogout(){
-  auth.signOut();
-  document.getElementById('authScreen').style.display='flex';
-  document.getElementById('appShell').classList.remove('on');
+  auth.signOut().finally(function(){ lockApp(); });
 }
 
 // ===== NAV =====
@@ -1668,7 +1710,7 @@ function doSearch(v){
 }
 
 // ===== LOAD ALL =====
-function loadAll(){loadCases();loadClients();loadHearings();loadAppts();loadMemos();loadStaff();loadStats();loadAllDropdownData();}
+function loadAll(){if(!auth.currentUser){lockApp();return;}loadCases();loadClients();loadHearings();loadAppts();loadMemos();loadStaff();loadStats();loadAllDropdownData();}
 
 function g(id){return document.getElementById(id);}
 function sc(s){return s==='نشطة'?'ba':s==='عاجلة'?'bu':s==='مغلقة'?'bc':'bp';}

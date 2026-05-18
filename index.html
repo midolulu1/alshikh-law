@@ -506,14 +506,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
 
 .ab-wa{background:rgba(37,211,102,.15);color:#25D366}
 .ab-wa:hover{background:rgba(37,211,102,.3);color:#128C7E}
-
-.role-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.role-manager{background:rgba(212,175,55,.15);color:#D4AF37;border:1px solid rgba(212,175,55,.3)}
-.role-lawyer{background:rgba(74,144,217,.15);color:#4A90D9;border:1px solid rgba(74,144,217,.3)}
-.role-client{background:rgba(16,185,129,.15);color:#10B981;border:1px solid rgba(16,185,129,.3)}
-.user-card{background:var(--bg3);border:1px solid var(--br2);border-radius:12px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.user-name{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:3px}
-.user-email{font-size:12px;color:var(--tx2)}
 </style>
 <body>
 <!-- شاشة التحميل -->
@@ -976,10 +968,6 @@ body{font-family:Arial,sans-serif;direction:rtl;padding:15px;font-size:11px}'+
       </div>
 
       <!-- ⑤ سجل الأحكام والنتائج -->
-      <div class="sec" id="sec-accounts">
-        <div class="pact"><button class="add-btn" onclick="openM('mAddUser')">＋ إضافة حساب</button><div class="tot">إجمالي: <span id="tot-accounts">0</span> حساب</div></div>
-        <div class="card"><div class="card-h"><div class="card-t">🔑 حسابات المستخدمين</div></div><div id="accounts-list"><div style="text-align:center;padding:2rem;color:var(--tx3)">جاري التحميل...</div></div></div>
-      </div>
       <div class="sec" id="sec-verdicts">
         <div class="pact">
           <button class="add-btn" onclick="openM('mVerdict')">＋ إضافة حكم</button>
@@ -1598,7 +1586,16 @@ function toggleTheme(){dark=!dark;document.body.classList.toggle('light',!dark);
 // ===== AUTH =====
 var curRole='manager';
 function setRole(r,el){curRole=r;document.querySelectorAll('.role').forEach(function(b){b.classList.remove('on');});el.classList.add('on');}
-
+function doLogin(){
+  var e=document.getElementById('authEmail').value.trim();
+  var p=document.getElementById('authPass').value;
+  var er=document.getElementById('errMsg');
+  er.textContent='';
+  if(!e||!p){er.textContent='أدخل البريد وكلمة المرور';return;}
+  auth.signInWithEmailAndPassword(e,p)
+    .then(function(){finishLogin();})
+    .catch(function(err){er.textContent=err.code==='auth/wrong-password'||err.code==='auth/user-not-found'||err.code==='auth/invalid-credential'?'بيانات غير صحيحة':err.message;});
+}
 function finishLogin(){
   var roles={manager:{name:'محمد عبدالمحسن الشيخ',role:'مدير النظام',mgmt:true},lawyer:{name:'المحامي',role:'محامي',mgmt:false},client:{name:'العميل',role:'عميل',mgmt:false}};
   var d=roles[curRole];
@@ -1647,7 +1644,6 @@ function go(id,el){
   if(id==='kanban')loadKanban();
   if(id==='laws')loadLaws();
   if(id==='verdicts')loadVerdicts();
-  if(id==='accounts')loadAccounts();
   // إغلاق القائمة في الجوال
   if(window.innerWidth<=768){
     var sb=document.getElementById('sidebar');
@@ -1870,13 +1866,88 @@ function resetFilters(){
   g('r_closed').textContent=allCasesData.filter(function(c){return c.status==='مغلقة';}).length;
 }
 
+function printFilteredCases(){
+  var fType=g('filter_type')?g('filter_type').value:'';
+  var fStatus=g('filter_status')?g('filter_status').value:'';
+  var filtered=allCasesData.filter(function(c){
+    return (!fType||c.type===fType) && (!fStatus||c.status===fStatus);
+  });
+  var subtitle='تقرير القضايا المفصّل';
+  if(fType) subtitle+=' — نوع: '+fType;
+  if(fStatus) subtitle+=' — حالة: '+fStatus;
+  var w=window.open('','_blank','width=900,height=700');
+  w.document.write(printDetailedHTML(filtered,subtitle));
+  w.document.close(); w.focus();
+  setTimeout(function(){ w.print(); },500);
+}
 
+function printDetailedHTML(cases, title){
+  var rows=cases.map(function(c){
+    var sc2=c.status==='نشطة'?'#1A7040':c.status==='عاجلة'?'#A01E30':c.status==='مغلقة'?'#555':'#8A6500';
+    return '<tr>'+
+      '<td>'+(c.number||'—')+'</td><td><strong>'+(c.title||'—')+'</strong></td>'+
+      '<td>'+(c.type||'—')+'</td><td>'+(c.client||'—')+'</td>'+
+      '<td>'+(c.court||'—')+'</td><td>'+(c.lawyer||'—')+'</td>'+
+      '<td>'+(c.priority||'—')+'</td><td>'+(c.nextHearing||'—')+'</td>'+
+      '<td style="color:'+sc2+';font-weight:700">'+(c.status||'—')+'</td>'+
+      '<td>'+(c.notes||'—')+'</td></tr>';
+  }).join('');
+  return '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/>'+
+    '<title>'+title+'</title>'+
+    '</head><body>'+
+    '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</h1>'+
+    '<div style="font-size:11px;color:#666;margin-top:4px">'+title+' • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
+    '<table><thead><tr><th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th><th>المحكمة</th><th>المحامي</th><th>الأولوية</th><th>الجلسة القادمة</th><th>الحالة</th><th>ملاحظات</th></tr></thead>'+
+    '<tbody>'+rows+'</tbody></table>'+
+    '<div class="foot">إجمالي: '+cases.length+' قضية • مكتب م. عبدالمحسن الشيخ للمحاماة</div>'+
+    '</body></html>';
+}
 
+function printAllClients(){
+  db.collection('clients').get().then(function(snap){
+    var rows=snap.docs.map(function(d){
+      var c=d.data();
+      return '<tr><td><strong>'+(c.name||'—')+'</strong></td><td>'+(c.type||'—')+'</td>'+
+        '<td>'+(c.phone||'—')+'</td><td>'+(c.email||'—')+'</td>'+
+        '<td>'+(c.idNum||'—')+'</td><td>'+(c.unifiedNum||'—')+'</td>'+
+        '<td>'+(c.city||'—')+'</td></tr>';
+    }).join('');
+    var w=window.open('','_blank','width=900,height=700');
+    w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير العملاء</title>'+
+      '</head><body>'+
+      '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
+      '<div style="font-size:11px;color:#666">تقرير العملاء • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
+      '<table><thead><tr><th>الاسم</th><th>النوع</th><th>الجوال</th><th>البريد</th><th>رقم الهوية</th><th>الرقم الموحد</th><th>المدينة</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+      '<div style="margin-top:10px;text-align:center;font-size:10px;color:#999">إجمالي: '+snap.size+' عميل</div>'+
+      '</body></html>');
+    w.document.close(); w.focus();
+    setTimeout(function(){w.print();},500);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
 
-
-
-
-
+function printAllHearings(){
+  db.collection('hearings').get().then(function(snap){
+    var rows=snap.docs.map(function(d){
+      var h=d.data();
+      return '<tr><td class="cno">'+(h.caseNum||'—')+'</td><td>'+(h.court||'—')+'</td>'+
+        '<td>'+(h.date||'—')+'</td><td>'+(h.time||'—')+'</td>'+
+        '<td>'+(h.judge||'—')+'</td><td>'+(h.lawyer||'—')+'</td>'+
+        '<td>'+(h.notes||'—')+'</td></tr>';
+    }).join('');
+    var w=window.open('','_blank','width=900,height=700');
+    w.document.write('<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"/><title>تقرير الجلسات</title>'+
+      '</head><body>'+
+      '<div class="hdr"><div style="font-size:22px">⚖️</div><h1>مكتب محمد عبدالمحسن الشيخ للمحاماة</h1>'+
+      '<div style="font-size:11px;color:#666">تقرير الجلسات • '+new Date().toLocaleDateString('ar-SA')+'</div></div>'+
+      '<table><thead><tr><th>رقم القضية</th><th>المحكمة</th><th>التاريخ</th><th>الوقت</th><th>القاضي</th><th>المحامي</th><th>ملاحظات</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+
+      '<div style="margin-top:10px;text-align:center;font-size:10px;color:#999">إجمالي: '+snap.size+' جلسة</div>'+
+      '</body></html>');
+    w.document.close(); w.focus();
+    setTimeout(function(){w.print();},500);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
 
 function doPrint(){
   g('pDate').textContent='تاريخ الطباعة: '+new Date().toLocaleDateString('ar-SA');
@@ -2646,9 +2717,7 @@ function buildCaseReport(c, hearings, memos, verdict){
     '<div class="no-print" style="text-align:center;padding:16px">'+
       '<button onclick="window.print()" style="padding:10px 28px;background:#B8960C;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-family:inherit">🖨️ طباعة التقرير</button>'+
     '</div>'+
-    '
-<div class="ov" id="mAddUser"><div class="modal" style="width:440px"><div class="mh">إضافة حساب <span class="mx" onclick="closeM('mAddUser')">×</span></div><label class="fl">الدور</label><select class="fi" id="u_role"><option value="lawyer">⚖️ محامي</option><option value="client">👤 عميل</option></select><label class="fl">الاسم</label><input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/><label class="fl">البريد الإلكتروني</label><input class="fi" id="u_email" type="email" placeholder="example@email.com"/><label class="fl">كلمة المرور</label><input class="fi" id="u_pass" type="password" placeholder="6 أحرف"/><label class="fl">رقم القضية (للعميل)</label><input class="fi" id="u_caseNum" type="text" placeholder="2025-337"/><div class="ma"><button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button><button class="btn-s" onclick="addUserAccount()">إنشاء</button></div></div></div>
-</body></html>';
+    '</body></html>';
 }
 
 function iRow(lbl,val){
@@ -2658,9 +2727,63 @@ function iRow(lbl,val){
   '</div>';
 }
 
+function printAllCases(){
+  db.collection('cases').get().then(function(snap){
+    var cases=snap.docs.map(function(d){return d.data();});
+    var w=window.open('','_blank','width=1000,height=700');
+    w.document.write(printCaseHTML(cases,'تقرير جميع القضايا'));
+    w.document.close(); w.focus();
+    setTimeout(function(){w.print();},600);
+  }).catch(function(e){toast('خطأ: '+e.message,'err');});
+}
 
+function printCaseHTML(cases, title){
+  var statusColors={نشطة:'#10B981',عاجلة:'#EF4444','قيد الانتظار':'#F59E0B',مغلقة:'#6B7280'};
+  var rows=cases.map(function(c,i){
+    var col=statusColors[c.status]||'#6B7280';
+    return '<tr style="'+(i%2?'background:#f9fafb':'')+'">'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;color:#B8960C;font-weight:700">'+(c.number||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;font-weight:600">'+(c.title||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.type||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.client||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.court||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.lawyer||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+(c.nextHearing||'—')+'</td>'+
+      '<td style="padding:10px 12px;border-bottom:1px solid #e5e7eb">'+
+        '<span style="background:'+col+'22;color:'+col+';padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600">'+(c.status||'—')+'</span>'+
+      '</td>'+
+    '</tr>';
+  }).join('');
 
-
+  return '<!DOCTYPE html><html lang="ar" dir="rtl"><head>'+
+    '<meta charset="UTF-8"/><title>'+title+'</title>'+
+    '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,"Helvetica Neue",Arial,sans-serif;direction:rtl;color:#111827;background:#fff}'+
+    '@page{size:A4 landscape;margin:1.5cm}table{width:100%;border-collapse:collapse;font-size:13px}'+
+    'th{background:#1f2937;color:#fff;padding:10px 12px;text-align:right;font-weight:600;font-size:12px}</style>'+
+    '</head><body>'+
+    '<div style="background:linear-gradient(135deg,#1f2937,#111827);color:#fff;padding:20px 28px;margin-bottom:20px">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center">'+
+        '<div>'+
+          '<div style="font-size:10px;color:#9ca3af;letter-spacing:.1em;margin-bottom:4px">تقرير القضايا</div>'+
+          '<div style="font-size:20px;font-weight:800;color:#D4AF37">'+title+'</div>'+
+          '<div style="font-size:12px;color:#9ca3af;margin-top:2px">إجمالي: '+cases.length+' قضية • '+new Date().toLocaleDateString('ar-SA')+'</div>'+
+        '</div>'+
+        '<div style="font-size:36px">⚖️</div>'+
+      '</div>'+
+    '</div>'+
+    '<div style="padding:0 28px 28px">'+
+    '<table><thead><tr>'+
+      '<th>رقم القضية</th><th>العنوان</th><th>النوع</th><th>العميل</th>'+
+      '<th>المحكمة</th><th>المحامي</th><th>الجلسة القادمة</th><th>الحالة</th>'+
+    '</tr></thead><tbody>'+rows+'</tbody></table>'+
+    '</div>'+
+    '<div style="border-top:1px solid #e5e7eb;padding:12px 28px;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between">'+
+      '<span>مكتب محمد عبدالمحسن الشيخ للمحاماة والاستشارات</span>'+
+      '<span>'+new Date().toLocaleDateString('ar-SA')+'</span>'+
+    '</div>'+
+    '<div style="text-align:center;padding:14px"><button onclick="window.print()" style="padding:9px 24px;background:#B8960C;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;font-family:inherit">🖨️ طباعة</button></div>'+
+    '</body></html>';
+}
 
 // ===== CLIENTS: VIEW / EDIT / DELETE =====
 var currentClientId = null;
@@ -3252,9 +3375,7 @@ function viewPoa(id){
       '<div class="row"><div class="lbl">تاريخ الانتهاء</div><div class="val">'+(p.endDate||'—')+'</div></div>'+
       '<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+(p.notes||'—')+'</div></div>'+
       '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:14px">🖨️ طباعة</button></div>'+
-      '
-<div class="ov" id="mAddUser"><div class="modal" style="width:440px"><div class="mh">إضافة حساب <span class="mx" onclick="closeM('mAddUser')">×</span></div><label class="fl">الدور</label><select class="fi" id="u_role"><option value="lawyer">⚖️ محامي</option><option value="client">👤 عميل</option></select><label class="fl">الاسم</label><input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/><label class="fl">البريد الإلكتروني</label><input class="fi" id="u_email" type="email" placeholder="example@email.com"/><label class="fl">كلمة المرور</label><input class="fi" id="u_pass" type="password" placeholder="6 أحرف"/><label class="fl">رقم القضية (للعميل)</label><input class="fi" id="u_caseNum" type="text" placeholder="2025-337"/><div class="ma"><button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button><button class="btn-s" onclick="addUserAccount()">إنشاء</button></div></div></div>
-</body></html>');
+      '</body></html>');
     win.document.close();
   }).catch(function(e){toast('خطأ: '+e.message,'err');});
 }
@@ -3348,9 +3469,7 @@ function printOfficeContract(id){
       (c.detail?'<div style="margin-top:12px"><div style="font-weight:700;margin-bottom:6px;color:#666">تفاصيل العقد:</div><div class="detail-box">'+c.detail+'</div></div>':'')+
       (c.notes?'<div class="row"><div class="lbl">ملاحظات</div><div class="val">'+c.notes+'</div></div>':'')+
       '<div style="text-align:center;margin-top:20px"><button onclick="window.print()" style="padding:8px 20px;background:#B8960C;color:#fff;border:none;border-radius:6px;cursor:pointer">🖨️ طباعة</button></div>'+
-      '
-<div class="ov" id="mAddUser"><div class="modal" style="width:440px"><div class="mh">إضافة حساب <span class="mx" onclick="closeM('mAddUser')">×</span></div><label class="fl">الدور</label><select class="fi" id="u_role"><option value="lawyer">⚖️ محامي</option><option value="client">👤 عميل</option></select><label class="fl">الاسم</label><input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/><label class="fl">البريد الإلكتروني</label><input class="fi" id="u_email" type="email" placeholder="example@email.com"/><label class="fl">كلمة المرور</label><input class="fi" id="u_pass" type="password" placeholder="6 أحرف"/><label class="fl">رقم القضية (للعميل)</label><input class="fi" id="u_caseNum" type="text" placeholder="2025-337"/><div class="ma"><button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button><button class="btn-s" onclick="addUserAccount()">إنشاء</button></div></div></div>
-</body></html>');
+      '</body></html>');
     win.document.close();
   });
 }
@@ -3522,15 +3641,6 @@ function waHearing(id, caseNum, date, time, court){
   msg+='يرجى الحضور في الموعد المحدد.\n\nمكتب محمد عبدالمحسن الشيخ للمحاماة ⚖️';
   openWA('', msg);
 }
-
-var currentRole='manager';
-function doLogin(){var e=g('authEmail').value.trim(),p=g('authPass').value,er=g('errMsg');if(!e||!p){if(er)er.textContent='أدخل البريد وكلمة المرور';return;}if(er)er.textContent='';auth.signInWithEmailAndPassword(e,p).then(function(uc){return db.collection('users').doc(uc.user.uid).get();}).then(function(doc){var d=doc.exists?doc.data():{role:'manager',name:e};currentRole=d.role||'manager';var lb={manager:'مدير النظام',lawyer:'محامي',client:'عميل'};if(g('userN'))g('userN').textContent=d.name||e;if(g('userR'))g('userR').textContent=lb[currentRole]||'مستخدم';if(g('authScreen'))g('authScreen').style.display='none';document.getElementById('appShell').classList.add('on');applyRolePermissions(currentRole);setTimeout(initDashCanvas,300);loadAll();renderCal();}).catch(function(er2){var m={'auth/wrong-password':'كلمة المرور خاطئة','auth/user-not-found':'البريد غير مسجل','auth/invalid-email':'البريد غير صحيح','auth/invalid-credential':'بيانات غير صحيحة'};if(g('errMsg'))g('errMsg').textContent=m[er2.code]||'خطأ في تسجيل الدخول';});}
-function applyRolePermissions(role){var na=g('nav-accounts');if(role==='client'){document.querySelectorAll('.nav-item').forEach(function(x){x.style.display='none';});}else if(role==='lawyer'){if(na)na.style.display='none';}}
-function loadAccounts(){db.collection('users').get().then(function(snap){if(g('tot-accounts'))g('tot-accounts').textContent=snap.size;var L=g('accounts-list');if(!L)return;if(!snap.size){L.innerHTML='<div style="text-align:center;padding:2rem;color:var(--tx3)">لا توجد حسابات</div>';return;}var lb2={manager:'👔 مدير',lawyer:'⚖️ محامي',client:'👤 عميل'};var cl={manager:'role-manager',lawyer:'role-lawyer',client:'role-client'};L.innerHTML=snap.docs.map(function(doc2){var u=doc2.data();return '<div class="user-card"><div style="flex:1"><div class="user-name">'+(u.name||'—')+'</div><div class="user-email">'+(u.email||'—')+(u.caseNum?' • '+u.caseNum:'')+'</div></div><div style="display:flex;gap:8px;align-items:center"><span class="role-badge '+(cl[u.role]||'role-client')+'">'+(lb2[u.role]||u.role)+'</span><button class="act-btn ab-del" onclick="delUserAccount(''+doc2.id+'')">حذف</button></div></div>';}).join('');});}
-function addUserAccount(){var role=v('u_role'),nm=v('u_name'),em=v('u_email'),pw=v('u_pass'),cn=v('u_caseNum');if(!nm||!em||!pw){toast('أكمل جميع الحقول','err');return;}if(pw.length<6){toast('كلمة المرور 6 أحرف على الأقل','err');return;}toast('جاري الإنشاء...','ok');fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyC3y3x-Trn6IznevsDrsgjkOLvaapkmuiQ',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:em,password:pw,returnSecureToken:true})}).then(function(r){return r.json();}).then(function(res){if(res.error){toast(res.error.message==='EMAIL_EXISTS'?'البريد مسجل مسبقاً':'خطأ: '+res.error.message,'err');return;}db.collection('users').doc(res.localId).set({name:nm,email:em,role:role,caseNum:cn||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(function(){toast('تم ✅','ok');closeM('mAddUser');['u_name','u_email','u_pass','u_caseNum'].forEach(function(x){var ex=g(x);if(ex)ex.value='';});loadAccounts();});}).catch(function(err){toast('خطأ: '+(err.message||err),'err');});}
-function delUserAccount(uid){if(!confirm('حذف؟'))return;db.collection('users').doc(uid).delete().then(function(){toast('تم الحذف ✅','ok');loadAccounts();}).catch(function(e){toast('خطأ: '+e.message,'err');});}
 </script>
-
-<div class="ov" id="mAddUser"><div class="modal" style="width:440px"><div class="mh">إضافة حساب <span class="mx" onclick="closeM('mAddUser')">×</span></div><label class="fl">الدور</label><select class="fi" id="u_role"><option value="lawyer">⚖️ محامي</option><option value="client">👤 عميل</option></select><label class="fl">الاسم</label><input class="fi" id="u_name" type="text" placeholder="محمد أحمد"/><label class="fl">البريد الإلكتروني</label><input class="fi" id="u_email" type="email" placeholder="example@email.com"/><label class="fl">كلمة المرور</label><input class="fi" id="u_pass" type="password" placeholder="6 أحرف"/><label class="fl">رقم القضية (للعميل)</label><input class="fi" id="u_caseNum" type="text" placeholder="2025-337"/><div class="ma"><button class="btn-c" onclick="closeM('mAddUser')">إلغاء</button><button class="btn-s" onclick="addUserAccount()">إنشاء</button></div></div></div>
 </body>
 </html>
